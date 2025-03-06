@@ -1,13 +1,16 @@
 package org.dromara.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.apache.commons.collections4.CollectionUtils;
+import org.dromara.common.core.enums.CircleRoleTypeEnum;
 import org.dromara.common.core.utils.MapstructUtils;
-import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.dromara.system.domain.bo.CircleMemberBo;
 import org.dromara.system.domain.vo.CircleMemberVo;
@@ -63,6 +66,7 @@ public class CircleMemberServiceImpl implements ICircleMemberService {
      * @return 用户-圈子关系列表
      */
     @Override
+    @Cacheable(value = "circleMembers", key = "#bo.groupId")
     public List<CircleMemberVo> queryList(CircleMemberBo bo) {
         LambdaQueryWrapper<CircleMember> lqw = buildQueryWrapper(bo);
         return baseMapper.selectVoList(lqw);
@@ -133,4 +137,42 @@ public class CircleMemberServiceImpl implements ICircleMemberService {
         }
         return baseMapper.deleteByIds(ids) > 0;
     }
+    @Override
+    public Integer existInGroup(Long groupId,Long userId){
+        QueryWrapper<CircleMember> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("group_id", groupId);
+        queryWrapper.eq("user_id", userId);
+        List<CircleMember> circleMembers = baseMapper.selectList(queryWrapper);
+        if (CollectionUtils.isEmpty(circleMembers)){
+            return 0;
+        }
+        return circleMembers.size();
+    }
+    @Override
+    public CircleMember selectByGroupUser(Long groupId,Long userId){
+        QueryWrapper<CircleMember> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("group_id", groupId);
+        queryWrapper.eq("user_id", userId);
+        return baseMapper.selectVoOne(queryWrapper, CircleMember.class);
+    }
+
+    @Override
+    public List<CircleMember> selectByUserID(Long userId) {
+        QueryWrapper<CircleMember> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    public boolean checkManagePermission(Long groupId, Long userId) {
+        CircleMember member = selectByGroupUser(groupId, userId);
+        if (member == null){
+            return false;
+        }
+        // 角色权限规则：
+        // 0-普通成员：仅基础操作（浏览、评论）
+        // 1-管理员：可管理内容、处理申请
+        // 2-拥有者：可转让圈子、删除圈子
+        return member.getRoleType() >= CircleRoleTypeEnum.OWNER.getCode();
+    }
+
 }

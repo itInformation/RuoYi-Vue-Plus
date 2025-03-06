@@ -1,5 +1,6 @@
 package org.dromara.system.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.dromara.system.domain.CircleMember;
 import org.dromara.system.domain.vo.CircleMemberVo;
 import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
@@ -10,6 +11,7 @@ import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
  * @author Lion Li
  * @date 2025-03-03
  */
+@Mapper
 public interface CircleMemberMapper extends BaseMapperPlus<CircleMember, CircleMemberVo> {
 
 }
