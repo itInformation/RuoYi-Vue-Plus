@@ -208,5 +208,4 @@ public class CircleContentServiceImpl implements ICircleContentService {
         return CircleGroupJoinModeEnum.FREE.getCode().equals(group.getJoinMode());
     }
 
->>>>>>> a7e45302386649364bb09d0c57419a2e2f88f31d
 }
