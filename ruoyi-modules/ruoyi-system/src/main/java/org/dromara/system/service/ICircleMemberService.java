@@ -1,5 +1,6 @@
 package org.dromara.system.service;
 
+import org.dromara.system.domain.CircleMember;
 import org.dromara.system.domain.vo.CircleMemberVo;
 import org.dromara.system.domain.bo.CircleMemberBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -65,4 +66,14 @@ public interface ICircleMemberService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+    /**
+     * 判断用户是否在圈子中
+     * @param groupId
+     * @param userId
+     * @return
+     */
+    Integer existInGroup(Long groupId,Long userId);
+    CircleMember selectByGroupUser(Long groupId, Long userId);
+    List<CircleMember> selectByUserID(Long userId);
 }

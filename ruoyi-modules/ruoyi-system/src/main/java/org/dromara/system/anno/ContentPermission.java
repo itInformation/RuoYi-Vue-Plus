@@ -6,14 +6,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * description:
- *
- * @author minghuiZhang
- * @date created in 下午9:35 2025/3/5
- * modified by
+
+ * @description:
+ * @author: zhangminghui
+ * @email: zhangminghui@gycloud.com
+ * @date: 2025/3/6 16:36
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ContentPermission {
-    String value() default "";
+    String getContentId() default "";
 }

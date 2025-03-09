@@ -1,5 +1,6 @@
 package org.dromara.system.service;
 
+import org.dromara.system.domain.CircleContentPerm;
 import org.dromara.system.domain.vo.CircleContentPermVo;
 import org.dromara.system.domain.bo.CircleContentPermBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -65,4 +66,12 @@ public interface ICircleContentPermService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+    /**
+     * 校验用户是否有权限访问该内容
+     * @param contentId
+     * @param userId
+     * @return
+     */
+    List<CircleContentPerm> checkContentPermission(Long contentId, Long userId);
 }

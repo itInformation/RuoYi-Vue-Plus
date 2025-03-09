@@ -1,5 +1,7 @@
 package org.dromara.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import jakarta.annotation.Resource;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -8,6 +10,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.system.domain.CircleContent;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.dromara.system.domain.bo.CircleContentPermBo;
 import org.dromara.system.domain.vo.CircleContentPermVo;
@@ -28,7 +33,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Service
 public class CircleContentPermServiceImpl implements ICircleContentPermService {
-
+    @Resource
     private final CircleContentPermMapper baseMapper;
 
     /**
@@ -100,6 +105,7 @@ public class CircleContentPermServiceImpl implements ICircleContentPermService {
      * @return 是否修改成功
      */
     @Override
+    @CacheEvict(value = "contentPerm", key = "#bo.contentId+':'+#bo.userId")
     public Boolean updateByBo(CircleContentPermBo bo) {
         CircleContentPerm update = MapstructUtils.convert(bo, CircleContentPerm.class);
         validEntityBeforeSave(update);
@@ -127,4 +133,42 @@ public class CircleContentPermServiceImpl implements ICircleContentPermService {
         }
         return baseMapper.deleteByIds(ids) > 0;
     }
+
+
+    public boolean checkAccess(Long userId, CircleContentPerm circleContentPerm) {
+        // 获取内容权限配置
+        List<CircleContentPerm> circleContentPerms = selectByContentId(circleContentPerm.getContentId());
+
+        // 免费内容直接放行
+        if (circleContentPerms.stream().anyMatch(a -> a.get() == 0)) {
+            return true;
+        }
+
+        // 校验会员状态
+        if (acls.stream().anyMatch(a -> a.getAclType() == 1)) {
+            UserCircleRelation relation = userCircleMapper.selectRelation(userId, content.getCircleId());
+            if (relation != null && relation.getExpireTime().after(new Date())) {
+                return true;
+            }
+        }
+
+        // 校验指定用户
+        if (acls.stream().anyMatch(a -> a.getAclType() == 2)) {
+            List<Long> allowUsers = Arrays.asList(acls.get(0).getAclValue().split(","));
+            return allowUsers.contains(userId);
+        }
+
+        return false;
+    }
+
+    @Override
+    @Cacheable(value = "contentPerm", key = "#contentId+':'+#userId")
+    public List<CircleContentPerm> checkContentPermission(Long contentId,Long userId) {
+        QueryWrapper<CircleContentPerm> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("content_id", contentId);
+        queryWrapper.eq("user_id", userId);
+        return baseMapper.selectObjs(queryWrapper);
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package org.dromara.system.service.impl;
 
+import org.dromara.common.core.enums.CircleRoleTypeEnum;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -8,12 +9,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.common.satoken.utils.LoginHelper;
+import org.dromara.system.domain.CircleMember;
+import org.dromara.system.mapper.CircleMemberMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.dromara.system.domain.bo.CircleGroupBo;
 import org.dromara.system.domain.vo.CircleGroupVo;
 import org.dromara.system.domain.CircleGroup;
 import org.dromara.system.mapper.CircleGroupMapper;
 import org.dromara.system.service.ICircleGroupService;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -28,9 +34,10 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Service
 public class CircleGroupServiceImpl implements ICircleGroupService {
-
+    @Autowired
     private final CircleGroupMapper baseMapper;
-
+    @Autowired
+    private CircleMemberMapper circleMemberMapper;
     /**
      * 查询圈子主体
      *
@@ -87,13 +94,19 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
      * @return 是否新增成功
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean insertByBo(CircleGroupBo bo) {
-        CircleGroup add = MapstructUtils.convert(bo, CircleGroup.class);
-        validEntityBeforeSave(add);
-        boolean flag = baseMapper.insert(add) > 0;
+        CircleGroup circleGroup = MapstructUtils.convert(bo, CircleGroup.class);
+        validEntityBeforeSave(circleGroup);
+        boolean flag = baseMapper.insert(circleGroup) > 0;
         if (flag) {
-            bo.setGroupId(add.getGroupId());
+            bo.setGroupId(circleGroup.getGroupId());
         }
+        CircleMember circleMember = new CircleMember();
+        circleMember.setUserId(LoginHelper.getUserId());
+        circleMember.setGroupId(circleGroup.getGroupId());
+        circleMember.setRoleType(CircleRoleTypeEnum.OWNER.getCode());
+        circleMemberMapper.insert(circleMember);
         return flag;
     }
 

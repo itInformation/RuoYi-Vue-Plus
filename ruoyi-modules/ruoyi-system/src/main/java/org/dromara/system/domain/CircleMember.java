@@ -42,7 +42,7 @@ public class CircleMember extends BaseEntity {
     /**
      * 角色类型（0普通成员 1管理员 2拥有者）
      */
-    private Long roleType;
+    private Integer roleType;
 
     /**
      * 状态（0待审核 1正常 2已退出）

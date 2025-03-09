@@ -65,4 +65,12 @@ public interface ICircleContentService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+    /**
+     * 校验用户观看内容的权限
+     * @param contentId
+     * @param userId
+     * @return
+     */
+    Boolean checkAccessPermission(Long contentId, Long userId);
 }

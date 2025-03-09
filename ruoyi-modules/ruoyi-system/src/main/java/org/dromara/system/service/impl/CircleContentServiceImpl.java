@@ -1,26 +1,36 @@
 package org.dromara.system.service.impl;
 
-import org.dromara.common.core.utils.MapstructUtils;
-import org.dromara.common.core.utils.StringUtils;
-import org.dromara.common.mybatis.core.page.TableDataInfo;
-import org.dromara.common.mybatis.core.page.PageQuery;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
-import org.dromara.system.domain.SysUser;
-import org.dromara.system.enums.CircleContentAuthTypeEnum;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.dromara.common.core.domain.model.LoginUser;
+import org.dromara.common.core.enums.CircleContentPermTypeEnum;
+import org.dromara.common.core.enums.CircleGroupJoinModeEnum;
+import org.dromara.common.core.exception.ServiceException;
+import org.dromara.common.core.utils.MapstructUtils;
+import org.dromara.common.core.utils.StringUtils;
+import org.dromara.common.mybatis.core.page.PageQuery;
+import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.satoken.utils.LoginHelper;
+import org.dromara.system.domain.CircleContent;
+import org.dromara.system.domain.CircleGroup;
 import org.dromara.system.domain.bo.CircleContentBo;
 import org.dromara.system.domain.vo.CircleContentVo;
-import org.dromara.system.domain.CircleContent;
 import org.dromara.system.mapper.CircleContentMapper;
+import org.dromara.system.mapper.CircleGroupMapper;
+import org.dromara.system.service.ICircleContentPermService;
 import org.dromara.system.service.ICircleContentService;
+import org.dromara.system.service.ICircleMemberService;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
 
 /**
  * 圈子内容Service业务层处理
@@ -30,9 +40,18 @@ import java.util.Collection;
  */
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class CircleContentServiceImpl implements ICircleContentService {
 
     private CircleContentMapper baseMapper;
+
+    @Resource
+    private CircleGroupMapper circleGroupMapper;
+
+    @Resource
+    private ICircleContentPermService circleContentPermService;
+    @Resource
+    private ICircleMemberService circleMemberService;
 
     /**
      * 查询圈子内容
@@ -41,7 +60,7 @@ public class CircleContentServiceImpl implements ICircleContentService {
      * @return 圈子内容
      */
     @Override
-    public CircleContentVo queryById(Long contentId){
+    public CircleContentVo queryById(Long contentId) {
         return baseMapper.selectVoById(contentId);
     }
 
@@ -117,7 +136,7 @@ public class CircleContentServiceImpl implements ICircleContentService {
     /**
      * 保存前的数据校验
      */
-    private void validEntityBeforeSave(CircleContent entity){
+    private void validEntityBeforeSave(CircleContent entity) {
         //TODO 做一些数据校验,如唯一约束
     }
 
@@ -130,30 +149,64 @@ public class CircleContentServiceImpl implements ICircleContentService {
      */
     @Override
     public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
-        if(isValid){
+        if (isValid) {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         return baseMapper.deleteByIds(ids) > 0;
     }
 
-    public boolean checkAccessPermission(Long contentId, Long userId) {
-        CircleContent content = baseMapper.selectById(contentId);
-        if (content == null) return false;
 
+    @Override
+    @Cacheable(value = "contentPerm", key = "#contentId+':'+#userId")
+    public Boolean checkAccessPermission(Long contentId, Long userId) {
+        CircleContent content = baseMapper.selectById(contentId);
+
+        if (ObjectUtils.isEmpty(content)) {
+            log.info("checkAccessPermission content isn't exist,contentId:{}", contentId);
+            return false;
+        }
+        // 2.校验圈子基础权限
+        if (!checkGroupAccess(content.getGroupId(), userId)) {
+            return false;
+        }
         // 免费内容直接放行
-        if (CircleContentAuthTypeEnum.FREE.getType().equals(content.getPermType())) return true;
-//
-//        // 会员内容校验
-//        if (CircleContentAuthTypeEnum.MEMBER.getType().equals(content.getPermType())) {
-//            SysUser user = userService.selectUserById(userId);
-//            return user.getMemberExpire() != null
-//                && user.getMemberExpire().after(new Date());
-//        }
-//
-//        // 指定用户校验
-//        if (content.getPermType() == 2) {
-//            return contentMapper.checkContentPermission(contentId, userId) > 0;
-//        }
+        if (CircleContentPermTypeEnum.FREE.getCode().equals(content.getPermType())) {
+            log.info("checkAccessPermission content is free,contentId:{}", contentId);
+            return true;
+        }
+
+        // 会员内容校验
+        if (CircleContentPermTypeEnum.MEMBER.getCode().equals(content.getPermType())) {
+            log.info("checkAccessPermission content is member allow to scan,contentId:{}", contentId);
+            LoginUser loginUser = LoginHelper.getLoginUser();
+            //todo 会员如何观看内容校验，待实现
+            return false;
+
+        }
+
+        // 指定用户校验
+        if (CircleContentPermTypeEnum.REFER.getCode().equals(content.getPermType())) {
+            log.info("checkAccessPermission content is REFER allow to scan,contentId:{}", contentId);
+            return circleContentPermService.checkContentPermission(contentId, userId).size() > 0;
+        }
+
         return false;
     }
+
+    private boolean checkGroupAccess(Long groupId, Long userId) {
+        // 检查用户是否在圈子成员中
+        Integer count = circleMemberService.existInGroup(groupId, userId);
+        if (count > 0) {
+            return true;
+        }
+
+        // 检查圈子是否允许游客访问（根据join_mode配置）
+        CircleGroup group = circleGroupMapper.selectById(groupId);
+        if (ObjectUtils.isEmpty(group)) {
+            throw new ServiceException("圈子不存在,groupId: " + groupId);
+        }
+        return CircleGroupJoinModeEnum.FREE.getCode().equals(group.getJoinMode());
+    }
+
+>>>>>>> a7e45302386649364bb09d0c57419a2e2f88f31d
 }
