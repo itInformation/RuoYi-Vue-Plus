@@ -8,6 +8,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.system.domain.SysUser;
+import org.dromara.system.enums.CircleContentAuthTypeEnum;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.dromara.system.domain.bo.CircleContentBo;
 import org.dromara.system.domain.vo.CircleContentVo;
@@ -29,7 +32,7 @@ import java.util.Collection;
 @Service
 public class CircleContentServiceImpl implements ICircleContentService {
 
-    private final CircleContentMapper baseMapper;
+    private CircleContentMapper baseMapper;
 
     /**
      * 查询圈子内容
@@ -131,5 +134,26 @@ public class CircleContentServiceImpl implements ICircleContentService {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         return baseMapper.deleteByIds(ids) > 0;
+    }
+
+    public boolean checkAccessPermission(Long contentId, Long userId) {
+        CircleContent content = baseMapper.selectById(contentId);
+        if (content == null) return false;
+
+        // 免费内容直接放行
+        if (CircleContentAuthTypeEnum.FREE.getType().equals(content.getPermType())) return true;
+//
+//        // 会员内容校验
+//        if (CircleContentAuthTypeEnum.MEMBER.getType().equals(content.getPermType())) {
+//            SysUser user = userService.selectUserById(userId);
+//            return user.getMemberExpire() != null
+//                && user.getMemberExpire().after(new Date());
+//        }
+//
+//        // 指定用户校验
+//        if (content.getPermType() == 2) {
+//            return contentMapper.checkContentPermission(contentId, userId) > 0;
+//        }
+        return false;
     }
 }
