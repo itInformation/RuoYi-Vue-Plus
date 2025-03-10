@@ -2,15 +2,24 @@ package org.dromara.system.controller.system;
 
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import org.dromara.common.core.domain.R;
+import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.validate.QueryGroup;
+import org.dromara.common.oss.core.OssClient;
+import org.dromara.common.oss.factory.OssFactory;
+import org.dromara.common.oss.properties.OssProperties;
+import org.dromara.common.sms.enums.SupplierTypeEnum;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.system.domain.bo.SysOssBo;
+import org.dromara.system.domain.vo.QiniuUploadVO;
 import org.dromara.system.domain.vo.SysOssUploadVo;
 import org.dromara.system.domain.vo.SysOssVo;
 import org.dromara.system.service.ISysOssService;
@@ -103,6 +112,37 @@ public class SysOssController extends BaseController {
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ossIds) {
         return toAjax(ossService.deleteWithValidByIds(List.of(ossIds), true));
+    }
+
+
+    @GetMapping("/upload-token")
+    public R<QiniuUploadVO> getUploadToken(@RequestParam String fileType) {
+        // 1. 进行权限校验（使用ruoyi的权限体系）
+        if (!StpUtil.hasPermission("upload:file")) {
+            return R.fail("无上传权限");
+        }
+        OssClient instance = OssFactory.instance();
+        if (SupplierTypeEnum.QINIU.getType().equals(instance.getConfigKey())){
+            throw new ServiceException("当前七牛云云存储有误，请检查");
+        }
+        OssProperties qiniuConfig = instance.getProperties();
+//        https://developer.qiniu.com/kodo/1239/java#upload-token
+        // 2. 生成七牛云上传凭证（使用SDK）
+        StringMap policy = new StringMap();
+        policy.put("mimeLimit", "image/*;video/*"); // 限制文件类型
+        policy.put("returnBody", "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"bucket\":\"$(bucket)\",\"fsize\":$(fsize)}");
+        policy.put("callbackUrl", "http://api.example.com/qiniu/upload/callback");
+        policy.put("callbackBody", "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"bucket\":\"$(bucket)\",\"fsize\":$(fsize)}");
+        policy.put("callbackBodyType", "application/json");
+        Auth auth = Auth.create(qiniuConfig.getAccessKey(), qiniuConfig.getSecretKey());
+        String upToken = auth.uploadToken(qiniuConfig.getBucketName(), null, 3600, policy);
+
+        // 3. 返回前端需要的信息
+        QiniuUploadVO vo = new QiniuUploadVO();
+        vo.setToken(upToken);
+        vo.setDomain(qiniuConfig.getDomain());
+        vo.setRegion(qiniuConfig.getRegion());
+        return R.ok(vo);
     }
 
 }

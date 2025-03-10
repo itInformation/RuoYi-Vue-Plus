@@ -466,6 +466,9 @@ public class OssClient {
     public String getConfigKey() {
         return configKey;
     }
+    public OssProperties getProperties() {
+        return properties;
+    }
 
     /**
      * 获取是否使用 HTTPS 的配置，并返回相应的协议头部。

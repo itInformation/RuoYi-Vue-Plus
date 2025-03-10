@@ -66,6 +66,12 @@
             <artifactId>s3-transfer-manager</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.qiniu</groupId>
+            <artifactId>qiniu-java-sdk</artifactId>
+        </dependency>
+
+
     </dependencies>
 
 </project>
