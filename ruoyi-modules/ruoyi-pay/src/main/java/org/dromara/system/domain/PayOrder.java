@@ -4,6 +4,8 @@ import org.dromara.common.mybatis.core.domain.BaseEntity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -42,7 +44,8 @@ public class PayOrder extends BaseEntity {
     /**
      * 支付金额(元)
      */
-    private Long amount;
+    @Column(precision = 15, scale = 2)
+    private BigDecimal amount;
 
     /**
      * 支付状态

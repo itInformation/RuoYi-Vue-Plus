@@ -8,8 +8,12 @@ import java.util.Map;
  * @description:
  * @author: zhangminghui
  * @email: zhangminghui@gycloud.com
- * @date: 2025/3/10 17:38
+ * @date: 2025/3/10 16:36
  */
-public interface IPayService {
+public interface IPayStrategy{
+
     Map<String, String> createOrder(PayOrder order);
+    boolean verifyNotify(Map<String, String> params);
+    void processNotify(Map<String, String> params);
+    PayOrder queryOrder(String orderNo);
 }

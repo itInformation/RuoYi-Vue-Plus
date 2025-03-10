@@ -8,6 +8,7 @@ import org.dromara.system.domain.PayOrder;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 
@@ -48,7 +49,7 @@ public class PayOrderVo implements Serializable {
      * 支付金额(元)
      */
     @ExcelProperty(value = "支付金额(元)")
-    private Long amount;
+    private BigDecimal amount;
 
     /**
      * 支付状态

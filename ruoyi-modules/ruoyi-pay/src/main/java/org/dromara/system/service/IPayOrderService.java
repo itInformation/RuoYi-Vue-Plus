@@ -23,6 +23,7 @@ public interface IPayOrderService {
      * @return 支付订单
      */
     PayOrderVo queryById(Long orderId);
+    PayOrderVo queryById(String orderId);
 
     /**
      * 分页查询支付订单列表

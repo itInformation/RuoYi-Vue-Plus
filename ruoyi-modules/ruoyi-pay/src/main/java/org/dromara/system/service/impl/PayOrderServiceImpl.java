@@ -41,6 +41,10 @@ public class PayOrderServiceImpl implements IPayOrderService {
     public PayOrderVo queryById(Long orderId){
         return baseMapper.selectVoById(orderId);
     }
+    @Override
+    public PayOrderVo queryById(String orderId){
+        return baseMapper.selectVoById(orderId);
+    }
 
     /**
      * 分页查询支付订单列表

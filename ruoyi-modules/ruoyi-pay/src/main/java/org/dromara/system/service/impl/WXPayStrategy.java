@@ -4,8 +4,8 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import org.dromara.system.domain.PayConfig;
 import org.dromara.system.domain.PayOrder;
-import org.dromara.system.service.IPayService;
-import org.springframework.stereotype.Service;
+import org.dromara.system.service.IPayStrategy;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
@@ -15,11 +15,11 @@ import java.util.Map;
  * @email: zhangminghui@gycloud.com
  * @date: 2025/3/10 16:37
  */
-@Service
-public class AlipayServiceImpl implements IPayService {
+@Component("wxPayStrategy")
+public class WXPayStrategy implements IPayStrategy {
     private final AlipayClient client;
 
-    public AlipayServiceImpl(PayConfig config) {
+    public WXPayStrategy(PayConfig config) {
         this.client = new DefaultAlipayClient(
             "https://openapi.alipay.com/gateway.do",
             config.getAppId(),
