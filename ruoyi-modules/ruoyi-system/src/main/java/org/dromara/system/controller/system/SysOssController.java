@@ -6,6 +6,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
+import jakarta.servlet.http.HttpServletRequest;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.validate.QueryGroup;
@@ -26,6 +27,7 @@ import org.dromara.system.service.ISysOssService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import org.dromara.system.util.QiniuCallbackUtil;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -134,9 +136,10 @@ public class SysOssController extends BaseController {
         StringMap policy = new StringMap();
         policy.put("mimeLimit", "image/*;video/*"); // 限制文件类型
         policy.put("returnBody", "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"bucket\":\"$(bucket)\",\"fsize\":$(fsize)}");
-        policy.put("callbackUrl", "http://api.example.com/qiniu/upload/callback");
+        policy.put("callbackUrl", "http://api.omuu.cn/prod-api/resource/oss/qiniu-upload-callback");
         policy.put("callbackBody", "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"bucket\":\"$(bucket)\",\"fsize\":$(fsize)}");
-        policy.put("callbackBodyType", "application/json");
+//        policy.put("callbackBodyType", "application/json");
+        policy.put("callbackBodyType", "application/x-www-form-urlencoded");
         Auth auth = Auth.create(qiniuConfig.getAccessKey(), qiniuConfig.getSecretKey());
         String upToken = auth.uploadToken(qiniuConfig.getBucketName(), null, 3600, policy);
 
@@ -147,5 +150,28 @@ public class SysOssController extends BaseController {
         vo.setRegion(qiniuConfig.getRegion());
         return R.ok(vo);
     }
+    // 七牛云上传完成回调配置
+    @PostMapping("/qiniu-upload-callback")
+    public R<?> handleCallback(HttpServletRequest request) {
 
+
+        // 1. 验证回调签名
+        boolean isValid = QiniuCallbackUtil.verifyCallback(request);
+        if (!isValid) return R.fail("非法回调");
+
+        // 2. 解析回调数据
+        String fileName = request.getParameter("key");
+        long fileSize = Long.parseLong(request.getParameter("fsize"));
+        String mimeType = request.getParameter("mimeType");
+
+        // 3. 记录到数据库
+//        SysFileRecord record = new SysFileRecord();
+//        record.setFileName(fileName);
+//        record.setFileSize(fileSize);
+//        record.setFileType(mimeType);
+//        record.setCreateBy(getLoginUserId());
+//        fileRecordService.insertRecord(record);
+
+        return R.ok();
+    }
 }
