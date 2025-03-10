@@ -485,6 +485,10 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+            <repository>
+                <id>github</id>
+                <url>https://maven.pkg.github.com/wechatpay-apiv3/wechatpay-apache-httpclient</url>
+            </repository>
     </repositories>
 
     <pluginRepositories>

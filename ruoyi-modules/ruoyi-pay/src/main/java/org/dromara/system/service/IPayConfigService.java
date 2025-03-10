@@ -25,6 +25,13 @@ public interface IPayConfigService {
     PayConfigVo queryById(Long configId);
 
     /**
+     * 通过支付渠道查询支付配置
+     * @param supplier
+     * @return
+     */
+    PayConfigVo queryByChannel(String supplier);
+
+    /**
      * 分页查询支付配置列表
      *
      * @param bo        查询条件

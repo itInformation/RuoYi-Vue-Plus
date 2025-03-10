@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.common.sms.domain.SysSmsConfig;
+import org.dromara.common.sms.domain.vo.SysSmsConfigVo;
 import org.springframework.stereotype.Service;
 import org.dromara.system.domain.bo.PayConfigBo;
 import org.dromara.system.domain.vo.PayConfigVo;
@@ -41,7 +43,11 @@ public class PayConfigServiceImpl implements IPayConfigService {
     public PayConfigVo queryById(Long configId){
         return baseMapper.selectVoById(configId);
     }
-
+    @Override
+    public PayConfigVo queryByChannel(String channel) {
+        return baseMapper.selectVoOne(Wrappers.lambdaQuery(PayConfig.class)
+            .eq(PayConfig::getChannel, channel));
+    }
     /**
      * 分页查询支付配置列表
      *
