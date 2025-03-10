@@ -114,14 +114,17 @@ public class SysOssController extends BaseController {
         return toAjax(ossService.deleteWithValidByIds(List.of(ossIds), true));
     }
 
-
-    @GetMapping("/upload-token")
-    public R<QiniuUploadVO> getUploadToken(@RequestParam String fileType) {
+    /**
+     * 七牛云oss客户端上传凭证返回
+     * @return
+     */
+    @GetMapping("/getQiniuUploadToken")
+    public R<QiniuUploadVO> getUploadToken() {
         // 1. 进行权限校验（使用ruoyi的权限体系）
         if (!StpUtil.hasPermission("upload:file")) {
             return R.fail("无上传权限");
         }
-        OssClient instance = OssFactory.instance();
+        OssClient instance = OssFactory.instance(SupplierTypeEnum.QINIU.getType());
         if (SupplierTypeEnum.QINIU.getType().equals(instance.getConfigKey())){
             throw new ServiceException("当前七牛云云存储有误，请检查");
         }
