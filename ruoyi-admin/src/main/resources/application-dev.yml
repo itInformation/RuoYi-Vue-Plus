@@ -104,7 +104,7 @@ spring.data:
     # 数据库索引
     database: 0
     # redis 密码必须配置
-#    password: ruoyi123
+    password: ruoyi123
     # 连接超时时间
     timeout: 10s
     # 是否开启ssl
@@ -167,25 +167,18 @@ sms:
   # 短信拦截限制单手机号每日最大发送量，只对开启了拦截的配置有效
   account-max: 30
   # 以下配置来自于 org.dromara.sms4j.provider.config.BaseConfig类中
-  blends:
-    # 唯一ID 用于发送短信寻找具体配置 随便定义别用中文即可
-    # 可以同时存在两个相同厂商 例如: ali1 ali2 两个不同的阿里短信账号 也可用于区分租户
-    config1:
-      # 框架定义的厂商名称标识，标定此配置是哪个厂商，详细请看厂商标识介绍部分
-      supplier: alibaba
-      # 有些称为accessKey有些称之为apiKey，也有称为sdkKey或者appId。
-      access-key-id: 您的accessKey
-      # 称为accessSecret有些称之为apiSecret
-      access-key-secret: 您的accessKeySecret
-      signature: 您的短信签名
-      sdk-app-id: 您的sdkAppId
-    config2:
-      # 厂商标识，标定此配置是哪个厂商，详细请看厂商标识介绍部分
-      supplier: tencent
-      access-key-id: 您的accessKey
-      access-key-secret: 您的accessKeySecret
-      signature: 您的短信签名
-      sdk-app-id: 您的sdkAppId
+#  blends:
+#    # 唯一ID 用于发送短信寻找具体配置 随便定义别用中文即可
+#    # 可以同时存在两个相同厂商 例如: ali1 ali2 两个不同的阿里短信账号 也可用于区分租户
+#    config1:
+#      # 框架定义的厂商名称标识，标定此配置是哪个厂商，详细请看厂商标识介绍部分
+#      supplier: qiniu
+#      # 有些称为accessKey有些称之为apiKey，也有称为sdkKey或者appId。
+#      access-key-id: 1mRcadYnuCAPimyWL8apVwUetkfkag0sJ-4McjLV
+#      # 称为accessSecret有些称之为apiSecret
+#      access-key-secret: bY9yVvVh1zXjhWUBA2bZO34rB68knwAlFdcfvKyK
+#      signature: 1898986806867673088
+#      template-id: 1
 
 
 --- # 三方授权

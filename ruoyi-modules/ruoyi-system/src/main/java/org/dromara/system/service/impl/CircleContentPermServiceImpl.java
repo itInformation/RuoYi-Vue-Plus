@@ -136,27 +136,27 @@ public class CircleContentPermServiceImpl implements ICircleContentPermService {
 
 
     public boolean checkAccess(Long userId, CircleContentPerm circleContentPerm) {
-        // 获取内容权限配置
-        List<CircleContentPerm> circleContentPerms = selectByContentId(circleContentPerm.getContentId());
-
-        // 免费内容直接放行
-        if (circleContentPerms.stream().anyMatch(a -> a.get() == 0)) {
-            return true;
-        }
-
-        // 校验会员状态
-        if (acls.stream().anyMatch(a -> a.getAclType() == 1)) {
-            UserCircleRelation relation = userCircleMapper.selectRelation(userId, content.getCircleId());
-            if (relation != null && relation.getExpireTime().after(new Date())) {
-                return true;
-            }
-        }
-
-        // 校验指定用户
-        if (acls.stream().anyMatch(a -> a.getAclType() == 2)) {
-            List<Long> allowUsers = Arrays.asList(acls.get(0).getAclValue().split(","));
-            return allowUsers.contains(userId);
-        }
+//        // 获取内容权限配置
+//        List<CircleContentPerm> circleContentPerms = selectByContentId(circleContentPerm.getContentId());
+//
+//        // 免费内容直接放行
+//        if (circleContentPerms.stream().anyMatch(a -> a.get() == 0)) {
+//            return true;
+//        }
+//
+//        // 校验会员状态
+//        if (acls.stream().anyMatch(a -> a.getAclType() == 1)) {
+//            UserCircleRelation relation = userCircleMapper.selectRelation(userId, content.getCircleId());
+//            if (relation != null && relation.getExpireTime().after(new Date())) {
+//                return true;
+//            }
+//        }
+//
+//        // 校验指定用户
+//        if (acls.stream().anyMatch(a -> a.getAclType() == 2)) {
+//            List<Long> allowUsers = Arrays.asList(acls.get(0).getAclValue().split(","));
+//            return allowUsers.contains(userId);
+//        }
 
         return false;
     }

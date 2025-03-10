@@ -6,11 +6,15 @@ package org.dromara.common.core.constant;
  * @author Lion Li
  */
 public interface GlobalConstants {
+    /**
+     * 全局 redis key (业务无关的key)
+     */
+    String APP_NAME = "lianaimao:";
 
     /**
      * 全局 redis key (业务无关的key)
      */
-    String GLOBAL_REDIS_KEY = "global:";
+    String GLOBAL_REDIS_KEY = APP_NAME + "global:";
 
     /**
      * 验证码 redis key
