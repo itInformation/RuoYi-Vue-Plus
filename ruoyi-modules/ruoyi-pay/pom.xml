@@ -103,21 +103,10 @@
         <dependency>
             <groupId>com.alipay.sdk</groupId>
             <artifactId>alipay-sdk-java</artifactId>
-            <version>4.40.82.ALL</version>
         </dependency>
-
-        <!-- 微信支付 V3（官方） -->
-<!--        <dependency>-->
-<!--            <groupId>com.wechat.pay</groupId>-->
-<!--            <artifactId>wechatpay-apache-httpclient</artifactId>-->
-<!--            <version>0.4.8</version>-->
-<!--        </dependency>-->
-
-        <!-- 微信支付扩展（第三方） -->
         <dependency>
-            <groupId>com.github.binarywang</groupId>
-            <artifactId>weixin-java-pay</artifactId>
-            <version>4.5.0</version>
+            <groupId>com.github.wechatpay-apiv3</groupId>
+            <artifactId>wechatpay-java</artifactId>
         </dependency>
     </dependencies>
 

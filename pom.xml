@@ -51,6 +51,9 @@
         <anyline.version>8.7.2-20250101</anyline.version>
         <!--工作流配置-->
         <warm-flow.version>1.6.6</warm-flow.version>
+        <!--支付相关配置-->
+        <wxpay.version>0.2.16</wxpay.version>
+        <alipay.version>4.40.82.ALL</alipay.version>
 
         <!-- 插件版本 -->
         <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
@@ -366,7 +369,16 @@
                 <artifactId>ruoyi-workflow</artifactId>
                 <version>${revision}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.github.wechatpay-apiv3</groupId>
+                <artifactId>wechatpay-java</artifactId>
+                <version>${wxpay.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sdk</groupId>
+                <artifactId>alipay-sdk-java</artifactId>
+                <version>${alipay.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
