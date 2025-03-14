@@ -1,9 +1,7 @@
 package org.dromara.system.domain.vo;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
-import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
-import org.dromara.system.domain.CircleApply;
 
 /**
  * description:
@@ -14,7 +12,6 @@ import org.dromara.system.domain.CircleApply;
  */
 @Data
 @ExcelIgnoreUnannotated
-@AutoMapper(target = CircleApply.class)
 public class QiniuUploadVO {
 
     private String token;
