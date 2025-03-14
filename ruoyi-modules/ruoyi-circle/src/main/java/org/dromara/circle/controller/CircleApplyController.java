@@ -31,7 +31,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/system/apply")
+@RequestMapping("/apply")
 public class CircleApplyController extends BaseController {
 
     private final ICircleApplyService circleApplyService;

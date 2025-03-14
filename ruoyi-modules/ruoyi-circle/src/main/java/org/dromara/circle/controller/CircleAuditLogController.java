@@ -31,7 +31,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/system/auditLog")
+@RequestMapping("/auditLog")
 public class CircleAuditLogController extends BaseController {
 
     private final ICircleAuditLogService circleAuditLogService;

@@ -31,7 +31,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/system/resource")
+@RequestMapping("/resource")
 public class CircleResourceController extends BaseController {
 
     private final ICircleResourceService circleResourceService;

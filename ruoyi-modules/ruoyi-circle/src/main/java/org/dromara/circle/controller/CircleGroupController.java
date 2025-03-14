@@ -31,7 +31,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/system/group")
+@RequestMapping("/group")
 public class CircleGroupController extends BaseController {
 
     private final ICircleGroupService circleGroupService;

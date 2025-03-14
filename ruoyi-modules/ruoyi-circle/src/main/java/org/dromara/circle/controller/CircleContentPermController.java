@@ -31,7 +31,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/system/contentPerm")
+@RequestMapping("/contentPerm")
 public class CircleContentPermController extends BaseController {
 
     private final ICircleContentPermService circleContentPermService;

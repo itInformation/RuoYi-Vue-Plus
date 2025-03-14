@@ -31,7 +31,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/system/invite")
+@RequestMapping("/invite")
 public class CircleInviteController extends BaseController {
 
     private final ICircleInviteService circleInviteService;
