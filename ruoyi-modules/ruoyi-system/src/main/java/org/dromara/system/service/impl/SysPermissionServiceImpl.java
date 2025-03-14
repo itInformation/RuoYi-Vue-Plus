@@ -1,19 +1,14 @@
 package org.dromara.system.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.constant.TenantConstants;
-import org.dromara.common.core.enums.CircleRoleTypeEnum;
 import org.dromara.common.satoken.utils.LoginHelper;
-import org.dromara.system.domain.CircleMember;
-import org.dromara.system.service.ICircleMemberService;
 import org.dromara.system.service.ISysMenuService;
 import org.dromara.system.service.ISysPermissionService;
 import org.dromara.system.service.ISysRoleService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,8 +22,8 @@ public class SysPermissionServiceImpl implements ISysPermissionService {
 
     private final ISysRoleService roleService;
     private final ISysMenuService menuService;
-    @Autowired
-    private ICircleMemberService circleMemberService;
+//    @Autowired
+//    private ICircleMemberService circleMemberService;
 
     /**
      * 获取角色数据权限
@@ -47,12 +42,12 @@ public class SysPermissionServiceImpl implements ISysPermissionService {
         }
 
         // 2. 获取圈子成员角色权限（动态计算）
-        List<CircleMember> relations = circleMemberService.selectByUserID(userId);
-        relations.forEach(relation -> {
-            if (CircleRoleTypeEnum.OWNER.getCode().equals( relation.getRoleType())) {
-                roles.add("circle:admin:" + relation.getGroupId());
-            }
-        });
+//        List<CircleMember> relations = circleMemberService.selectByUserID(userId);
+//        relations.forEach(relation -> {
+//            if (CircleRoleTypeEnum.OWNER.getCode().equals( relation.getRoleType())) {
+//                roles.add("circle:admin:" + relation.getGroupId());
+//            }
+//        });
         return roles;
     }
 

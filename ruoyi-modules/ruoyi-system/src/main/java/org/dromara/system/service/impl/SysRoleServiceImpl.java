@@ -54,6 +54,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
     private final SysRoleMenuMapper roleMenuMapper;
     private final SysUserRoleMapper userRoleMapper;
     private final SysRoleDeptMapper roleDeptMapper;
+//    private final ICircleMemberService circleMemberService;
 
     @Override
     public TableDataInfo<SysRoleVo> selectPageRoleList(SysRoleBo role, PageQuery pageQuery) {

@@ -102,7 +102,10 @@ public class SysUser extends TenantEntity {
      * 备注
      */
     private String remark;
-
+    /**
+     * 是否是创作者
+     */
+    private Integer creator;
 
     public SysUser(Long userId) {
         this.userId = userId;

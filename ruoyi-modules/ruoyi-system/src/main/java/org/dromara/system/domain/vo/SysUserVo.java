@@ -107,7 +107,10 @@ public class SysUserVo implements Serializable {
      * 备注
      */
     private String remark;
-
+    /**
+     * 是否是创作者
+     */
+    private Integer creator;
     /**
      * 创建时间
      */
