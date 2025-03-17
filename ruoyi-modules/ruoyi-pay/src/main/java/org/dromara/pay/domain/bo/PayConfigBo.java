@@ -60,5 +60,13 @@ public class PayConfigBo extends BaseEntity {
     @NotBlank(message = "状态（0正常 1停用）不能为空", groups = { AddGroup.class, EditGroup.class })
     private String status;
 
+    /**
+     * 私钥
+     */
+    private String privateKey;
 
+    /**
+     * 公钥
+     */
+    private String publicKey;
 }

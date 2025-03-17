@@ -57,5 +57,15 @@ public class PayConfig extends BaseEntity {
      */
     private String status;
 
+    /**
+     * 私钥
+     */
+    private String privateKey;
+
+    /**
+     * 公钥
+     */
+    private String publicKey;
+
 
 }
