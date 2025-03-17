@@ -18,18 +18,7 @@ import java.util.Map;
  */
 @Component("wxPayStrategy")
 public class WXPayStrategy implements IPayStrategy {
-    private  AlipayClient client;
 
-    public void init(PayConfig config) {
-        this.client = new DefaultAlipayClient(
-            "https://openapi.alipay.com/gateway.do",
-            config.getAppId(),
-            config.getMchId(),
-            "json",
-            "UTF-8",
-            config.getApiKey(),
-            "RSA2");
-    }
     @Override
     public Map<String, String> createOrder(PayOrder order) {
         return Map.of();
