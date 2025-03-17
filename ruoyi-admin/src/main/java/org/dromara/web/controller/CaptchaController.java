@@ -19,6 +19,7 @@ import org.dromara.common.mail.utils.MailUtils;
 import org.dromara.common.ratelimiter.annotation.RateLimiter;
 import org.dromara.common.ratelimiter.enums.LimitType;
 import org.dromara.common.redis.utils.RedisUtils;
+import org.dromara.common.sms.enums.SupplierTypeEnum;
 import org.dromara.common.web.config.properties.CaptchaProperties;
 import org.dromara.common.web.enums.CaptchaType;
 import org.dromara.sms4j.api.SmsBlend;
@@ -62,11 +63,10 @@ public class CaptchaController {
         String code = RandomUtil.randomNumbers(4);
         RedisUtils.setCacheObject(key, code, Duration.ofMinutes(Constants.CAPTCHA_EXPIRATION));
         // 验证码模板id 自行处理 (查数据库或写死均可)
-        String templateId = "";
         LinkedHashMap<String, String> map = new LinkedHashMap<>(1);
         map.put("code", code);
-        SmsBlend smsBlend = SmsFactory.getSmsBlend("config1");
-        SmsResponse smsResponse = smsBlend.sendMessage(phonenumber, templateId, map);
+        SmsBlend smsBlend = SmsFactory.getSmsBlend(SupplierTypeEnum.ALIYUN.getType());
+        SmsResponse smsResponse = smsBlend.sendMessage(phonenumber, map);
         if (!smsResponse.isSuccess()) {
             log.error("验证码短信发送异常 => {}", smsResponse);
             return R.fail(smsResponse.getData().toString());

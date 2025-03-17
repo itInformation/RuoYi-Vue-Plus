@@ -18,9 +18,9 @@ import java.util.Map;
  */
 @Component("wxPayStrategy")
 public class WXPayStrategy implements IPayStrategy {
-    private final AlipayClient client;
+    private  AlipayClient client;
 
-    public WXPayStrategy(PayConfig config) {
+    public void init(PayConfig config) {
         this.client = new DefaultAlipayClient(
             "https://openapi.alipay.com/gateway.do",
             config.getAppId(),

@@ -7,11 +7,14 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradePagePayModel;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.pay.domain.PayConfig;
 import org.dromara.pay.domain.PayOrder;
+import org.dromara.pay.domain.vo.PayConfigVo;
 import org.dromara.pay.service.IPayConfigService;
 import org.dromara.pay.service.IPayStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -23,12 +26,13 @@ import java.util.Map;
  * @email: zhangminghui@gycloud.com
  * @date: 2025/3/10 16:37
  */
+@RequiredArgsConstructor
 @Component("aliPayStrategy")
 public class AliPayStrategy implements IPayStrategy {
-    private final AlipayClient client;
-    @Resource
-    private IPayConfigService payConfigService;
-    public AliPayStrategy(PayConfig config) {
+    private final IPayConfigService payConfigService;
+    private AlipayClient client;
+    public AlipayClient init() {
+        PayConfigVo config = payConfigService.queryByChannel("alipay");
         AlipayConfig alipayConfig = new AlipayConfig();
         alipayConfig.setServerUrl("https://openapi.alipay.com/gateway.do");
         alipayConfig.setAppId(config.getAppId());
@@ -40,12 +44,13 @@ public class AliPayStrategy implements IPayStrategy {
         alipayConfig.setAlipayPublicKey(config.getPublicKey());
 
         alipayConfig.setSignType("RSA2");
-//构造client
+
         try {
             client = new DefaultAlipayClient(alipayConfig);
         } catch (AlipayApiException e) {
             throw new RuntimeException(e);
         }
+        return client;
     }
     @Override
     public Map<String, String> createOrder(PayOrder order) {
