@@ -1,5 +1,8 @@
 package org.dromara.circle.service.impl;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.dromara.common.core.constant.DataDeleteStatusConstants;
 import org.dromara.common.core.enums.CircleRoleTypeEnum;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
@@ -24,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * 圈子主体Service业务层处理
@@ -46,7 +50,19 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
      */
     @Override
     public CircleGroupVo queryById(Long groupId){
-        return baseMapper.selectVoById(groupId);
+        CircleGroupVo circleGroupVo = baseMapper.selectVoById(groupId);
+        if (circleGroupVo != null && DataDeleteStatusConstants.NOT_RECYCLE_BIN.equals(circleGroupVo.getRecycleBin())){
+            return null;
+        }
+        return circleGroupVo;
+    }
+    @Override
+    public CircleGroupVo queryByIdWithRecycleBin(Long groupId){
+        CircleGroupVo circleGroupVo = baseMapper.selectVoById(groupId);
+        if (circleGroupVo != null && DataDeleteStatusConstants.RECYCLE_BIN.equals(circleGroupVo.getRecycleBin())){
+            return circleGroupVo;
+        }
+        return null;
     }
 
     /**
@@ -59,10 +75,24 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     @Override
     public TableDataInfo<CircleGroupVo> queryPageList(CircleGroupBo bo, PageQuery pageQuery) {
         LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
         Page<CircleGroupVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
         return TableDataInfo.build(result);
     }
-
+    /**
+     * 分页查询回收站圈子主体列表
+     *
+     * @param bo        查询条件
+     * @param pageQuery 分页参数
+     * @return 圈子主体分页列表
+     */
+    @Override
+    public TableDataInfo<CircleGroupVo> queryPageListWithRecycleBin(CircleGroupBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.RECYCLE_BIN);
+        Page<CircleGroupVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
+        return TableDataInfo.build(result);
+    }
     /**
      * 查询符合条件的圈子主体列表
      *
@@ -72,6 +102,19 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     @Override
     public List<CircleGroupVo> queryList(CircleGroupBo bo) {
         LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
+        return baseMapper.selectVoList(lqw);
+    }
+
+    /**
+     * 查询回收站列表
+     * @param bo
+     * @return
+     */
+    @Override
+    public List<CircleGroupVo> queryListWithRecycleBin(CircleGroupBo bo) {
+        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.RECYCLE_BIN);
         return baseMapper.selectVoList(lqw);
     }
 
@@ -84,6 +127,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
         lqw.eq(bo.getOwnerId() != null, CircleGroup::getOwnerId, bo.getOwnerId());
         lqw.eq(StringUtils.isNotBlank(bo.getCoverImg()), CircleGroup::getCoverImg, bo.getCoverImg());
         lqw.eq(bo.getJoinMode() != null, CircleGroup::getJoinMode, bo.getJoinMode());
+
         return lqw;
     }
 
@@ -142,6 +186,56 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
         if(isValid){
             //TODO 做一些业务上的校验,判断是否需要校验
         }
-        return baseMapper.deleteByIds(ids) > 0;
+        List<CircleGroup> circleGroups = baseMapper.selectByIds(ids);
+        if(CollectionUtils.isEmpty(circleGroups)){
+            return false;
+        }
+        List<CircleGroup> noDeleteList = circleGroups.stream().filter(circleGroup -> DataDeleteStatusConstants.NOT_RECYCLE_BIN.equals(circleGroup.getRecycleBin())).toList();
+        noDeleteList.forEach(circleGroup -> {
+            circleGroup.setRecycleBin(DataDeleteStatusConstants.RECYCLE_BIN);
+        });
+        return baseMapper.updateBatchById(noDeleteList);
+    }
+
+    @Override
+    public Boolean deleteRecycleBinByIds(Collection<Long> ids, Boolean isValid) {
+        List<CircleGroup> circleGroups = baseMapper.selectByIds(ids);
+        if(CollectionUtils.isEmpty(circleGroups)){
+            return false;
+        }
+        //筛选出不在回收站的数据
+        List<CircleGroup> noDeleteList = circleGroups.stream().filter(circleGroup -> DataDeleteStatusConstants.RECYCLE_BIN.equals(circleGroup.getDeleted())).toList();
+        noDeleteList.forEach(circleGroup -> {
+            circleGroup.setDeleted(DataDeleteStatusConstants.DELETED);
+        });
+        return baseMapper.updateBatchById(noDeleteList);
+    }
+
+    @Override
+    public Boolean deleteWithValidById(Long id, Boolean isValid) {
+        if(isValid){
+            //TODO 做一些业务上的校验,判断是否需要校验
+        }
+        CircleGroup circleGroup = baseMapper.selectById(id);
+        if(ObjectUtils.isEmpty(circleGroup)){
+            return false;
+        }
+        circleGroup.setRecycleBin(DataDeleteStatusConstants.RECYCLE_BIN);
+
+        return baseMapper.updateById(circleGroup) > 0;
+    }
+
+    @Override
+    public Boolean deleteRecycleBinById(Long id, Boolean isValid) {
+        if(isValid){
+            //TODO 做一些业务上的校验,判断是否需要校验
+        }
+        CircleGroup circleGroup = baseMapper.selectById(id);
+        if(ObjectUtils.isEmpty(circleGroup)){
+            return false;
+        }
+        circleGroup.setDeleted(DataDeleteStatusConstants.DELETED);
+
+        return baseMapper.updateById(circleGroup) > 0;
     }
 }

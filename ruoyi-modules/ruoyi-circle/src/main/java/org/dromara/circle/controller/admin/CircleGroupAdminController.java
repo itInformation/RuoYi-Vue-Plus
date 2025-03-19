@@ -46,6 +46,14 @@ public class CircleGroupAdminController extends BaseController {
     public TableDataInfo<CircleGroupVo> list(CircleGroupBo bo, PageQuery pageQuery) {
         return circleGroupService.queryPageList(bo, pageQuery);
     }
+    /**
+     * 查询回收站圈子主体列表
+     */
+    @SaCheckPermission("system:group:list")
+    @GetMapping("/listWithRecycleBin")
+    public TableDataInfo<CircleGroupVo> listWithRecycleBin(CircleGroupBo bo, PageQuery pageQuery) {
+        return circleGroupService.queryPageListWithRecycleBin(bo, pageQuery);
+    }
 
     /**
      * 导出圈子主体列表
@@ -69,7 +77,17 @@ public class CircleGroupAdminController extends BaseController {
                                      @PathVariable Long groupId) {
         return R.ok(circleGroupService.queryById(groupId));
     }
-
+    /**
+     * 获取回收站圈子主体详细信息
+     *
+     * @param groupId 主键
+     */
+    @SaCheckPermission("system:group:query")
+    @GetMapping("/getInfoWithRecycleBin/{groupId}")
+    public R<CircleGroupVo> getInfoWithRecycleBin(@NotNull(message = "主键不能为空")
+                                    @PathVariable Long groupId) {
+        return R.ok(circleGroupService.queryByIdWithRecycleBin(groupId));
+    }
     /**
      * 新增圈子主体
      */
@@ -112,9 +130,48 @@ public class CircleGroupAdminController extends BaseController {
      */
     @SaCheckPermission("system:group:remove")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{groupIds}")
-    public R<Void> remove(@NotEmpty(message = "主键不能为空")
+    @DeleteMapping("/deleteByIds/{groupIds}")
+    public R<Void> deleteByIds(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] groupIds) {
         return toAjax(circleGroupService.deleteWithValidByIds(List.of(groupIds), true));
+    }
+
+
+    /**
+     * 删除回收站中的圈子主体
+     *
+     * @param groupIds 主键串
+     */
+    @SaCheckPermission("system:group:remove")
+    @Log(title = "圈子主体", businessType = BusinessType.DELETE)
+    @DeleteMapping("/deleteRecycleBinByIds/{groupIds}")
+    public R<Void> deleteRecycleBinByIds(@NotEmpty(message = "主键不能为空")
+                          @PathVariable Long[] groupIds) {
+        return toAjax(circleGroupService.deleteRecycleBinByIds(List.of(groupIds), true));
+    }
+
+
+    /**
+     * 删除圈子主体
+     *
+     */
+    @SaCheckPermission("system:group:remove")
+    @Log(title = "圈子主体", businessType = BusinessType.DELETE)
+    @DeleteMapping("/deleteById/{groupId}")
+    public R<Void> deleteById(@NotEmpty(message = "主键不能为空")
+                          @PathVariable Long groupId) {
+        return toAjax(circleGroupService.deleteWithValidById(groupId, true));
+    }
+
+    /**
+     * 删除圈子主体
+     *
+     */
+    @SaCheckPermission("system:group:remove")
+    @Log(title = "圈子主体", businessType = BusinessType.DELETE)
+    @DeleteMapping("/deleteRecycleBinById/{groupId}")
+    public R<Void> remove(@NotEmpty(message = "主键不能为空")
+                          @PathVariable Long groupId) {
+        return toAjax(circleGroupService.deleteRecycleBinById(groupId, true));
     }
 }

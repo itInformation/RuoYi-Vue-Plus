@@ -58,4 +58,15 @@ public class CircleGroup extends BaseEntity {
      */
     private Integer status;
 
+
+    /**
+     * 0 未删除 1.已删除 2.回收站
+     */
+    private Integer deleted;
+
+    /**
+     * 0 不在回收站 1.在回收站
+     */
+    private Integer recycleBin;
+
 }

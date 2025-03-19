@@ -32,15 +32,15 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/admin/group")
-public class CircleGroupController extends BaseController {
+@RequestMapping("/client/group")
+public class CircleGroupClientController extends BaseController {
 
     private final ICircleGroupService circleGroupService;
 
     /**
      * 查询圈子主体列表
      */
-    @SaCheckPermission("system:group:list")
+    @SaCheckPermission("client:group:list")
     @GetMapping("/list")
     public TableDataInfo<CircleGroupVo> list(CircleGroupBo bo, PageQuery pageQuery) {
         return circleGroupService.queryPageList(bo, pageQuery);
@@ -49,7 +49,7 @@ public class CircleGroupController extends BaseController {
     /**
      * 导出圈子主体列表
      */
-    @SaCheckPermission("system:group:export")
+    @SaCheckPermission("client:group:export")
     @Log(title = "圈子主体", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(CircleGroupBo bo, HttpServletResponse response) {
@@ -62,7 +62,7 @@ public class CircleGroupController extends BaseController {
      *
      * @param groupId 主键
      */
-    @SaCheckPermission("system:group:query")
+    @SaCheckPermission("client:group:query")
     @GetMapping("/{groupId}")
     public R<CircleGroupVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long groupId) {
@@ -72,7 +72,7 @@ public class CircleGroupController extends BaseController {
     /**
      * 新增圈子主体
      */
-    @SaCheckPermission("system:group:add")
+    @SaCheckPermission("client:group:add")
     @Log(title = "圈子主体", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -83,7 +83,7 @@ public class CircleGroupController extends BaseController {
     /**
      * 修改圈子主体
      */
-    @SaCheckPermission("system:group:edit")
+    @SaCheckPermission("client:group:edit")
     @Log(title = "圈子主体", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -92,15 +92,15 @@ public class CircleGroupController extends BaseController {
     }
 
     /**
-     * 删除圈子主体
+     * 删除圈子主体 圈子放入回收站中
      *
-     * @param groupIds 主键串
+     * @param groupId 主键串
      */
-    @SaCheckPermission("system:group:remove")
+    @SaCheckPermission("client:group:remove")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{groupIds}")
-    public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] groupIds) {
-        return toAjax(circleGroupService.deleteWithValidByIds(List.of(groupIds), true));
+    @DeleteMapping("/deleteById/{groupIds}")
+    public R<Void> deleteById(@NotEmpty(message = "主键不能为空")
+                          @PathVariable Long groupId) {
+        return toAjax(circleGroupService.deleteWithValidByIds(List.of(groupId), true));
     }
 }

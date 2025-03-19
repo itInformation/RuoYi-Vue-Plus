@@ -67,4 +67,10 @@ public class CircleGroupVo implements Serializable {
      * 圈子状态 0 启用 1停用
      */
     private Integer status;
+
+
+    /**
+     * 0 不在回收站 1.在回收站
+     */
+    private Integer recycleBin;
 }
