@@ -1,4 +1,4 @@
-package org.dromara.circle.controller;
+package org.dromara.circle.controller.admin;
 
 import java.util.List;
 
@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.circle.domain.bo.CircleGroupStatusBo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -31,8 +33,8 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/group")
-public class CircleGroupController extends BaseController {
+@RequestMapping("/admin/group")
+public class CircleGroupAdminController extends BaseController {
 
     private final ICircleGroupService circleGroupService;
 
@@ -88,6 +90,19 @@ public class CircleGroupController extends BaseController {
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleGroupBo bo) {
         return toAjax(circleGroupService.updateByBo(bo));
+    }
+
+    /**
+     * 修改圈子状态，启用 0 ，禁用 1
+     */
+    @SaCheckPermission("system:group:edit")
+    @Log(title = "圈子主体", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PostMapping("/updateStatus")
+    public R<Void> updateStatus(@Validated(EditGroup.class) @RequestBody CircleGroupStatusBo bo) {
+        CircleGroupBo groupBo = new CircleGroupBo();
+        BeanUtils.copyProperties(bo, groupBo);
+        return toAjax(circleGroupService.updateByBo(groupBo));
     }
 
     /**

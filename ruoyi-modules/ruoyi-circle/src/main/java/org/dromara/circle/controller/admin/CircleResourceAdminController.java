@@ -1,4 +1,4 @@
-package org.dromara.circle.controller;
+package org.dromara.circle.controller.admin;
 
 import java.util.List;
 
@@ -31,8 +31,8 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/resource")
-public class CircleResourceController extends BaseController {
+@RequestMapping("/admin/resource")
+public class CircleResourceAdminController extends BaseController {
 
     private final ICircleResourceService circleResourceService;
 

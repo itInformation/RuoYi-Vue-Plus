@@ -54,5 +54,8 @@ public class CircleGroupBo extends BaseEntity {
     @NotNull(message = "加入方式（0自由加入 1审核加入 2禁止加入）不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long joinMode;
 
-
+    /**
+     * 圈子状态 0 启用 1停用
+     */
+    private Integer status;
 }

@@ -53,4 +53,9 @@ public class CircleGroup extends BaseEntity {
     private Long joinMode;
 
 
+    /**
+     * 圈子状态 0 启用 1停用
+     */
+    private Integer status;
+
 }

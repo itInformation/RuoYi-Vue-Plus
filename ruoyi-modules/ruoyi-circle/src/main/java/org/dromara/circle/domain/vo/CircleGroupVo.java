@@ -63,5 +63,8 @@ public class CircleGroupVo implements Serializable {
     @ExcelDictFormat(readConverterExp = "0=自由加入,1=审核加入,2=禁止加入")
     private Long joinMode;
 
-
+    /**
+     * 圈子状态 0 启用 1停用
+     */
+    private Integer status;
 }
