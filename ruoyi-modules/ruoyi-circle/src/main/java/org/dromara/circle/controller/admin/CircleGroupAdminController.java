@@ -46,6 +46,16 @@ public class CircleGroupAdminController extends BaseController {
     public TableDataInfo<CircleGroupVo> list(CircleGroupBo bo, PageQuery pageQuery) {
         return circleGroupService.queryPageList(bo, pageQuery);
     }
+
+    /**
+     * 查询需要审核的圈子
+     */
+    @SaCheckPermission("system:group:list")
+    @GetMapping("/getReviewList")
+    public TableDataInfo<CircleGroupVo> getReviewList(CircleGroupBo bo, PageQuery pageQuery) {
+        return circleGroupService.queryPageList(bo, pageQuery);
+    }
+
     /**
      * 查询回收站圈子主体列表
      */
@@ -170,7 +180,7 @@ public class CircleGroupAdminController extends BaseController {
     @SaCheckPermission("system:group:remove")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteRecycleBinById/{groupId}")
-    public R<Void> remove(@NotEmpty(message = "主键不能为空")
+    public R<Void> deleteRecycleBinById(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long groupId) {
         return toAjax(circleGroupService.deleteRecycleBinById(groupId, true));
     }

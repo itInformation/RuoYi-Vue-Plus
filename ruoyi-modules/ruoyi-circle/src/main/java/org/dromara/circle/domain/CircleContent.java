@@ -58,4 +58,10 @@ public class CircleContent extends BaseEntity {
     private String permType;
 
 
+    /**
+     * 审核状态（0待审核 1审核通过 2审核不通过）
+     */
+    private Integer review;
+
+
 }

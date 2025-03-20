@@ -62,11 +62,17 @@ public class CircleGroup extends BaseEntity {
     /**
      * 0 未删除 1.已删除 2.回收站
      */
+    @TableLogic
     private Integer deleted;
 
     /**
      * 0 不在回收站 1.在回收站
      */
     private Integer recycleBin;
+
+    /**
+     * 审核状态（0待审核 1审核通过 2审核不通过）
+     */
+    private Integer review;
 
 }

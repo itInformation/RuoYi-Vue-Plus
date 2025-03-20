@@ -39,6 +39,7 @@ public interface ICircleGroupService {
      * @return 圈子主体分页列表
      */
     TableDataInfo<CircleGroupVo> queryPageList(CircleGroupBo bo, PageQuery pageQuery);
+    TableDataInfo<CircleGroupVo> queryReviewPageList(CircleGroupBo bo, PageQuery pageQuery);
     /**
      * 分页查询回收站中的圈子主体列表
      *
