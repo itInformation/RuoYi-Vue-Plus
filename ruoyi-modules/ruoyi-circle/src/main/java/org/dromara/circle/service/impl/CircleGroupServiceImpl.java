@@ -2,6 +2,7 @@ package org.dromara.circle.service.impl;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.dromara.common.core.constant.CircleReviewStatusConstants;
 import org.dromara.common.core.constant.DataDeleteStatusConstants;
 import org.dromara.common.core.enums.CircleRoleTypeEnum;
 import org.dromara.common.core.utils.MapstructUtils;
@@ -16,6 +17,7 @@ import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.circle.domain.CircleMember;
 import org.dromara.circle.mapper.CircleMemberMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.dromara.circle.domain.bo.CircleGroupBo;
 import org.dromara.circle.domain.vo.CircleGroupVo;
@@ -76,6 +78,15 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     public TableDataInfo<CircleGroupVo> queryPageList(CircleGroupBo bo, PageQuery pageQuery) {
         LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
         lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
+        Page<CircleGroupVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
+        return TableDataInfo.build(result);
+    }
+
+    @Override
+    public TableDataInfo<CircleGroupVo> queryReviewPageList(CircleGroupBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
+        lqw.eq(CircleGroup::getReview, CircleReviewStatusConstants.NOT_REVIEW);
         Page<CircleGroupVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
         return TableDataInfo.build(result);
     }
@@ -164,6 +175,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     public Boolean updateByBo(CircleGroupBo bo) {
         CircleGroup update = MapstructUtils.convert(bo, CircleGroup.class);
         validEntityBeforeSave(update);
+        update.setReview(CircleReviewStatusConstants.NOT_REVIEW);
         return baseMapper.updateById(update) > 0;
     }
 
@@ -238,4 +250,5 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
 
         return baseMapper.updateById(circleGroup) > 0;
     }
+
 }

@@ -173,51 +173,6 @@ public class UserBehaviorLogServiceImpl implements IUserBehaviorLogService {
     }
 
 
-    public List<Long> getSimilarUserPreferences(Long userId) {
-        // 1. 获取用户特征向量
-        Map<Long, Double> userVector = getUserCategoryVector(userId);
 
-        // 2. 计算相似用户（示例取Top50）
-        List<SimilarUser> similarUsers = userSimilarityService
-            .findSimilarUsers(userId, 50);
-
-        // 3. 聚合相似用户分类偏好
-        Map<Long, Double> preferenceScores = new HashMap<>();
-
-        similarUsers.forEach(su -> {
-            Map<Long, Double> suVector = getUserCategoryVector(su.getUserId());
-            suVector.forEach((catId, score) -> {
-                double weightedScore = score * su.getSimilarity();
-                preferenceScores.put(catId,
-                    preferenceScores.getOrDefault(catId, 0.0) + weightedScore
-                );
-            });
-        });
-
-        // 4. 排除用户已有分类
-        userVector.keySet().forEach(preferenceScores::remove);
-
-        // 5. 返回Top推荐分类
-        return preferenceScores.entrySet().stream()
-            .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
-            .limit(10)
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
-    }
-
-    // 用户分类特征向量构建
-    private Map<Long, Double> getUserCategoryVector(Long userId) {
-        // 获取用户行为分类及权重
-        List<UserCategoryWeight> weights = categoryWeightMapper.selectByUser(userId);
-
-        // 归一化处理
-        double total = weights.stream().mapToDouble(w -> w.getWeight()).sum();
-
-        return weights.stream()
-            .collect(Collectors.toMap(
-                UserCategoryWeight::getCatId,
-                w -> w.getWeight() / total
-            ));
-    }
 
 }

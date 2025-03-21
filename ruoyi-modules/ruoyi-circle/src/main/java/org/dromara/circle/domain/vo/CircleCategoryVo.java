@@ -75,6 +75,9 @@ public class CircleCategoryVo implements Serializable {
      */
     @ExcelProperty(value = "数据删除状态 0 未删除 1.删除 2.放入回收站")
     private Long deleted;
-
+    /**
+     * 关联圈子数量
+     */
+    private Integer groupCount;
 
 }

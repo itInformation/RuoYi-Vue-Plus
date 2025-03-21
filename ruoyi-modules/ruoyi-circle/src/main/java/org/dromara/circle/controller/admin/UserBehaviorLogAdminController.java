@@ -32,7 +32,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/circle/behaviorLog")
-public class UserBehaviorLogController extends BaseController {
+public class UserBehaviorLogAdminController extends BaseController {
 
     private final IUserBehaviorLogService userBehaviorLogService;
 

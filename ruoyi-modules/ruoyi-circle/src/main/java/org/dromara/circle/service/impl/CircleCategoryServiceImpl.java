@@ -11,6 +11,7 @@ import org.dromara.circle.domain.bo.CircleCategoryBo;
 import org.dromara.circle.domain.vo.CategoryTreeVO;
 import org.dromara.circle.domain.vo.CircleCategoryVo;
 import org.dromara.circle.mapper.CircleCategoryMapper;
+import org.dromara.circle.mapper.CircleGroupCategoryMapper;
 import org.dromara.circle.service.ICircleCategoryService;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
@@ -19,6 +20,7 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
 public class CircleCategoryServiceImpl implements ICircleCategoryService {
 
     private final CircleCategoryMapper baseMapper;
+    private final CircleGroupCategoryMapper groupCategoryMapper;
 
     /**
      * 查询圈子分类
@@ -181,5 +184,14 @@ public class CircleCategoryServiceImpl implements ICircleCategoryService {
     @Cacheable(value = "categoryTree", key = "'all'")
     public List<CategoryTreeVO> getCategoryTree() {
         return buildCategoryTree();
+    }
+
+
+    @Async
+    public void updateCategoryCount(List<Long> catIds) {
+        catIds.forEach(catId -> {
+            int count = groupCategoryMapper.countGroups(catId);
+            baseMapper.updateCount(catId, count);
+        });
     }
 }

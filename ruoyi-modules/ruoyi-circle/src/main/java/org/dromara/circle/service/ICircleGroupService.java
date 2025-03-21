@@ -39,6 +39,13 @@ public interface ICircleGroupService {
      * @return 圈子主体分页列表
      */
     TableDataInfo<CircleGroupVo> queryPageList(CircleGroupBo bo, PageQuery pageQuery);
+    /**
+     * 分页查询需要审核的圈子
+     *
+     * @param bo        查询条件
+     * @param pageQuery 分页参数
+     * @return 圈子主体分页列表
+     */
     TableDataInfo<CircleGroupVo> queryReviewPageList(CircleGroupBo bo, PageQuery pageQuery);
     /**
      * 分页查询回收站中的圈子主体列表

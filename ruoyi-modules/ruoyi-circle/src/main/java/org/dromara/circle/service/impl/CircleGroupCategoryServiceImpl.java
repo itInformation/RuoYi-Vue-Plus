@@ -148,7 +148,7 @@ public class CircleGroupCategoryServiceImpl implements ICircleGroupCategoryServi
         });
 
         // 更新分类统计
-        updateCategoryCount(catIds);
+//        updateCategoryCount(catIds);
     }
 
     private void deleteByGroup(Long groupId) {
@@ -159,13 +159,7 @@ public class CircleGroupCategoryServiceImpl implements ICircleGroupCategoryServi
     }
 
 
-    @Async
-    public void updateCategoryCount(List<Long> catIds) {
-//        catIds.forEach(catId -> {
-//            int count = baseMapper.countGroups(catId);
-//            baseMapper.updateCount(catId, count);
-//        });
-    }
+
 
 
 

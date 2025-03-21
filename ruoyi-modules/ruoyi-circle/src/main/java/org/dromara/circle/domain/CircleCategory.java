@@ -62,5 +62,10 @@ public class CircleCategory extends TenantEntity {
      */
     private Long deleted;
 
+    /**
+     * 关联圈子数量
+     */
+    private Integer groupCount;
+
 
 }
