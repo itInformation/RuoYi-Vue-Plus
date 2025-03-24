@@ -29,46 +29,46 @@ public class ApplyGuildVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private Long applyId;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private String guildName;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private String contactPerson;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private String contactInfo;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private Long memberCount;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
-    private String cooperatedPlatforms;
+    private String platforms;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
-    private String screenshotUrls;
+    private String imgUrls;
 
 
 }

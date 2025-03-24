@@ -22,40 +22,40 @@ public class ApplyGuild extends TenantEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @TableId(value = "apply_id")
     private Long applyId;
 
     /**
-     * 
+     *
      */
     private String guildName;
 
     /**
-     * 
+     *
      */
     private String contactPerson;
 
     /**
-     * 
+     *
      */
     private String contactInfo;
 
     /**
-     * 
+     *
      */
     private Long memberCount;
 
     /**
-     * 
+     *
      */
-    private String cooperatedPlatforms;
+    private String platforms;
 
     /**
-     * 
+     *
      */
-    private String screenshotUrls;
+    private String imgUrls;
 
 
 }

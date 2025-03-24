@@ -21,44 +21,44 @@ import jakarta.validation.constraints.*;
 public class ApplyGuildBo extends BaseEntity {
 
     /**
-     * 
+     *
      */
     @NotNull(message = "不能为空", groups = { EditGroup.class })
     private Long applyId;
 
     /**
-     * 
+     *
      */
     @NotBlank(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
     private String guildName;
 
     /**
-     * 
+     *
      */
     @NotBlank(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
     private String contactPerson;
 
     /**
-     * 
+     *
      */
     @NotBlank(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
     private String contactInfo;
 
     /**
-     * 
+     *
      */
     @NotNull(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long memberCount;
 
     /**
-     * 
+     *
      */
-    private String cooperatedPlatforms;
+    private String platforms;
 
     /**
-     * 
+     *
      */
-    private String screenshotUrls;
+    private String imgUrls;
 
 
 }

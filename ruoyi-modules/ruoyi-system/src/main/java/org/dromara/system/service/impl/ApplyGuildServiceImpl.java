@@ -76,8 +76,8 @@ public class ApplyGuildServiceImpl implements IApplyGuildService {
         lqw.eq(StringUtils.isNotBlank(bo.getContactPerson()), ApplyGuild::getContactPerson, bo.getContactPerson());
         lqw.eq(StringUtils.isNotBlank(bo.getContactInfo()), ApplyGuild::getContactInfo, bo.getContactInfo());
         lqw.eq(bo.getMemberCount() != null, ApplyGuild::getMemberCount, bo.getMemberCount());
-        lqw.eq(StringUtils.isNotBlank(bo.getCooperatedPlatforms()), ApplyGuild::getCooperatedPlatforms, bo.getCooperatedPlatforms());
-        lqw.eq(StringUtils.isNotBlank(bo.getScreenshotUrls()), ApplyGuild::getScreenshotUrls, bo.getScreenshotUrls());
+        lqw.eq(StringUtils.isNotBlank(bo.getPlatforms()), ApplyGuild::getPlatforms, bo.getPlatforms());
+        lqw.eq(StringUtils.isNotBlank(bo.getImgUrls()), ApplyGuild::getImgUrls, bo.getImgUrls());
         return lqw;
     }
 

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 入驻申请主
+ * 入驻申请管理端使用
  *
  * @author Lion Li
  * @date 2025-03-24

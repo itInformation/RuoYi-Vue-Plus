@@ -22,13 +22,13 @@ public class ApplyPersonal extends TenantEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @TableId(value = "apply_id")
     private Long applyId;
 
     /**
-     * 
+     *
      */
     private String nickname;
 
@@ -36,16 +36,15 @@ public class ApplyPersonal extends TenantEntity {
      * ["抖音","快手"]
      */
     private String mainPlatforms;
-
     /**
-     * 
+     *
      */
     private String contactInfo;
 
     /**
-     * 
+     *
      */
-    private String screenshotUrls;
+    private String imgUrls;
 
 
 }

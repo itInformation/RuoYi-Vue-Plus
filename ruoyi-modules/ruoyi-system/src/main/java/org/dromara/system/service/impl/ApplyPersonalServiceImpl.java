@@ -75,7 +75,7 @@ public class ApplyPersonalServiceImpl implements IApplyPersonalService {
         lqw.like(StringUtils.isNotBlank(bo.getNickname()), ApplyPersonal::getNickname, bo.getNickname());
         lqw.eq(StringUtils.isNotBlank(bo.getMainPlatforms()), ApplyPersonal::getMainPlatforms, bo.getMainPlatforms());
         lqw.eq(StringUtils.isNotBlank(bo.getContactInfo()), ApplyPersonal::getContactInfo, bo.getContactInfo());
-        lqw.eq(StringUtils.isNotBlank(bo.getScreenshotUrls()), ApplyPersonal::getScreenshotUrls, bo.getScreenshotUrls());
+        lqw.eq(StringUtils.isNotBlank(bo.getImgUrls()), ApplyPersonal::getImgUrls, bo.getImgUrls());
         return lqw;
     }
 

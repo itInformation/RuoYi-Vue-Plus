@@ -1,4 +1,4 @@
-package org.dromara.client.controller.client.client;
+package org.dromara.system.controller.system.client;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import jakarta.validation.constraints.NotEmpty;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 入驻申请主
+ * 入驻申请app端使用
  *
  * @author Lion Li
  * @date 2025-03-24

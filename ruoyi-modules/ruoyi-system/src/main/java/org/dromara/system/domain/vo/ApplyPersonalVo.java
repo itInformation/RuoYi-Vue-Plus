@@ -29,13 +29,13 @@ public class ApplyPersonalVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private Long applyId;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private String nickname;
@@ -43,20 +43,20 @@ public class ApplyPersonalVo implements Serializable {
     /**
      * ["抖音","快手"]
      */
-    @ExcelProperty(value = "["抖音","快手"]")
+    @ExcelProperty(value = "[\"抖音\",\"快手\"]")
     private String mainPlatforms;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private String contactInfo;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
-    private String screenshotUrls;
+    private String imgUrls;
 
 
 }

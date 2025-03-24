@@ -21,13 +21,13 @@ import jakarta.validation.constraints.*;
 public class ApplyPersonalBo extends BaseEntity {
 
     /**
-     * 
+     *
      */
     @NotNull(message = "不能为空", groups = { EditGroup.class })
     private Long applyId;
 
     /**
-     * 
+     *
      */
     @NotBlank(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
     private String nickname;
@@ -38,15 +38,15 @@ public class ApplyPersonalBo extends BaseEntity {
     private String mainPlatforms;
 
     /**
-     * 
+     *
      */
     @NotBlank(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
     private String contactInfo;
 
     /**
-     * 
+     *
      */
-    private String screenshotUrls;
+    private String imgUrls;
 
 
 }
