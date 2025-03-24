@@ -57,6 +57,9 @@ public class SysRegisterService {
         sysUser.setNickName(username);
         sysUser.setPassword(BCrypt.hashpw(password));
         sysUser.setUserType(userType);
+        sysUser.setBirthday(registerBody.getBirthday());
+        sysUser.setSex(registerBody.getSex());
+        sysUser.setAvatar(registerBody.getAvatar());
 
         boolean exist = TenantHelper.dynamic(tenantId, () -> {
             return userMapper.exists(new LambdaQueryWrapper<SysUser>()

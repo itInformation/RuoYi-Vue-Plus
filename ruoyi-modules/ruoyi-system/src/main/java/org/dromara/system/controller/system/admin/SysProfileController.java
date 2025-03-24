@@ -125,6 +125,7 @@ public class SysProfileController extends BaseController {
             if (updateSuccess) {
                 AvatarVo avatarVo = new AvatarVo();
                 avatarVo.setImgUrl(avatar);
+                avatarVo.setOssId(oss.getOssId());
                 return R.ok(avatarVo);
             }
         }

@@ -12,6 +12,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -79,7 +80,7 @@ public class SysUserVo implements Serializable {
      * 头像地址
      */
     @Translation(type = TransConstant.OSS_ID_TO_URL)
-    private Long avatar;
+    private String avatar;
 
     /**
      * 密码
@@ -145,4 +146,10 @@ public class SysUserVo implements Serializable {
      * 创建圈子数量
      */
     private Integer circleNum;
+
+    /**
+     * 出生年月
+     */
+    private LocalDateTime birthday;
+
 }
