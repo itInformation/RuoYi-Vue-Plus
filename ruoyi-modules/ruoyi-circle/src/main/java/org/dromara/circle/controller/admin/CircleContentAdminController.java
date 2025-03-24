@@ -45,6 +45,16 @@ public class CircleContentAdminController extends BaseController {
         return circleContentService.queryPageList(bo, pageQuery);
     }
 
+
+    /**
+     * 查询圈子内容审核失败列表
+     */
+    @SaCheckPermission("system:content:failureList")
+    @GetMapping("/failureList")
+    public TableDataInfo<CircleContentVo> failureList(CircleContentBo bo, PageQuery pageQuery) {
+        return circleContentService.queryPageList(bo, pageQuery);
+    }
+
     /**
      * 导出圈子内容列表
      */

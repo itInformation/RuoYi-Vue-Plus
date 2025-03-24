@@ -70,6 +70,9 @@ public class CircleContentVo implements Serializable {
     @ExcelProperty(value = "权限类型", converter = ExcelDictConvert.class)
     @ExcelDictFormat(readConverterExp = "0=免费,1=会员,2=指定")
     private String permType;
-
+    /**
+     * 审核状态（0待审核 1审核通过 2审核不通过）
+     */
+    private Integer review;
 
 }
