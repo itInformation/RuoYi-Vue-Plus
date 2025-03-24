@@ -10,7 +10,7 @@ package org.dromara.common.sms.enums;
 public enum SupplierTypeEnum {
 
     QINIU("qiniu","七牛云"),
-    ALIYUN("aliyun","阿里云"),
+    ALIBABA("alibaba","阿里云"),
         ;
 
     private String type;

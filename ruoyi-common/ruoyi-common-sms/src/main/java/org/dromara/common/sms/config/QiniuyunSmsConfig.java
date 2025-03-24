@@ -25,7 +25,7 @@ public class QiniuyunSmsConfig implements SmsReadConfig {
     @Override
 //    @Cacheable(value = "sms_config", key = "#supplier + '_' + #tenantId")
     public BaseConfig getSupplierConfig(String configId) {
-        SysSmsConfigVo sysSmsConfigVo = sysSmsConfigService.queryBySupplier(SupplierTypeEnum.QINIU.getType());
+        SysSmsConfigVo sysSmsConfigVo = sysSmsConfigService.queryBySupplier(configId);
         QiNiuConfig qiNiuConfig = new QiNiuConfig();
         qiNiuConfig.setSignature(sysSmsConfigVo.getSignature());
         qiNiuConfig.setTemplateId(sysSmsConfigVo.getTemplateId());

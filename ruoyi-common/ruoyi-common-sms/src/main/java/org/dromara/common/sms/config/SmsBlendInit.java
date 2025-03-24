@@ -35,12 +35,12 @@ public class SmsBlendInit implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        String smsType = prefix + SupplierTypeEnum.ALIYUN.getType();
+        String smsType = prefix + SupplierTypeEnum.ALIBABA.getType();
         SmsReadConfig smsReadConfig = smsReadConfigMap.get(smsType);
         if (smsReadConfig == null){
             throw new RuntimeException("短信配置初始化失败，请检查配置");
         }
-        SmsFactory.createSmsBlend(smsReadConfig);
+        SmsFactory.createSmsBlend(smsReadConfig, SupplierTypeEnum.ALIBABA.getType());
         log.info("初始化短信配置成功，使用的是" + smsType );
     }
 }
