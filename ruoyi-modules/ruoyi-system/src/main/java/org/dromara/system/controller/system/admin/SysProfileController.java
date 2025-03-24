@@ -1,4 +1,4 @@
-package org.dromara.system.controller.system;
+package org.dromara.system.controller.system.admin;
 
 import cn.dev33.satoken.secure.BCrypt;
 import cn.hutool.core.bean.BeanUtil;
@@ -125,6 +125,7 @@ public class SysProfileController extends BaseController {
             if (updateSuccess) {
                 AvatarVo avatarVo = new AvatarVo();
                 avatarVo.setImgUrl(avatar);
+                avatarVo.setOssId(oss.getOssId());
                 return R.ok(avatarVo);
             }
         }

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
+import java.time.LocalDateTime;
+
 /**
  * 用户注册对象
  *
@@ -29,5 +31,21 @@ public class RegisterBody extends LoginBody {
     private String password;
 
     private String userType;
+
+
+    /**
+     * 用户性别
+     */
+    private String sex;
+
+    /**
+     * 用户头像
+     */
+    private Long avatar;
+
+    /**
+     * 出生年月
+     */
+    private LocalDateTime birthday;
 
 }

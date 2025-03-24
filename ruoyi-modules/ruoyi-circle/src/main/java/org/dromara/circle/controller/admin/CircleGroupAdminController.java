@@ -53,7 +53,7 @@ public class CircleGroupAdminController extends BaseController {
     @SaCheckPermission("system:group:list")
     @GetMapping("/getReviewList")
     public TableDataInfo<CircleGroupVo> getReviewList(CircleGroupBo bo, PageQuery pageQuery) {
-        return circleGroupService.queryPageList(bo, pageQuery);
+        return circleGroupService.queryReviewPageList(bo, pageQuery);
     }
 
     /**

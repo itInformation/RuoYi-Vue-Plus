@@ -17,6 +17,7 @@ import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,29 +41,20 @@ public class CircleGroupClientController extends BaseController {
     /**
      * 查询圈子主体列表
      */
-    @SaCheckPermission("client:group:list")
+    @SaCheckPermission("system:group:list")
     @GetMapping("/list")
     public TableDataInfo<CircleGroupVo> list(CircleGroupBo bo, PageQuery pageQuery) {
+        bo.setOwnerId(LoginHelper.getUserId());
         return circleGroupService.queryPageList(bo, pageQuery);
     }
 
-    /**
-     * 导出圈子主体列表
-     */
-    @SaCheckPermission("client:group:export")
-    @Log(title = "圈子主体", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(CircleGroupBo bo, HttpServletResponse response) {
-        List<CircleGroupVo> list = circleGroupService.queryList(bo);
-        ExcelUtil.exportExcel(list, "圈子主体", CircleGroupVo.class, response);
-    }
 
     /**
      * 获取圈子主体详细信息
      *
      * @param groupId 主键
      */
-    @SaCheckPermission("client:group:query")
+    @SaCheckPermission("system:group:query")
     @GetMapping("/{groupId}")
     public R<CircleGroupVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long groupId) {
@@ -72,7 +64,7 @@ public class CircleGroupClientController extends BaseController {
     /**
      * 新增圈子主体
      */
-    @SaCheckPermission("client:group:add")
+    @SaCheckPermission("system:group:add")
     @Log(title = "圈子主体", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -83,7 +75,7 @@ public class CircleGroupClientController extends BaseController {
     /**
      * 修改圈子主体
      */
-    @SaCheckPermission("client:group:edit")
+    @SaCheckPermission("system:group:edit")
     @Log(title = "圈子主体", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -96,7 +88,7 @@ public class CircleGroupClientController extends BaseController {
      *
      * @param groupId 主键串
      */
-    @SaCheckPermission("client:group:remove")
+    @SaCheckPermission("system:group:remove")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteById/{groupIds}")
     public R<Void> deleteById(@NotEmpty(message = "主键不能为空")

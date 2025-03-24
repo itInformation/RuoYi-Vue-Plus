@@ -15,4 +15,10 @@ public class AvatarVo {
      */
     private String imgUrl;
 
+
+
+    /**
+     * ossId
+     */
+    private Long ossId;
 }

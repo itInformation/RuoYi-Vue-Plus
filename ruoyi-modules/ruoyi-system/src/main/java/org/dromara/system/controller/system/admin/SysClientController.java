@@ -1,4 +1,4 @@
-package org.dromara.system.controller.system;
+package org.dromara.system.controller.system.admin;
 
 import java.util.List;
 

@@ -12,6 +12,8 @@ import org.dromara.common.core.xss.Xss;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.system.domain.SysUser;
 
+import java.time.LocalDateTime;
+
 /**
  * 用户信息业务对象 sys_user
  *
@@ -120,5 +122,19 @@ public class SysUserBo extends BaseEntity {
     public boolean isSuperAdmin() {
         return SystemConstants.SUPER_ADMIN_ID.equals(this.userId);
     }
+    /**
+     * 创建圈子数量
+     */
+    private Integer circleNum;
 
+
+    /**
+     * 出生年月
+     */
+    private LocalDateTime birthday;
+
+    /**
+     * 头像地址
+     */
+    private Long avatar;
 }

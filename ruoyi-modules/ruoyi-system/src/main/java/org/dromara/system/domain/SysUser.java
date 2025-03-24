@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.tenant.core.TenantEntity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -65,7 +66,11 @@ public class SysUser extends TenantEntity {
     /**
      * 用户头像
      */
-    private Long avatar;
+    private String avatar;
+    /**
+     * 出生年月
+     */
+    private LocalDateTime birthday;
 
     /**
      * 密码
@@ -106,6 +111,10 @@ public class SysUser extends TenantEntity {
      * 是否是创作者
      */
     private Integer creator;
+    /**
+     * 创建圈子数量
+     */
+    private Integer circleNum;
 
     public SysUser(Long userId) {
         this.userId = userId;

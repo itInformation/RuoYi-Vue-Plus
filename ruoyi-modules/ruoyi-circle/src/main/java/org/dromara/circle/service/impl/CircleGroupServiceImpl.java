@@ -1,10 +1,13 @@
 package org.dromara.circle.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.dromara.common.core.constant.CircleReviewStatusConstants;
 import org.dromara.common.core.constant.DataDeleteStatusConstants;
+import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.enums.CircleRoleTypeEnum;
+import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -44,6 +47,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     private final CircleGroupMapper baseMapper;
     @Autowired
     private CircleMemberMapper circleMemberMapper;
+
     /**
      * 查询圈子主体
      *
@@ -57,6 +61,12 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
             return null;
         }
         return circleGroupVo;
+    }
+    @Override
+    public List<CircleGroupVo> queryByUserId(Long userId){
+        CircleGroupBo groupBo = new CircleGroupBo();
+        groupBo.setOwnerId(userId);
+        return queryList(groupBo);
     }
     @Override
     public CircleGroupVo queryByIdWithRecycleBin(Long groupId){
@@ -152,6 +162,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     @Transactional(rollbackFor = Exception.class)
     public Boolean insertByBo(CircleGroupBo bo) {
         CircleGroup circleGroup = MapstructUtils.convert(bo, CircleGroup.class);
+
         validEntityBeforeSave(circleGroup);
         boolean flag = baseMapper.insert(circleGroup) > 0;
         if (flag) {
@@ -184,6 +195,12 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
      */
     private void validEntityBeforeSave(CircleGroup entity){
         //TODO 做一些数据校验,如唯一约束
+        LoginHelper.getUserId();
+        List<CircleGroupVo> circleGroupVoList = queryByUserId(LoginHelper.getUserId());
+        if (CollectionUtils.isNotEmpty(circleGroupVoList) && circleGroupVoList.size() >= LoginHelper.getCircleNumKey()){
+            throw new ServiceException("超过最大圈子创建量");
+        }
+
     }
 
     /**

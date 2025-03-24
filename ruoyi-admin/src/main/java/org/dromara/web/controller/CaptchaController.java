@@ -65,7 +65,7 @@ public class CaptchaController {
         // 验证码模板id 自行处理 (查数据库或写死均可)
         LinkedHashMap<String, String> map = new LinkedHashMap<>(1);
         map.put("code", code);
-        SmsBlend smsBlend = SmsFactory.getSmsBlend(SupplierTypeEnum.ALIYUN.getType());
+        SmsBlend smsBlend = SmsFactory.getSmsBlend(SupplierTypeEnum.ALIBABA.getType());
         SmsResponse smsResponse = smsBlend.sendMessage(phonenumber, map);
         if (!smsResponse.isSuccess()) {
             log.error("验证码短信发送异常 => {}", smsResponse);

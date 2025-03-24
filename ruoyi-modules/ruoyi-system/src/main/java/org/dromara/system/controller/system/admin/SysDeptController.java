@@ -1,4 +1,4 @@
-package org.dromara.system.controller.system;
+package org.dromara.system.controller.system.admin;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.convert.Convert;

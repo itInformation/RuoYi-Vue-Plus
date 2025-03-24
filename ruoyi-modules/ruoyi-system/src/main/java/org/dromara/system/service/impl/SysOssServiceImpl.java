@@ -190,9 +190,23 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      */
     @Override
     public SysOssVo upload(MultipartFile file) {
-        String originalfileName = file.getOriginalFilename();
-        String suffix = StringUtils.substring(originalfileName, originalfileName.lastIndexOf("."), originalfileName.length());
         OssClient storage = OssFactory.instance();
+        return uploadFile(file, storage);
+    }
+
+    @Override
+    public SysOssVo upload(MultipartFile file,String configKey) {
+        OssClient storage = OssFactory.instance(configKey);
+        return uploadFile(file, storage);
+    }
+
+
+    private SysOssVo uploadFile(MultipartFile file, OssClient storage) {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null){
+            throw new ServiceException("文件数据不存在!");
+        }
+        String suffix = StringUtils.substring(originalFilename, originalFilename.lastIndexOf("."), originalFilename.length());
         UploadResult uploadResult;
         try {
             uploadResult = storage.uploadSuffix(file.getBytes(), suffix, file.getContentType());
@@ -200,7 +214,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
             throw new ServiceException(e.getMessage());
         }
         // 保存文件信息
-        return buildResultEntity(originalfileName, suffix, storage.getConfigKey(), uploadResult);
+        return buildResultEntity(originalFilename, suffix, storage.getConfigKey(), uploadResult);
     }
 
     /**
