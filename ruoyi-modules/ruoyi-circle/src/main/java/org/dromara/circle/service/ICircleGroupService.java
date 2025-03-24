@@ -25,6 +25,12 @@ public interface ICircleGroupService {
     CircleGroupVo queryById(Long groupId);
 
     /**
+     * 按照userId查询圈子主体
+     * @param userId
+     * @return
+     */
+    List<CircleGroupVo> queryByUserId(Long userId);
+    /**
      * 查询回收站内的圈子主体
      * @param groupId
      * @return

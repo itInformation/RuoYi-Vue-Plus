@@ -133,6 +133,10 @@ public class LoginUser implements Serializable {
     private String deviceType;
 
     /**
+     * 可以创建的圈子数量
+     */
+    private Integer circleNum;
+    /**
      * 获取登录id
      */
     public String getLoginId() {

@@ -141,5 +141,8 @@ public class SysUserVo implements Serializable {
      * 数据权限 当前角色ID
      */
     private Long roleId;
-
+    /**
+     * 创建圈子数量
+     */
+    private Integer circleNum;
 }

@@ -120,5 +120,8 @@ public class SysUserBo extends BaseEntity {
     public boolean isSuperAdmin() {
         return SystemConstants.SUPER_ADMIN_ID.equals(this.userId);
     }
-
+    /**
+     * 创建圈子数量
+     */
+    private Integer circleNum;
 }

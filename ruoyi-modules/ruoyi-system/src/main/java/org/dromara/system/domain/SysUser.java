@@ -106,6 +106,10 @@ public class SysUser extends TenantEntity {
      * 是否是创作者
      */
     private Integer creator;
+    /**
+     * 创建圈子数量
+     */
+    private Integer circleNum;
 
     public SysUser(Long userId) {
         this.userId = userId;

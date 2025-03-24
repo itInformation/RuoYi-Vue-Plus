@@ -39,6 +39,7 @@ public class LoginHelper {
     public static final String DEPT_NAME_KEY = "deptName";
     public static final String DEPT_CATEGORY_KEY = "deptCategory";
     public static final String CLIENT_KEY = "clientid";
+    public static final String CIRCLE_NUM_KEY = "circleNum";
 
     /**
      * 登录系统 基于 设备类型
@@ -56,6 +57,7 @@ public class LoginHelper {
                 .setExtra(DEPT_KEY, loginUser.getDeptId())
                 .setExtra(DEPT_NAME_KEY, loginUser.getDeptName())
                 .setExtra(DEPT_CATEGORY_KEY, loginUser.getDeptCategory())
+                .setExtra(CIRCLE_NUM_KEY, loginUser.getCircleNum())
         );
         StpUtil.getTokenSession().set(LOGIN_USER_KEY, loginUser);
     }
@@ -101,6 +103,9 @@ public class LoginHelper {
      */
     public static String getUsername() {
         return Convert.toStr(getExtra(USER_NAME_KEY));
+    }
+    public static Integer getCircleNumKey() {
+        return Convert.toInt(getExtra(CIRCLE_NUM_KEY));
     }
 
     /**
