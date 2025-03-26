@@ -1,5 +1,6 @@
 package org.dromara.system.controller.system.client;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.secure.BCrypt;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
@@ -113,6 +114,7 @@ public class AppUserProfileController extends BaseController {
     @RepeatSubmit
     @Log(title = "用户头像", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SaIgnore
     public R<AvatarVo> avatar(@RequestPart("avatarfile") MultipartFile avatarfile) {
         if (!avatarfile.isEmpty()) {
             String extension = FileUtil.extName(avatarfile.getOriginalFilename());
