@@ -61,6 +61,9 @@ public class CircleContentBo extends BaseEntity {
      */
     @NotBlank(message = "权限类型（0免费 1会员 2指定）不能为空", groups = { AddGroup.class, EditGroup.class })
     private String permType;
-
+    /**
+     * 审核状态（0待审核 1审核通过 2审核不通过）
+     */
+    private Integer review;
 
 }

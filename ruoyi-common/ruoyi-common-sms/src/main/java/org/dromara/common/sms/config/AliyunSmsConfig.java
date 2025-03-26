@@ -36,6 +36,7 @@ public class AliyunSmsConfig implements SmsReadConfig {
         alibabaConfig.setTemplateId(sysSmsConfigVo.getTemplateId());
         alibabaConfig.setAccessKeyId(sysSmsConfigVo.getAccessKey());
         alibabaConfig.setAccessKeySecret(sysSmsConfigVo.getSecretKey());
+        alibabaConfig.setSignature(sysSmsConfigVo.getSignature());
         return alibabaConfig;
     }
 
