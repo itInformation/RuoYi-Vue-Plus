@@ -142,6 +142,14 @@ public class LoginUser implements Serializable {
      * 出生年月
      */
     private LocalDateTime birthday;
+    /**
+     * 是否设置了生日
+     */
+    private Boolean isBirthday;
+    /**
+     * 是否设置了密码
+     */
+    private Boolean isPassword;
 
     /**
      * 出生年月
