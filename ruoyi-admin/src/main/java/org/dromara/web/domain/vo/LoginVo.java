@@ -51,4 +51,14 @@ public class LoginVo {
      */
     private String openid;
 
+    /**
+     * 是否设置了生日
+     */
+    private boolean birthday;
+
+    /**
+     * 是否设置了生日
+     */
+    private boolean password;
+
 }

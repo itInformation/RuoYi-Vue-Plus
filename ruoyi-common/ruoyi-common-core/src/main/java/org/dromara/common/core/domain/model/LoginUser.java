@@ -7,6 +7,7 @@ import org.dromara.common.core.domain.dto.RoleDTO;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -136,6 +137,16 @@ public class LoginUser implements Serializable {
      * 可以创建的圈子数量
      */
     private Integer circleNum;
+
+    /**
+     * 出生年月
+     */
+    private LocalDateTime birthday;
+
+    /**
+     * 出生年月
+     */
+    private String password;
     /**
      * 获取登录id
      */
