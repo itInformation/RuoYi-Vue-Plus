@@ -2,6 +2,7 @@ package org.dromara.web.service.impl;
 
 import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
@@ -124,7 +125,7 @@ public class SmsAuthStrategy implements IAuthStrategy {
         sysUser.setRoleId(sysRoleVo.getRoleId());
         sysUser.setPhonenumber(phoneNumber);
         sysUser.setUserName(phoneNumber);
-        sysUser.setNickName("nickName" + ThreadLocalRandom.current().nextInt(10000));
+        sysUser.setNickName("nickName" + IdUtil.fastSimpleUUID());
 
         int insert = userService.insertUser(sysUser);
         SysUserVo sysUserVo = new SysUserVo();
