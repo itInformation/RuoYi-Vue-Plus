@@ -80,7 +80,7 @@ public class AuthClientController {
      * @param body 登录信息
      * @return 结果
      */
-    @ApiEncrypt
+//    @ApiEncrypt
     @PostMapping("/login")
     @SaIgnore
     public R<LoginVo> login(@RequestBody String body) {

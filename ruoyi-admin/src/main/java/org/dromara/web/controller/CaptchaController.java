@@ -58,6 +58,7 @@ public class CaptchaController {
      */
     @RateLimiter(key = "#phonenumber", time = 60, count = 1)
     @GetMapping("/resource/sms/code")
+    @SaIgnore
     public R<Void> smsCode(@NotBlank(message = "{user.phonenumber.not.blank}") String phonenumber) {
         String key = GlobalConstants.CAPTCHA_CODE_KEY + phonenumber;
         String code = RandomUtil.randomNumbers(4);
