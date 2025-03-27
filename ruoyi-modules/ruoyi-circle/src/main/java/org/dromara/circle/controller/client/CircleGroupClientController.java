@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 圈子主体
+ * aap端圈子主体
  *
  * @author Lion Li
  * @date 2025-03-03
@@ -41,7 +41,7 @@ public class CircleGroupClientController extends BaseController {
     /**
      * 查询圈子主体列表
      */
-    @SaCheckPermission("system:group:list")
+    @SaCheckPermission("client:group:list")
     @GetMapping("/list")
     public TableDataInfo<CircleGroupVo> list(CircleGroupBo bo, PageQuery pageQuery) {
         bo.setOwnerId(LoginHelper.getUserId());
@@ -54,7 +54,7 @@ public class CircleGroupClientController extends BaseController {
      *
      * @param groupId 主键
      */
-    @SaCheckPermission("system:group:query")
+    @SaCheckPermission("client:group:query")
     @GetMapping("/{groupId}")
     public R<CircleGroupVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long groupId) {
@@ -64,7 +64,7 @@ public class CircleGroupClientController extends BaseController {
     /**
      * 新增圈子主体
      */
-    @SaCheckPermission("system:group:add")
+    @SaCheckPermission("client:group:add")
     @Log(title = "圈子主体", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -75,7 +75,7 @@ public class CircleGroupClientController extends BaseController {
     /**
      * 修改圈子主体
      */
-    @SaCheckPermission("system:group:edit")
+    @SaCheckPermission("client:group:edit")
     @Log(title = "圈子主体", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -88,7 +88,7 @@ public class CircleGroupClientController extends BaseController {
      *
      * @param groupId 主键串
      */
-    @SaCheckPermission("system:group:remove")
+    @SaCheckPermission("client:group:remove")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteById/{groupIds}")
     public R<Void> deleteById(@NotEmpty(message = "主键不能为空")

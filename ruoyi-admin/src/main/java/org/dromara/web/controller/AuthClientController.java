@@ -53,7 +53,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 认证
+ * 客户端登录认证
  *
  * @author Lion Li
  */
@@ -61,8 +61,8 @@ import java.util.concurrent.TimeUnit;
 @SaIgnore
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/auth")
-public class AuthController {
+@RequestMapping("/client/auth")
+public class AuthClientController {
 
     private final SocialProperties socialProperties;
     private final SysLoginService loginService;
@@ -82,6 +82,7 @@ public class AuthController {
      */
     @ApiEncrypt
     @PostMapping("/login")
+    @SaIgnore
     public R<LoginVo> login(@RequestBody String body) {
         LoginBody loginBody = JsonUtils.parseObject(body, LoginBody.class);
         ValidatorUtils.validate(loginBody);
@@ -104,7 +105,7 @@ public class AuthController {
         Long userId = LoginHelper.getUserId();
         scheduledExecutorService.schedule(() -> {
             SseMessageDto dto = new SseMessageDto();
-            dto.setMessage("欢迎登录恋爱猫后台管理系统");
+            dto.setMessage("欢迎来到恋爱猫");
             dto.setUserIds(List.of(userId));
             SseMessageUtils.publishMessage(dto);
         }, 5, TimeUnit.SECONDS);

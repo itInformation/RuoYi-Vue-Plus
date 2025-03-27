@@ -9,11 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.constant.Constants;
 import org.dromara.common.core.constant.GlobalConstants;
 import org.dromara.common.core.constant.SystemConstants;
+import org.dromara.common.core.constant.SystemRoleConstants;
 import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.domain.model.SmsLoginBody;
 import org.dromara.common.core.enums.LoginType;
 import org.dromara.common.core.exception.user.CaptchaExpireException;
 import org.dromara.common.core.exception.user.UserException;
+import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.MessageUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.core.utils.ValidatorUtils;
@@ -22,12 +24,17 @@ import org.dromara.common.redis.utils.RedisUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.tenant.helper.TenantHelper;
 import org.dromara.system.domain.SysUser;
+import org.dromara.system.domain.bo.SysUserBo;
 import org.dromara.system.domain.vo.SysClientVo;
+import org.dromara.system.domain.vo.SysRoleVo;
 import org.dromara.system.domain.vo.SysUserVo;
+import org.dromara.system.mapper.SysRoleMapper;
 import org.dromara.system.mapper.SysUserMapper;
+import org.dromara.system.service.ISysUserService;
 import org.dromara.web.domain.vo.LoginVo;
 import org.dromara.web.service.IAuthStrategy;
 import org.dromara.web.service.SysLoginService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,6 +49,8 @@ public class SmsAuthStrategy implements IAuthStrategy {
 
     private final SysLoginService loginService;
     private final SysUserMapper userMapper;
+    private final SysRoleMapper sysRoleMapper;
+    private final ISysUserService userService;
 
     @Override
     public LoginVo login(String body, SysClientVo client) {
@@ -92,13 +101,34 @@ public class SmsAuthStrategy implements IAuthStrategy {
     private SysUserVo loadUserByPhonenumber(String phonenumber) {
         SysUserVo user = userMapper.selectVoOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhonenumber, phonenumber));
         if (ObjectUtil.isNull(user)) {
-            log.info("登录用户：{} 不存在.", phonenumber);
-            throw new UserException("user.not.exists", phonenumber);
+            log.info("登录用户：{} 不存在.新增一个用户", phonenumber);
+            return insertDefaultUser(phonenumber);
         } else if (SystemConstants.DISABLE.equals(user.getStatus())) {
             log.info("登录用户：{} 已被停用.", phonenumber);
             throw new UserException("user.blocked", phonenumber);
         }
         return user;
+    }
+
+    /**
+     * 新增一个默认用户
+     */
+    private SysUserVo insertDefaultUser(String phoneNumber) {
+        SysUserBo sysUser = new SysUserBo();
+        SysRoleVo sysRoleVo = sysRoleMapper.selectRoleByRoleKey(SystemRoleConstants.USER);
+        if (ObjectUtil.isNull(sysRoleVo)){
+            throw new UserException("user.role.not.exist");
+        }
+        sysUser.setRoleId(sysRoleVo.getRoleId());
+        sysUser.setPhonenumber(phoneNumber);
+
+        int insert = userService.insertUser(sysUser);
+        SysUserVo sysUserVo = new SysUserVo();
+        if (insert > 0 ){
+            BeanUtils.copyProperties(sysUser, sysUserVo);
+        }
+        BeanUtils.copyProperties(sysUser, sysUserVo);
+        return MapstructUtils.convert(sysUser,SysUserVo.class);
     }
 
 }

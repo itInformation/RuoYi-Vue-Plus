@@ -51,6 +51,11 @@
         WHERE r.del_flag = '0' and r.role_id in (select role_id from sys_user_role where user_id = #{userId})
     </select>
 
+    <select id="selectRoleByRoleKey" parameterType="String" resultMap="SysRoleResult">
+        <include refid="selectRoleVo"/>
+        WHERE r.del_flag = '0' and r.role_key = #{roleKey}
+    </select>
+
     <select id="selectRoleById" resultMap="SysRoleResult">
         <include refid="selectRoleVo"/>
         WHERE r.del_flag = '0' and r.role_id = #{roleId}

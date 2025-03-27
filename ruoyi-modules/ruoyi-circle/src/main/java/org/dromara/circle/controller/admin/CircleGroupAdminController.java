@@ -50,7 +50,7 @@ public class CircleGroupAdminController extends BaseController {
     /**
      * 查询需要审核的圈子
      */
-    @SaCheckPermission("system:group:list")
+    @SaCheckPermission("system:group:review")
     @GetMapping("/getReviewList")
     public TableDataInfo<CircleGroupVo> getReviewList(CircleGroupBo bo, PageQuery pageQuery) {
         return circleGroupService.queryReviewPageList(bo, pageQuery);
@@ -59,7 +59,7 @@ public class CircleGroupAdminController extends BaseController {
     /**
      * 查询回收站圈子主体列表
      */
-    @SaCheckPermission("system:group:list")
+    @SaCheckPermission("system:group:recycleList")
     @GetMapping("/listWithRecycleBin")
     public TableDataInfo<CircleGroupVo> listWithRecycleBin(CircleGroupBo bo, PageQuery pageQuery) {
         return circleGroupService.queryPageListWithRecycleBin(bo, pageQuery);
@@ -92,7 +92,7 @@ public class CircleGroupAdminController extends BaseController {
      *
      * @param groupId 主键
      */
-    @SaCheckPermission("system:group:query")
+    @SaCheckPermission("system:group:queryRecycle")
     @GetMapping("/getInfoWithRecycleBin/{groupId}")
     public R<CircleGroupVo> getInfoWithRecycleBin(@NotNull(message = "主键不能为空")
                                     @PathVariable Long groupId) {
@@ -123,7 +123,7 @@ public class CircleGroupAdminController extends BaseController {
     /**
      * 修改圈子状态，启用 0 ，禁用 1
      */
-    @SaCheckPermission("system:group:edit")
+    @SaCheckPermission("system:group:editStatus")
     @Log(title = "圈子主体", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PostMapping("/updateStatus")
@@ -134,11 +134,11 @@ public class CircleGroupAdminController extends BaseController {
     }
 
     /**
-     * 删除圈子主体
+     * 批量删除圈子主体，放入回收站
      *
      * @param groupIds 主键串
      */
-    @SaCheckPermission("system:group:remove")
+    @SaCheckPermission("system:group:removes")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteByIds/{groupIds}")
     public R<Void> deleteByIds(@NotEmpty(message = "主键不能为空")
@@ -148,11 +148,11 @@ public class CircleGroupAdminController extends BaseController {
 
 
     /**
-     * 删除回收站中的圈子主体
+     * 批量删除圈子主体,从回收站删除
      *
      * @param groupIds 主键串
      */
-    @SaCheckPermission("system:group:remove")
+    @SaCheckPermission("system:group:removes:recycle")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteRecycleBinByIds/{groupIds}")
     public R<Void> deleteRecycleBinByIds(@NotEmpty(message = "主键不能为空")
@@ -162,7 +162,7 @@ public class CircleGroupAdminController extends BaseController {
 
 
     /**
-     * 删除圈子主体
+     * 删除圈子主体,放入回收站
      *
      */
     @SaCheckPermission("system:group:remove")
@@ -174,10 +174,10 @@ public class CircleGroupAdminController extends BaseController {
     }
 
     /**
-     * 删除圈子主体
+     * 删除圈子主体,从回收站删除
      *
      */
-    @SaCheckPermission("system:group:remove")
+    @SaCheckPermission("system:group:removeRecycle")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteRecycleBinById/{groupId}")
     public R<Void> deleteRecycleBinById(@NotEmpty(message = "主键不能为空")

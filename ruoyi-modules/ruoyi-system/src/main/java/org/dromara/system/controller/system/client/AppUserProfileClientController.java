@@ -1,5 +1,6 @@
 package org.dromara.system.controller.system.client;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.secure.BCrypt;
 import cn.hutool.core.bean.BeanUtil;
@@ -32,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Arrays;
 
 /**
- * 个人信息 业务处理
+ * app端个人信息业务处理
  *
  * @author Lion Li
  */
@@ -40,7 +41,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/client/user/profile")
-public class AppUserProfileController extends BaseController {
+public class AppUserProfileClientController extends BaseController {
 
     private final ISysUserService userService;
     private final ISysOssService ossService;
@@ -63,6 +64,7 @@ public class AppUserProfileController extends BaseController {
      */
     @RepeatSubmit
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
+    @SaCheckPermission("client:profile:update")
     @PutMapping
     public R<Void> updateProfile(@Validated @RequestBody SysUserProfileBo profile) {
         SysUserBo user = BeanUtil.toBean(profile, SysUserBo.class);
@@ -89,6 +91,7 @@ public class AppUserProfileController extends BaseController {
     @RepeatSubmit
     @ApiEncrypt
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
+    @SaCheckPermission("client:profile:pwd")
     @PutMapping("/updatePwd")
     public R<Void> updatePwd(@Validated @RequestBody SysUserPasswordBo bo) {
         SysUserVo user = userService.selectUserById(LoginHelper.getUserId());
@@ -111,6 +114,7 @@ public class AppUserProfileController extends BaseController {
      *
      * @param avatarfile 用户头像
      */
+    @SaCheckPermission("client:profile:avatar")
     @RepeatSubmit
     @Log(title = "用户头像", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

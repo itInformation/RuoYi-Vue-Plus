@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 入驻申请app端使用
+ * app端入驻申请
  *
  * @author Lion Li
  * @date 2025-03-24
@@ -38,7 +38,7 @@ public class ApplyMainClientController extends BaseController {
      *
      * @param applyId 主键
      */
-    @SaCheckPermission("system:main:query")
+    @SaCheckPermission("client:main:query")
     @GetMapping("/{applyId}")
     public R<ApplyMainVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long applyId) {
@@ -48,8 +48,8 @@ public class ApplyMainClientController extends BaseController {
     /**
      * 新增入驻申请主
      */
-    @SaCheckPermission("system:main:add")
-    @Log(title = "入驻申请主", businessType = BusinessType.INSERT)
+    @SaCheckPermission("client:main:add")
+    @Log(title = "app端入驻申请", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody ApplyMainBo bo) {
@@ -59,8 +59,8 @@ public class ApplyMainClientController extends BaseController {
     /**
      * 修改入驻申请主
      */
-    @SaCheckPermission("system:main:edit")
-    @Log(title = "入驻申请主", businessType = BusinessType.UPDATE)
+    @SaCheckPermission("client:main:edit")
+    @Log(title = "app端入驻申请", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody ApplyMainBo bo) {
@@ -68,12 +68,12 @@ public class ApplyMainClientController extends BaseController {
     }
 
     /**
-     * 删除入驻申请主
+     * 删除入驻申请
      *
      * @param applyIds 主键串
      */
-    @SaCheckPermission("system:main:remove")
-    @Log(title = "入驻申请主", businessType = BusinessType.DELETE)
+    @SaCheckPermission("client:main:remove")
+    @Log(title = "app端入驻申请", businessType = BusinessType.DELETE)
     @DeleteMapping("/{applyIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] applyIds) {
