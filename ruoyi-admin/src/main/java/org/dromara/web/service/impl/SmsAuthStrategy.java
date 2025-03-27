@@ -37,6 +37,8 @@ import org.dromara.web.service.SysLoginService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * 短信认证策略
  *
@@ -121,14 +123,13 @@ public class SmsAuthStrategy implements IAuthStrategy {
         }
         sysUser.setRoleId(sysRoleVo.getRoleId());
         sysUser.setPhonenumber(phoneNumber);
+        sysUser.setUserName(phoneNumber);
+        sysUser.setNickName("nickName" + ThreadLocalRandom.current().nextInt(10000));
 
         int insert = userService.insertUser(sysUser);
         SysUserVo sysUserVo = new SysUserVo();
-        if (insert > 0 ){
-            BeanUtils.copyProperties(sysUser, sysUserVo);
-        }
-        BeanUtils.copyProperties(sysUser, sysUserVo);
-        return MapstructUtils.convert(sysUser,SysUserVo.class);
+        BeanUtils.copyProperties(sysUserVo, sysUser);
+        return sysUserVo;
     }
 
 }

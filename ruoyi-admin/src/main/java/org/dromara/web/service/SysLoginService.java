@@ -159,7 +159,7 @@ public class SysLoginService {
         loginUser.setUserType(user.getUserType());
         loginUser.setCircleNum(user.getCircleNum());
         loginUser.setIsBirthday(user.getBirthday() != null);
-        loginUser.setIsPassword(user.getPassword() != null);
+        loginUser.setIsPassword(StringUtils.isNotEmpty(user.getPassword()));
         loginUser.setMenuPermission(permissionService.getMenuPermission(userId));
         loginUser.setRolePermission(permissionService.getRolePermission(userId));
         if (ObjectUtil.isNotNull(user.getDeptId())) {
