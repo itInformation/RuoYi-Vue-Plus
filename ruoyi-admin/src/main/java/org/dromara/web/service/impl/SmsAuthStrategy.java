@@ -14,6 +14,7 @@ import org.dromara.common.core.constant.SystemRoleConstants;
 import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.domain.model.SmsLoginBody;
 import org.dromara.common.core.enums.LoginType;
+import org.dromara.common.core.enums.UserType;
 import org.dromara.common.core.exception.user.CaptchaExpireException;
 import org.dromara.common.core.exception.user.UserException;
 import org.dromara.common.core.utils.MessageUtils;
@@ -37,6 +38,7 @@ import org.dromara.web.service.SysLoginService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -62,35 +64,39 @@ public class SmsAuthStrategy implements IAuthStrategy {
         String phonenumber = loginBody.getPhonenumber();
         String smsCode = loginBody.getSmsCode();
         AtomicReference<SysUserVo> user1 = new AtomicReference<>();
-        LoginUser loginUser = TenantHelper.dynamic(tenantId, () -> {
-           SysUserVo user = loadUserByPhonenumber(phonenumber);
-            loginService.checkLogin(LoginType.SMS, tenantId, user.getUserName(), () -> !validateSmsCode(tenantId, phonenumber, smsCode));
-            user1.set(user);
-            // 此处可根据登录用户的数据不同 自行创建 loginUser 属性不够用继承扩展就行了
-            return loginService.buildLoginUser(user);
-        });
-        loginUser.setClientKey(client.getClientKey());
-        loginUser.setDeviceType(client.getDeviceType());
-        SaLoginModel model = new SaLoginModel();
-        model.setDevice(client.getDeviceType());
-        // 自定义分配 不同用户体系 不同 token 授权时间 不设置默认走全局 yml 配置
-        // 例如: 后台用户30分钟过期 app用户1天过期
-        model.setTimeout(client.getTimeout());
-        model.setActiveTimeout(client.getActiveTimeout());
-        model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
-        // 生成token
+        try {
 
-        LoginHelper.login(loginUser, model);
-        SysUserBo userBo = new SysUserBo();
-        BeanUtils.copyProperties(user1.get(),userBo);
-        userService.insertUser(userBo);
-        LoginVo loginVo = new LoginVo();
-        loginVo.setAccessToken(StpUtil.getTokenValue());
-        loginVo.setExpireIn(StpUtil.getTokenTimeout());
-        loginVo.setClientId(client.getClientId());
-        loginVo.setBirthday(loginUser.getIsBirthday());
-        loginVo.setPassword(loginUser.getIsPassword());
-        return loginVo;
+
+            LoginUser loginUser = TenantHelper.dynamic(tenantId, () -> {
+                SysUserVo user = loadUserByPhonenumber(phonenumber);
+                loginService.checkLogin(LoginType.SMS, tenantId, user.getUserName(), () -> !validateSmsCode(tenantId, phonenumber, smsCode));
+                user1.set(user);
+                // 此处可根据登录用户的数据不同 自行创建 loginUser 属性不够用继承扩展就行了
+                return loginService.buildLoginUser(user);
+            });
+            loginUser.setClientKey(client.getClientKey());
+            loginUser.setDeviceType(client.getDeviceType());
+            SaLoginModel model = new SaLoginModel();
+            model.setDevice(client.getDeviceType());
+            // 自定义分配 不同用户体系 不同 token 授权时间 不设置默认走全局 yml 配置
+            // 例如: 后台用户30分钟过期 app用户1天过期
+            model.setTimeout(client.getTimeout());
+            model.setActiveTimeout(client.getActiveTimeout());
+            model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
+            // 生成token
+
+            LoginHelper.login(loginUser, model);
+            LoginVo loginVo = new LoginVo();
+            loginVo.setAccessToken(StpUtil.getTokenValue());
+            loginVo.setExpireIn(StpUtil.getTokenTimeout());
+            loginVo.setClientId(client.getClientId());
+            loginVo.setBirthday(loginUser.getIsBirthday());
+            loginVo.setPassword(loginUser.getIsPassword());
+            return loginVo;
+        }catch (Exception e) {
+            userService.deleteUserById(user1.get().getUserId());
+            throw e;
+        }
     }
 
     /**
@@ -125,7 +131,7 @@ public class SmsAuthStrategy implements IAuthStrategy {
      * 新增一个默认用户
      */
     private SysUserVo buildDefaultUser(String phoneNumber) {
-        SysUserVo sysUser = new SysUserVo();
+        SysUserBo sysUser = new SysUserBo();
         SysRoleVo sysRoleVo = sysRoleMapper.selectRoleByRoleKey(SystemRoleConstants.USER);
         if (ObjectUtil.isNull(sysRoleVo)){
             throw new UserException("user.role.not.exist");
@@ -133,8 +139,13 @@ public class SmsAuthStrategy implements IAuthStrategy {
         sysUser.setRoleId(sysRoleVo.getRoleId());
         sysUser.setPhonenumber(phoneNumber);
         sysUser.setUserName(phoneNumber);
-        sysUser.setNickName("nickName" + IdUtil.fastSimpleUUID());
-        return sysUser;
+        sysUser.setNickName("nickName" + ThreadLocalRandom.current().nextInt(10000));
+        sysUser.setUserType(UserType.APP_USER.getUserType());
+
+        int insert = userService.insertUser(sysUser);
+        SysUserVo sysUserVo = new SysUserVo();
+        BeanUtils.copyProperties(sysUserVo, sysUser);
+        return sysUserVo;
     }
 
 }
