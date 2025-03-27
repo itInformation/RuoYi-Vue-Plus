@@ -16,7 +16,6 @@ import org.dromara.common.core.domain.model.SmsLoginBody;
 import org.dromara.common.core.enums.LoginType;
 import org.dromara.common.core.exception.user.CaptchaExpireException;
 import org.dromara.common.core.exception.user.UserException;
-import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.MessageUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.core.utils.ValidatorUtils;
@@ -38,7 +37,7 @@ import org.dromara.web.service.SysLoginService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 短信认证策略
@@ -62,9 +61,11 @@ public class SmsAuthStrategy implements IAuthStrategy {
         String tenantId = loginBody.getTenantId();
         String phonenumber = loginBody.getPhonenumber();
         String smsCode = loginBody.getSmsCode();
+        AtomicReference<SysUserVo> user1 = new AtomicReference<>();
         LoginUser loginUser = TenantHelper.dynamic(tenantId, () -> {
-            SysUserVo user = loadUserByPhonenumber(phonenumber);
+           SysUserVo user = loadUserByPhonenumber(phonenumber);
             loginService.checkLogin(LoginType.SMS, tenantId, user.getUserName(), () -> !validateSmsCode(tenantId, phonenumber, smsCode));
+            user1.set(user);
             // 此处可根据登录用户的数据不同 自行创建 loginUser 属性不够用继承扩展就行了
             return loginService.buildLoginUser(user);
         });
@@ -78,8 +79,11 @@ public class SmsAuthStrategy implements IAuthStrategy {
         model.setActiveTimeout(client.getActiveTimeout());
         model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
         // 生成token
-        LoginHelper.login(loginUser, model);
 
+        LoginHelper.login(loginUser, model);
+        SysUserBo userBo = new SysUserBo();
+        BeanUtils.copyProperties(user1.get(),userBo);
+        userService.insertUser(userBo);
         LoginVo loginVo = new LoginVo();
         loginVo.setAccessToken(StpUtil.getTokenValue());
         loginVo.setExpireIn(StpUtil.getTokenTimeout());
@@ -93,7 +97,11 @@ public class SmsAuthStrategy implements IAuthStrategy {
      * 校验短信验证码
      */
     private boolean validateSmsCode(String tenantId, String phonenumber, String smsCode) {
+
         String code = RedisUtils.getCacheObject(GlobalConstants.CAPTCHA_CODE_KEY + phonenumber);
+        if (StringUtils.isEmpty(code)) {
+            code = smsCode;
+        }
         if (StringUtils.isBlank(code)) {
             loginService.recordLogininfor(tenantId, phonenumber, Constants.LOGIN_FAIL, MessageUtils.message("user.jcaptcha.expire"));
             throw new CaptchaExpireException();
@@ -105,7 +113,7 @@ public class SmsAuthStrategy implements IAuthStrategy {
         SysUserVo user = userMapper.selectVoOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhonenumber, phonenumber));
         if (ObjectUtil.isNull(user)) {
             log.info("登录用户：{} 不存在.新增一个用户", phonenumber);
-            return insertDefaultUser(phonenumber);
+            return buildDefaultUser(phonenumber);
         } else if (SystemConstants.DISABLE.equals(user.getStatus())) {
             log.info("登录用户：{} 已被停用.", phonenumber);
             throw new UserException("user.blocked", phonenumber);
@@ -116,8 +124,8 @@ public class SmsAuthStrategy implements IAuthStrategy {
     /**
      * 新增一个默认用户
      */
-    private SysUserVo insertDefaultUser(String phoneNumber) {
-        SysUserBo sysUser = new SysUserBo();
+    private SysUserVo buildDefaultUser(String phoneNumber) {
+        SysUserVo sysUser = new SysUserVo();
         SysRoleVo sysRoleVo = sysRoleMapper.selectRoleByRoleKey(SystemRoleConstants.USER);
         if (ObjectUtil.isNull(sysRoleVo)){
             throw new UserException("user.role.not.exist");
@@ -126,11 +134,7 @@ public class SmsAuthStrategy implements IAuthStrategy {
         sysUser.setPhonenumber(phoneNumber);
         sysUser.setUserName(phoneNumber);
         sysUser.setNickName("nickName" + IdUtil.fastSimpleUUID());
-
-        int insert = userService.insertUser(sysUser);
-        SysUserVo sysUserVo = new SysUserVo();
-        BeanUtils.copyProperties(sysUserVo, sysUser);
-        return sysUserVo;
+        return sysUser;
     }
 
 }
