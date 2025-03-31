@@ -47,7 +47,7 @@ public class CircleContentAdminController extends BaseController {
 
 
     /**
-     * 查询圈子内容审核失败列表
+     * 查询圈子内容审核失败列表get
      */
     @SaCheckPermission("system:content:failureList")
     @GetMapping("/failureList")
