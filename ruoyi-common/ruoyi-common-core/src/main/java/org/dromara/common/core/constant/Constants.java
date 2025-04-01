@@ -66,6 +66,8 @@ public interface Constants {
      * 验证码有效期（分钟）
      */
     Integer CAPTCHA_EXPIRATION = 2;
+    Integer FACE_ACCESS_TOKEN_EXPIRATION = 20;
+    Integer FACE_ACCESS_SIGN_EXPIRATION = 20;
 
     /**
      * 顶级父级id

@@ -20,6 +20,9 @@ public interface GlobalConstants {
      * 验证码 redis key
      */
     String CAPTCHA_CODE_KEY = GLOBAL_REDIS_KEY + "captcha_codes:";
+    String FACE_IDENTITY_TOKEN_CODE_KEY = GLOBAL_REDIS_KEY + "face_identity_token:";
+    String FACE_IDENTITY_NONCE_CODE_KEY = GLOBAL_REDIS_KEY + "face_identity_nonce:";
+    String FACE_IDENTITY_SIGN_CODE_KEY = GLOBAL_REDIS_KEY + "face_identity_sign:";
 
     /**
      * 防重提交 redis key

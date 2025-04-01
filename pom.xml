@@ -39,6 +39,7 @@
         <justauth.version>1.16.7</justauth.version>
         <!-- 离线IP地址定位库 -->
         <ip2region.version>2.7.0</ip2region.version>
+        <tengxun.face.version>3.1.1208</tengxun.face.version>
 
         <!-- OSS 配置 -->
         <aws.sdk.version>2.28.22</aws.sdk.version>
@@ -391,6 +392,11 @@
                 <artifactId>alipay-sdk-java</artifactId>
                 <version>${alipay.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.tencentcloudapi</groupId>
+                <artifactId>tencentcloud-sdk-java-faceid</artifactId>
+                <version>${tengxun.face.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -513,10 +519,11 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-<!--            <repository>-->
-<!--                <id>github</id>-->
-<!--                <url>https://maven.pkg.github.com/wechatpay-apiv3/wechatpay-apache-httpclient</url>-->
-<!--            </repository>-->
+        <repository>
+            <id>tencent</id>
+            <name>tencent maven mirror</name>
+            <url>https://mirrors.tencent.com/nexus/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -531,6 +538,9 @@
                 <enabled>false</enabled>
             </snapshots>
         </pluginRepository>
+
+
+
     </pluginRepositories>
 
 </project>

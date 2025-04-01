@@ -4,14 +4,14 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.Auth;
-import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
-import org.dromara.common.json.utils.JsonUtils;
+import com.qiniu.util.UrlSafeBase64;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * description:
@@ -28,51 +28,62 @@ public class QiniuFaceUtil {
     private static final String secret = "bY9yVvVh1zXjhWUBA2bZO34rB68knwAlFdcfvKyK";
 
 
-    public static Response face(Client client,Auth auth,String imgUrl) throws QiniuException {
+
+
+    static String json() {
+        return "{\"real_name\":\"张明辉\",\"id_card\":\"610202199202262817\"}";
+
+    }
+    public static Response face() throws QiniuException, NoSuchAlgorithmException, InvalidKeyException {
+
+        String src = "lianaimao:10000";
+        String srcBase64 = UrlSafeBase64.encodeToString(src);
+        String sign = hmac_sha1(srcBase64, key);
+        String encodedSign = UrlSafeBase64.encodeToString(sign);
+        String token = "QD " + key + ":" + encodedSign + ":" + srcBase64;
         StringMap headers = new StringMap();
-        String imgStr = getImgStr(imgUrl);
-        headers.put("Authorization", qiniuToken(auth,null));
-        return client.post(url, json(imgStr,null).getBytes(), headers, Client.JsonMime);
-    }
-
-    static String qiniuToken(Auth auth,String url) {
-        return auth.qiniuAuthorization(url, "POST", json(null,null).getBytes(), null).get("Authorization");
-    }
-    public static String getImgStr(String imgFile) {
-        //将图片文件转化为字节数组字符串，并对其进行Base64编码处理
-        FileInputStream in = null;
-        byte[] data = null;
-        //读取图片字节数组
-        try {
-            in = new FileInputStream(imgFile);
-            data = new byte[in.available()];
-            in.read(data);
-            in.close();
-            return Base64.encodeToString(data,Base64.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    static String json(String imageA,String imageB) {
-        return "{\"min_code_length\":1,\"max_code_length\":3}";
-    }
-
-    public static Response face(String imgUrl) throws QiniuException {
-        Auth auth = Auth.create(key, secret);
-        StringMap headers = new StringMap();
-        String url = "https://face-actlive.qiniuapi.com/v2/actionliveness/sessioncode";
-//        String imgStr = getImgStr(imgUrl);
-        headers.put("Authorization", qiniuToken(auth,url));
+        String url = "https://ap-open-z0.qiniuapi.com/faceid-sdk/api/face-hdphotoauth/token";
+        headers.put("Authorization", token);
         headers.put("Content-Type", "application/json");
         Client client = new Client();
-        return client.post(url, json(null,null).getBytes(), headers, Client.JsonMime);
+        return client.post(url, json().getBytes(), headers, Client.JsonMime);
     }
 
-    public static void main(String[] args) throws QiniuException {
-        Response face = face(null);
+    public static void main(String[] args) throws QiniuException, NoSuchAlgorithmException, InvalidKeyException {
+        Response face = face();
         System.out.println(face);
+
     }
+
+    public static String hmac_sha1(String data,String key)
+        throws NoSuchAlgorithmException, InvalidKeyException, InvalidKeyException {
+        // 获取 HMAC-SHA1 算法的 Mac 实例
+        Mac mac = Mac.getInstance("HmacSHA1");
+
+        // 将密钥字符串转换为 SecretKeySpec
+        SecretKeySpec secretKey = new SecretKeySpec(
+            key.getBytes(StandardCharsets.UTF_8),
+            "HmacSHA1"
+        );
+
+        // 初始化 Mac 实例
+        mac.init(secretKey);
+
+        // 计算 HMAC
+        byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+
+        // 将字节数组转换为十六进制字符串
+        return bytesToHex(rawHmac);
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : bytes) {
+            String hex = String.format("%02x", b & 0xFF);
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
 
 }

@@ -158,12 +158,12 @@ public class SysFaceRecognizedClientController extends BaseController {
         }
         OssProperties qiniuConfig = instance.getProperties();
         Auth auth = Auth.create(qiniuConfig.getAccessKey(), qiniuConfig.getSecretKey());
-        try {
-            Response face = QiniuFaceUtil.face(client, auth, null);
-            System.out.println(face);
-        } catch (QiniuException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+////            Response face = QiniuFaceUtil.face(client, auth, null);
+////            System.out.println(face);
+//        } catch (QiniuException e) {
+//            throw new RuntimeException(e);
+//        }
         return R.ok("vo");
     }
     // 七牛云上传完成回调配置
