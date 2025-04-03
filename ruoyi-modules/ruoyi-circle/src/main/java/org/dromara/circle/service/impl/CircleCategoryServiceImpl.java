@@ -1,6 +1,7 @@
 package org.dromara.circle.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,7 @@ public class CircleCategoryServiceImpl implements ICircleCategoryService {
      * @return 圈子分类
      */
     @Override
-    public CircleCategoryVo queryById(Long catId){
+    public CircleCategoryVo queryById(Long catId) {
         return baseMapper.selectVoById(catId);
     }
 
@@ -128,7 +129,7 @@ public class CircleCategoryServiceImpl implements ICircleCategoryService {
     /**
      * 保存前的数据校验
      */
-    private void validEntityBeforeSave(CircleCategory entity){
+    private void validEntityBeforeSave(CircleCategory entity) {
         //TODO 做一些数据校验,如唯一约束
     }
 
@@ -142,16 +143,26 @@ public class CircleCategoryServiceImpl implements ICircleCategoryService {
     @Override
     @CacheEvict(value = "categoryTree", key = "'all'")
     public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
-        if(isValid){
+        if (isValid) {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         return baseMapper.deleteByIds(ids) > 0;
     }
 
-    @Override
-    public List<CategoryTreeVO> buildCategoryTree() {
+    /**
+     * 构建圈子分类树
+     */
+    private List<CategoryTreeVO> buildCategoryTree(String catId) {
+        List<CircleCategory> allCategories;
         // 从数据库获取所有分类
-        List<CircleCategory> allCategories = baseMapper.selectList(null);
+        if (StringUtils.isNotEmpty(catId)) {
+
+            QueryWrapper<CircleCategory> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("cat_id", catId);
+            allCategories = baseMapper.selectList(queryWrapper);
+        } else {
+            allCategories = baseMapper.selectList(null);
+        }
 
         // 转换为VO并构建树形结构
         List<CategoryTreeVO> nodeList = allCategories.stream()
@@ -177,13 +188,18 @@ public class CircleCategoryServiceImpl implements ICircleCategoryService {
         }
     }
 
-    public Boolean existsById(Long catId){
-        return  baseMapper.selectCount(new LambdaQueryWrapper<CircleCategory>().eq(CircleCategory::getCatId, catId)) > 0;
+    public Boolean existsById(Long catId) {
+        return baseMapper.selectCount(new LambdaQueryWrapper<CircleCategory>().eq(CircleCategory::getCatId, catId)) > 0;
     }
 
     @Cacheable(value = "categoryTree", key = "'all'")
     public List<CategoryTreeVO> getCategoryTree() {
-        return buildCategoryTree();
+        return buildCategoryTree(null);
+    }
+
+    @Cacheable(value = "categoryTree", key = "#catId")
+    public List<CategoryTreeVO> getCategoryTree(String catId) {
+        return buildCategoryTree(catId);
     }
 
 

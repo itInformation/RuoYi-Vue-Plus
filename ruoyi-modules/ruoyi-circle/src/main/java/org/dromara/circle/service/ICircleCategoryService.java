@@ -66,12 +66,6 @@ public interface ICircleCategoryService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
-    /**
-     * 构建圈子分类树
-     *
-     * @return 圈子分类树
-     */
-    List<CategoryTreeVO> buildCategoryTree();
 
     /**
      * 判断分类是否存在
@@ -85,5 +79,11 @@ public interface ICircleCategoryService {
      * @param catId
      */
     void validateCategory(Long catId);
+
+    /**
+     * 查询圈子分类树
+     */
+    List<CategoryTreeVO> getCategoryTree(String catId);
+    List<CategoryTreeVO> getCategoryTree();
 
 }

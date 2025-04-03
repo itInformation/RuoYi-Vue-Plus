@@ -32,14 +32,14 @@ public interface ICircleContentService {
      * @return 圈子内容分页列表
      */
     TableDataInfo<CircleContentVo> queryPageList(CircleContentBo bo, PageQuery pageQuery);
-//    /**
-//     * 分页查询圈子内容审核列表
-//     *
-//     * @param bo        查询条件
-//     * @param pageQuery 分页参数
-//     * @return 圈子内容分页列表
-//     */
-//    TableDataInfo<CircleContentVo> queryPageFailList(CircleContentBo bo, PageQuery pageQuery);
+    /**
+     * 分页查询圈子内容审核列表
+     *
+     * @param bo        查询条件
+     * @param pageQuery 分页参数
+     * @return 圈子内容分页列表
+     */
+    TableDataInfo<CircleContentVo> queryPageFailList(CircleContentBo bo, PageQuery pageQuery);
 
     /**
      * 查询符合条件的圈子内容列表

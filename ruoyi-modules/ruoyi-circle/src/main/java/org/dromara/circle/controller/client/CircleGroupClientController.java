@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * aap端圈子主体
+ * app端 圈子主体
  *
  * @author Lion Li
  * @date 2025-03-03
@@ -39,7 +39,7 @@ public class CircleGroupClientController extends BaseController {
     private final ICircleGroupService circleGroupService;
 
     /**
-     * 查询圈子主体列表
+     * 查询圈子主体列表，用户只能查询自己新增的圈子
      */
     @SaCheckPermission("client:group:list")
     @GetMapping("/list")
@@ -90,9 +90,9 @@ public class CircleGroupClientController extends BaseController {
      */
     @SaCheckPermission("client:group:remove")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
-    @DeleteMapping("/deleteById/{groupIds}")
+    @DeleteMapping("/deleteById/{groupId}")
     public R<Void> deleteById(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long groupId) {
-        return toAjax(circleGroupService.deleteWithValidByIds(List.of(groupId), true));
+        return toAjax(circleGroupService.deleteWithValidById(groupId, true));
     }
 }

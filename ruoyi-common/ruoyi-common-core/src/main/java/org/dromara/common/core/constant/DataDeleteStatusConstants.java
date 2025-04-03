@@ -19,6 +19,9 @@ public interface DataDeleteStatusConstants {
      * 回收站
      */
     Integer RECYCLE_BIN = 1;
+    /**
+     * 未回收站
+     */
     Integer NOT_RECYCLE_BIN = 0;
 
 

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.circle.domain.bo.CircleGroupReviewBo;
 import org.dromara.circle.domain.bo.CircleGroupStatusBo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -48,24 +49,6 @@ public class CircleGroupAdminController extends BaseController {
     }
 
     /**
-     * 查询需要审核的圈子
-     */
-    @SaCheckPermission("system:group:review")
-    @GetMapping("/getReviewList")
-    public TableDataInfo<CircleGroupVo> getReviewList(CircleGroupBo bo, PageQuery pageQuery) {
-        return circleGroupService.queryReviewPageList(bo, pageQuery);
-    }
-
-    /**
-     * 查询回收站圈子主体列表
-     */
-    @SaCheckPermission("system:group:recycleList")
-    @GetMapping("/listWithRecycleBin")
-    public TableDataInfo<CircleGroupVo> listWithRecycleBin(CircleGroupBo bo, PageQuery pageQuery) {
-        return circleGroupService.queryPageListWithRecycleBin(bo, pageQuery);
-    }
-
-    /**
      * 导出圈子主体列表
      */
     @SaCheckPermission("system:group:export")
@@ -87,22 +70,12 @@ public class CircleGroupAdminController extends BaseController {
                                      @PathVariable Long groupId) {
         return R.ok(circleGroupService.queryById(groupId));
     }
-    /**
-     * 获取回收站圈子主体详细信息
-     *
-     * @param groupId 主键
-     */
-    @SaCheckPermission("system:group:queryRecycle")
-    @GetMapping("/getInfoWithRecycleBin/{groupId}")
-    public R<CircleGroupVo> getInfoWithRecycleBin(@NotNull(message = "主键不能为空")
-                                    @PathVariable Long groupId) {
-        return R.ok(circleGroupService.queryByIdWithRecycleBin(groupId));
-    }
+
     /**
      * 新增圈子主体
      */
     @SaCheckPermission("system:group:add")
-    @Log(title = "圈子主体", businessType = BusinessType.INSERT)
+    @Log(title = "圈子主体新增", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CircleGroupBo bo) {
@@ -113,7 +86,7 @@ public class CircleGroupAdminController extends BaseController {
      * 修改圈子主体
      */
     @SaCheckPermission("system:group:edit")
-    @Log(title = "圈子主体", businessType = BusinessType.UPDATE)
+    @Log(title = "圈子主体修改", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleGroupBo bo) {
@@ -124,7 +97,7 @@ public class CircleGroupAdminController extends BaseController {
      * 修改圈子状态，启用 0 ，禁用 1
      */
     @SaCheckPermission("system:group:editStatus")
-    @Log(title = "圈子主体", businessType = BusinessType.UPDATE)
+    @Log(title = "圈子状态修改", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PostMapping("/updateStatus")
     public R<Void> updateStatus(@Validated(EditGroup.class) @RequestBody CircleGroupStatusBo bo) {
@@ -133,8 +106,51 @@ public class CircleGroupAdminController extends BaseController {
         return toAjax(circleGroupService.updateByBo(groupBo));
     }
 
+
     /**
-     * 批量删除圈子主体，放入回收站
+     * 查询需要审核的圈子
+     */
+    @SaCheckPermission("system:group:review")
+    @GetMapping("/getReviewList")
+    public TableDataInfo<CircleGroupVo> getReviewList(CircleGroupBo bo, PageQuery pageQuery) {
+        return circleGroupService.queryReviewPageList(bo, pageQuery);
+    }
+    /**
+     * 审核圈子，启用 0 ，禁用 1
+     */
+    @SaCheckPermission("system:group:editStatus")
+    @Log(title = "圈子审核", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PostMapping("/review")
+    public R<Void> review(@Validated(EditGroup.class) @RequestBody CircleGroupReviewBo bo) {
+        CircleGroupBo groupBo = new CircleGroupBo();
+        BeanUtils.copyProperties(bo, groupBo);
+        return toAjax(circleGroupService.updateByBo(groupBo));
+    }
+
+
+    /**
+     * 查询回收站圈子主体列表
+     */
+    @SaCheckPermission("system:group:recycleList")
+    @GetMapping("/listWithRecycleBin")
+    public TableDataInfo<CircleGroupVo> listWithRecycleBin(CircleGroupBo bo, PageQuery pageQuery) {
+        return circleGroupService.queryPageListWithRecycleBin(bo, pageQuery);
+    }
+    /**
+     * 获取回收站圈子主体详细信息
+     *
+     * @param groupId 主键
+     */
+    @SaCheckPermission("system:group:queryRecycle")
+    @GetMapping("/getInfoWithRecycleBin/{groupId}")
+    public R<CircleGroupVo> getInfoWithRecycleBin(@NotNull(message = "主键不能为空")
+                                                  @PathVariable Long groupId) {
+        return R.ok(circleGroupService.queryByIdWithRecycleBin(groupId));
+    }
+
+    /**
+     * 批量删除圈子主体，放入回收站，
      *
      * @param groupIds 主键串
      */
@@ -145,6 +161,19 @@ public class CircleGroupAdminController extends BaseController {
                           @PathVariable Long[] groupIds) {
         return toAjax(circleGroupService.deleteWithValidByIds(List.of(groupIds), true));
     }
+    /**
+     * 删除圈子主体,放入回收站
+     *
+     */
+    @SaCheckPermission("system:group:remove")
+    @Log(title = "圈子主体", businessType = BusinessType.DELETE)
+    @DeleteMapping("/deleteById/{groupId}")
+    public R<Void> deleteById(@NotEmpty(message = "主键不能为空")
+                              @PathVariable Long groupId) {
+        return toAjax(circleGroupService.deleteWithValidById(groupId, true));
+    }
+
+
 
 
     /**
@@ -159,20 +188,6 @@ public class CircleGroupAdminController extends BaseController {
                           @PathVariable Long[] groupIds) {
         return toAjax(circleGroupService.deleteRecycleBinByIds(List.of(groupIds), true));
     }
-
-
-    /**
-     * 删除圈子主体,放入回收站
-     *
-     */
-    @SaCheckPermission("system:group:remove")
-    @Log(title = "圈子主体", businessType = BusinessType.DELETE)
-    @DeleteMapping("/deleteById/{groupId}")
-    public R<Void> deleteById(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long groupId) {
-        return toAjax(circleGroupService.deleteWithValidById(groupId, true));
-    }
-
     /**
      * 删除圈子主体,从回收站删除
      *

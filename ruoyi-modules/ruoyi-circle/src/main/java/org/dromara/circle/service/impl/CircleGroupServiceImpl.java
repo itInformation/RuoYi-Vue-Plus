@@ -43,10 +43,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class CircleGroupServiceImpl implements ICircleGroupService {
-    @Autowired
     private final CircleGroupMapper baseMapper;
-    @Autowired
-    private CircleMemberMapper circleMemberMapper;
+    private final CircleMemberMapper circleMemberMapper;
 
     /**
      * 查询圈子主体
@@ -57,11 +55,18 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     @Override
     public CircleGroupVo queryById(Long groupId){
         CircleGroupVo circleGroupVo = baseMapper.selectVoById(groupId);
+
         if (circleGroupVo != null && DataDeleteStatusConstants.NOT_RECYCLE_BIN.equals(circleGroupVo.getRecycleBin())){
-            return null;
+            return circleGroupVo;
         }
         return circleGroupVo;
     }
+
+    /**
+     * 根据userId查询圈子主体列表
+     * @param userId
+     * @return
+     */
     @Override
     public List<CircleGroupVo> queryByUserId(Long userId){
         CircleGroupBo groupBo = new CircleGroupBo();
@@ -162,7 +167,11 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     @Transactional(rollbackFor = Exception.class)
     public Boolean insertByBo(CircleGroupBo bo) {
         CircleGroup circleGroup = MapstructUtils.convert(bo, CircleGroup.class);
-
+        if (circleGroup == null){
+            throw new ServiceException("圈子主体信息为空");
+        }
+        //新增时默认为待审核
+        circleGroup.setReview(CircleReviewStatusConstants.NOT_REVIEW);
         validEntityBeforeSave(circleGroup);
         boolean flag = baseMapper.insert(circleGroup) > 0;
         if (flag) {
@@ -204,7 +213,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     }
 
     /**
-     * 校验并批量删除圈子主体信息
+     * 校验并批量删除圈子主体信息，将圈子放入回收站中
      *
      * @param ids     待删除的主键集合
      * @param isValid 是否进行有效性校验

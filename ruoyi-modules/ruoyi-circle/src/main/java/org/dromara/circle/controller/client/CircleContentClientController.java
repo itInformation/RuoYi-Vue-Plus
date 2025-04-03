@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.dromara.circle.anno.ContentPermission;
 import org.dromara.circle.domain.bo.CircleContentBo;
 import org.dromara.circle.domain.vo.CircleContentVo;
 import org.dromara.circle.service.ICircleContentService;
@@ -51,6 +52,7 @@ public class CircleContentClientController extends BaseController {
      */
     @SaCheckPermission("client:content:query")
     @GetMapping("/{contentId}")
+    @ContentPermission
     public R<CircleContentVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long contentId) {
         return R.ok(circleContentService.queryById(contentId));
