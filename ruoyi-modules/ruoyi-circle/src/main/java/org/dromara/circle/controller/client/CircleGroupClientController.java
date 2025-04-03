@@ -1,7 +1,6 @@
 package org.dromara.circle.controller.client;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,6 @@ import org.dromara.circle.service.ICircleGroupService;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
-import org.dromara.common.excel.utils.ExcelUtil;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
 import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
@@ -21,8 +19,6 @@ import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * app端 圈子主体
@@ -60,7 +56,7 @@ public class CircleGroupClientController extends BaseController {
 
 
     /**
-     * 普通用查询查询可以查看的圈子列表
+     * 查询审核失败的圈子，供达人自己查询自己的
      */
     @SaCheckPermission("client:group:ownerFailureList")
     @GetMapping("/ownerFailureList")

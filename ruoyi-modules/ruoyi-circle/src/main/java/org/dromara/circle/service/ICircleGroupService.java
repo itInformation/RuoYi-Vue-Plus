@@ -56,7 +56,7 @@ public interface ICircleGroupService {
     /**
      * 查询用户审核失败的圈子 app端达人用户使用
      */
-    TableDataInfo<CircleGroupVo> queryOwnerReviewFailurePageListWithClient(CircleGroupBo bo, PageQuery pageQuery)
+    TableDataInfo<CircleGroupVo> queryOwnerReviewFailurePageListWithClient(CircleGroupBo bo, PageQuery pageQuery);
     /**
      * 分页查询需要审核的圈子 管理端使用
      *

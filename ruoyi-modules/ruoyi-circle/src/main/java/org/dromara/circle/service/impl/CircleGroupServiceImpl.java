@@ -188,7 +188,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
      * 审核失败的圈子，app端-圈子创作者-查看审核失败圈子使用
      */
     private TableDataInfo<CircleGroupVo> queryReviewFailureClientPageList(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
-        lqw.eq(CircleGroup::getOwnerId, 0L);
+        lqw.eq(CircleGroup::getOwnerId, LoginHelper.getUserId());
         return queryReviewFailurePageList(pageQuery,lqw);
     }
     /**
@@ -239,7 +239,6 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
         lqw.orderByAsc(CircleGroup::getGroupId);
         lqw.like(StringUtils.isNotBlank(bo.getGroupName()), CircleGroup::getGroupName, bo.getGroupName());
         lqw.eq(StringUtils.isNotBlank(bo.getDescription()), CircleGroup::getDescription, bo.getDescription());
-        lqw.eq(bo.getOwnerId() != null, CircleGroup::getOwnerId, bo.getOwnerId());
         lqw.eq(StringUtils.isNotBlank(bo.getCoverImg()), CircleGroup::getCoverImg, bo.getCoverImg());
         lqw.eq(bo.getJoinMode() != null, CircleGroup::getJoinMode, bo.getJoinMode());
 
