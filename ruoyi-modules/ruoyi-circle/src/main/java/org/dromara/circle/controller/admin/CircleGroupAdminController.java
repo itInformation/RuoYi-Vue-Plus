@@ -45,7 +45,7 @@ public class CircleGroupAdminController extends BaseController {
     @SaCheckPermission("system:group:list")
     @GetMapping("/list")
     public TableDataInfo<CircleGroupVo> list(CircleGroupBo bo, PageQuery pageQuery) {
-        return circleGroupService.queryPageList(bo, pageQuery);
+        return circleGroupService.queryPageListWithRecycleBin(bo, pageQuery);
     }
 
     /**

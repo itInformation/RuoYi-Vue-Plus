@@ -220,6 +220,14 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
         return queryListWithRecycleBin(pageQuery,lqw);
     }
     /**
+     * 圈子主体列表 管理端--圈子管理使用
+     */
+    @Override
+    public TableDataInfo<CircleGroupVo> queryPageListWithoutRecycleBin(CircleGroupBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        return queryListWithoutRecycleBin(pageQuery,lqw);
+    }
+    /**
      * 查询符合条件的圈子主体列表
      *
      * @param bo 查询条件

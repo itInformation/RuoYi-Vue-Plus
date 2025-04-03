@@ -69,6 +69,10 @@ public interface ICircleGroupService {
      * 回收站圈子主体列表 管理端使用
      */
     TableDataInfo<CircleGroupVo> queryPageListWithRecycleBin(CircleGroupBo bo, PageQuery pageQuery);
+    /**
+     * 圈子主体列表 管理端--圈子管理使用
+     */
+    TableDataInfo<CircleGroupVo> queryPageListWithoutRecycleBin(CircleGroupBo bo, PageQuery pageQuery);
 
     /**
      * 查询符合条件的圈子主体列表
