@@ -1,42 +1,42 @@
 package org.dromara.circle.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.dromara.circle.domain.CircleGroup;
+import org.dromara.circle.domain.CircleMember;
+import org.dromara.circle.domain.bo.CircleGroupBo;
+import org.dromara.circle.domain.vo.CircleGroupVo;
+import org.dromara.circle.mapper.CircleGroupMapper;
+import org.dromara.circle.mapper.CircleMemberMapper;
+import org.dromara.circle.service.ICircleGroupService;
 import org.dromara.common.core.constant.CircleReviewStatusConstants;
+import org.dromara.common.core.constant.CircleStatusConstants;
 import org.dromara.common.core.constant.DataDeleteStatusConstants;
-import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.enums.CircleRoleTypeEnum;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
-import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import lombok.RequiredArgsConstructor;
+import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.satoken.utils.LoginHelper;
-import org.dromara.circle.domain.CircleMember;
-import org.dromara.circle.mapper.CircleMemberMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.dromara.circle.domain.bo.CircleGroupBo;
-import org.dromara.circle.domain.vo.CircleGroupVo;
-import org.dromara.circle.domain.CircleGroup;
-import org.dromara.circle.mapper.CircleGroupMapper;
-import org.dromara.circle.service.ICircleGroupService;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
  * 圈子主体Service业务层处理
- *
+ * 圈子列表的查询等级
+ * 1.查询所有非删除的圈子   queryPageList
+ * 2. 查询所有不在回收站的圈子  queryListWithRecycleBin
+ * 3. 查询状态可用的圈子   queryStatusList 作为app端查询的一个条件
+ * 4.查询所有需要审核的圈子  queryReviewPageList
  * @author Lion Li
  * @date 2025-03-03
  */
@@ -64,8 +64,6 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
 
     /**
      * 根据userId查询圈子主体列表
-     * @param userId
-     * @return
      */
     @Override
     public List<CircleGroupVo> queryByUserId(Long userId){
@@ -93,6 +91,117 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     public TableDataInfo<CircleGroupVo> queryPageList(CircleGroupBo bo, PageQuery pageQuery) {
         LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
         lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
+        return queryPageList(pageQuery,lqw);
+    }
+
+    @Override
+    public TableDataInfo<CircleGroupVo> queryPageListWithClient(CircleGroupBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        return queryPageListWithClient(pageQuery,lqw);
+    }
+
+    @Override
+    public TableDataInfo<CircleGroupVo> queryOwnerPageListWithClient(CircleGroupBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        return queryOwnerPageListWithClient(pageQuery,lqw);
+    }
+    @Override
+    public TableDataInfo<CircleGroupVo> queryOwnerReviewFailurePageListWithClient(CircleGroupBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        return queryOwnerReviewFailurePageListWithClient(pageQuery,lqw);
+    }
+
+    /**
+     * 查询限制条件最低，不删除即可查到
+     */
+    private TableDataInfo<CircleGroupVo> queryPageList(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        Page<CircleGroupVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
+        return TableDataInfo.build(result);
+    }
+
+
+    private TableDataInfo<CircleGroupVo> queryListWithRecycleBin(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
+        return queryPageList(pageQuery,lqw);
+    }
+
+    /**
+     * 不在回收站中的圈子，可在圈子管理中查看
+     */
+    private TableDataInfo<CircleGroupVo> queryListWithoutRecycleBin(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
+        return queryPageList(pageQuery,lqw);
+    }
+    /**
+     * 圈子状态开启的圈子，app端使用
+     */
+    private TableDataInfo<CircleGroupVo> queryEnablePageList(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        lqw.eq(CircleGroup::getStatus, CircleStatusConstants.ENABLE);
+        return queryListWithoutRecycleBin(pageQuery,lqw);
+    }
+    /**
+     * 需要审核的圈子，管理端使用
+     */
+    private TableDataInfo<CircleGroupVo> queryReviewPageList(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        lqw.eq(CircleGroup::getReview, CircleReviewStatusConstants.NOT_REVIEW);
+        return queryEnablePageList(pageQuery,lqw);
+    }
+
+    /**
+     * 审核通过的圈子
+     */
+    private TableDataInfo<CircleGroupVo> queryReviewSuccessPageList(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        lqw.eq(CircleGroup::getReview, CircleReviewStatusConstants.SUCCESS);
+        return queryEnablePageList(pageQuery,lqw);
+    }
+
+    /**
+     * 查询普通用户可见的圈子 app端普通用户使用
+     */
+    private TableDataInfo<CircleGroupVo> queryPageListWithClient(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        return queryReviewSuccessPageList(pageQuery,lqw);
+    }
+    /**
+     * 查询用户可见的圈子 app端达人用户使用
+     */
+    private TableDataInfo<CircleGroupVo> queryOwnerPageListWithClient(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        lqw.eq(CircleGroup::getOwnerId, LoginHelper.getUserId());
+        return queryPageListWithClient(pageQuery,lqw);
+    }
+
+
+    /**
+     * 查询用户可见的圈子 app端达人用户使用
+     */
+    private TableDataInfo<CircleGroupVo> queryOwnerReviewFailurePageListWithClient(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        lqw.eq(CircleGroup::getOwnerId, LoginHelper.getUserId());
+        return queryReviewFailurePageList(pageQuery,lqw);
+    }
+    /**
+     * 审核失败的圈子，管理端-内容管理-审核失败使用
+     */
+    private TableDataInfo<CircleGroupVo> queryReviewFailurePageList(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        lqw.eq(CircleGroup::getReview, CircleReviewStatusConstants.FAILURE);
+        return queryEnablePageList(pageQuery,lqw);
+    }
+    /**
+     * 审核失败的圈子，app端-圈子创作者-查看审核失败圈子使用
+     */
+    private TableDataInfo<CircleGroupVo> queryReviewFailureClientPageList(PageQuery pageQuery,LambdaQueryWrapper<CircleGroup> lqw) {
+        lqw.eq(CircleGroup::getOwnerId, 0L);
+        return queryReviewFailurePageList(pageQuery,lqw);
+    }
+    /**
+     * 分页查询圈子主体列表
+     *
+     * @param bo        查询条件
+     * @param pageQuery 分页参数
+     * @return 圈子主体分页列表
+     */
+    @Override
+    public TableDataInfo<CircleGroupVo> queryClientPageList(CircleGroupBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
+        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
         Page<CircleGroupVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
         return TableDataInfo.build(result);
     }
@@ -100,24 +209,15 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     @Override
     public TableDataInfo<CircleGroupVo> queryReviewPageList(CircleGroupBo bo, PageQuery pageQuery) {
         LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
-        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
-        lqw.eq(CircleGroup::getReview, CircleReviewStatusConstants.NOT_REVIEW);
-        Page<CircleGroupVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
-        return TableDataInfo.build(result);
+        return queryReviewPageList(pageQuery,lqw);
     }
     /**
-     * 分页查询回收站圈子主体列表
-     *
-     * @param bo        查询条件
-     * @param pageQuery 分页参数
-     * @return 圈子主体分页列表
+     * 回收站圈子主体列表 管理端使用
      */
     @Override
     public TableDataInfo<CircleGroupVo> queryPageListWithRecycleBin(CircleGroupBo bo, PageQuery pageQuery) {
         LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
-        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.RECYCLE_BIN);
-        Page<CircleGroupVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
-        return TableDataInfo.build(result);
+        return queryListWithRecycleBin(pageQuery,lqw);
     }
     /**
      * 查询符合条件的圈子主体列表
@@ -132,17 +232,6 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
         return baseMapper.selectVoList(lqw);
     }
 
-    /**
-     * 查询回收站列表
-     * @param bo
-     * @return
-     */
-    @Override
-    public List<CircleGroupVo> queryListWithRecycleBin(CircleGroupBo bo) {
-        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
-        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.RECYCLE_BIN);
-        return baseMapper.selectVoList(lqw);
-    }
 
     private LambdaQueryWrapper<CircleGroup> buildQueryWrapper(CircleGroupBo bo) {
         Map<String, Object> params = bo.getParams();

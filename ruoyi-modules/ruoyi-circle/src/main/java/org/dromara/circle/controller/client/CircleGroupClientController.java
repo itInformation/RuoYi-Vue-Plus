@@ -41,12 +41,34 @@ public class CircleGroupClientController extends BaseController {
     /**
      * 查询圈子主体列表，用户只能查询自己新增的圈子
      */
-    @SaCheckPermission("client:group:list")
+    @SaCheckPermission("client:group:ownerList")
     @GetMapping("/list")
     public TableDataInfo<CircleGroupVo> list(CircleGroupBo bo, PageQuery pageQuery) {
         bo.setOwnerId(LoginHelper.getUserId());
-        return circleGroupService.queryPageList(bo, pageQuery);
+        return circleGroupService.queryOwnerPageListWithClient(bo, pageQuery);
     }
+
+    /**
+     * 普通用查询查询可以查看的圈子列表
+     */
+    @SaCheckPermission("client:group:userList")
+    @GetMapping("/userList")
+    public TableDataInfo<CircleGroupVo> userList(CircleGroupBo bo, PageQuery pageQuery) {
+        bo.setOwnerId(LoginHelper.getUserId());
+        return circleGroupService.queryPageListWithClient(bo, pageQuery);
+    }
+
+
+    /**
+     * 普通用查询查询可以查看的圈子列表
+     */
+    @SaCheckPermission("client:group:ownerFailureList")
+    @GetMapping("/ownerFailureList")
+    public TableDataInfo<CircleGroupVo> ownerFailureList(CircleGroupBo bo, PageQuery pageQuery) {
+        bo.setOwnerId(LoginHelper.getUserId());
+        return circleGroupService.queryOwnerReviewFailurePageListWithClient(bo, pageQuery);
+    }
+
 
 
     /**

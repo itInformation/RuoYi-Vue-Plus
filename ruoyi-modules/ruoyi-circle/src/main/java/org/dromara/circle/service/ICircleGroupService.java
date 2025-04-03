@@ -46,7 +46,19 @@ public interface ICircleGroupService {
      */
     TableDataInfo<CircleGroupVo> queryPageList(CircleGroupBo bo, PageQuery pageQuery);
     /**
-     * 分页查询需要审核的圈子
+     * 查询普通用户可见的圈子 app端普通用户使用
+     */
+    TableDataInfo<CircleGroupVo> queryPageListWithClient(CircleGroupBo bo, PageQuery pageQuery);
+    /**
+     * 查询用户可见的圈子 app端达人用户使用
+     */
+    TableDataInfo<CircleGroupVo> queryOwnerPageListWithClient(CircleGroupBo bo, PageQuery pageQuery);
+    /**
+     * 查询用户审核失败的圈子 app端达人用户使用
+     */
+    TableDataInfo<CircleGroupVo> queryOwnerReviewFailurePageListWithClient(CircleGroupBo bo, PageQuery pageQuery)
+    /**
+     * 分页查询需要审核的圈子 管理端使用
      *
      * @param bo        查询条件
      * @param pageQuery 分页参数
@@ -54,34 +66,18 @@ public interface ICircleGroupService {
      */
     TableDataInfo<CircleGroupVo> queryReviewPageList(CircleGroupBo bo, PageQuery pageQuery);
     /**
-     * 分页查询回收站中的圈子主体列表
-     *
-     * @param bo        查询条件
-     * @param pageQuery 分页参数
-     * @return 圈子主体分页列表
+     * 回收站圈子主体列表 管理端使用
      */
     TableDataInfo<CircleGroupVo> queryPageListWithRecycleBin(CircleGroupBo bo, PageQuery pageQuery);
 
     /**
      * 查询符合条件的圈子主体列表
      *
-     * @param bo 查询条件
-     * @return 圈子主体列表
      */
     List<CircleGroupVo> queryList(CircleGroupBo bo);
     /**
-     * 查询回收站中的圈子主体列表
-     *
-     * @param bo        查询条件
-     * @return 圈子主体分页列表
-     */
-    List<CircleGroupVo> queryListWithRecycleBin(CircleGroupBo bo);
-
-    /**
      * 新增圈子主体
      *
-     * @param bo 圈子主体
-     * @return 是否新增成功
      */
     Boolean insertByBo(CircleGroupBo bo);
 

@@ -78,6 +78,11 @@ public class CircleContentServiceImpl implements ICircleContentService {
         return TableDataInfo.build(result);
     }
 
+    @Override
+    public TableDataInfo<CircleContentVo> queryPageFailList(CircleContentBo bo, PageQuery pageQuery) {
+        return null;
+    }
+
     /**
      * 查询符合条件的圈子内容列表
      *
@@ -207,5 +212,8 @@ public class CircleContentServiceImpl implements ICircleContentService {
         }
         return CircleGroupJoinModeEnum.FREE.getCode().equals(group.getJoinMode());
     }
+
+
+
 
 }
