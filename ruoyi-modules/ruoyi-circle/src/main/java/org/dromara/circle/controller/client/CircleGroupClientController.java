@@ -35,7 +35,7 @@ public class CircleGroupClientController extends BaseController {
     private final ICircleGroupService circleGroupService;
 
     /**
-     * 查询圈子主体列表，用户只能查询自己新增的圈子
+     * 查询圈子主体列表，达人用户只能查询自己新增的圈子
      */
     @SaCheckPermission("client:group:ownerList")
     @GetMapping("/list")

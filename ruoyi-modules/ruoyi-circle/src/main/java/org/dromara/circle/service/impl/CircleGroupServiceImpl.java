@@ -191,20 +191,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
         lqw.eq(CircleGroup::getOwnerId, LoginHelper.getUserId());
         return queryReviewFailurePageList(pageQuery,lqw);
     }
-    /**
-     * 分页查询圈子主体列表
-     *
-     * @param bo        查询条件
-     * @param pageQuery 分页参数
-     * @return 圈子主体分页列表
-     */
-    @Override
-    public TableDataInfo<CircleGroupVo> queryClientPageList(CircleGroupBo bo, PageQuery pageQuery) {
-        LambdaQueryWrapper<CircleGroup> lqw = buildQueryWrapper(bo);
-        lqw.eq(CircleGroup::getRecycleBin, DataDeleteStatusConstants.NOT_RECYCLE_BIN);
-        Page<CircleGroupVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
-        return TableDataInfo.build(result);
-    }
+
 
     @Override
     public TableDataInfo<CircleGroupVo> queryReviewPageList(CircleGroupBo bo, PageQuery pageQuery) {
