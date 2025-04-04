@@ -93,7 +93,7 @@ public class AppUserProfileClientController extends BaseController {
     @ApiEncrypt
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @SaCheckPermission("client:profile:pwd")
-    @PutMapping("/updatePwd")
+    @PostMapping("/updatePwd")
     public R<Void> updatePwd(@Validated @RequestBody SysUserPasswordBo bo) {
         SysUserVo user = userService.selectUserById(LoginHelper.getUserId());
         String password = user.getPassword();
