@@ -85,7 +85,7 @@ public class AppUserProfileClientController extends BaseController {
     }
 
     /**
-     * 重置密码
+     * 修改密码
      *
      * @param bo 新旧密码
      */
