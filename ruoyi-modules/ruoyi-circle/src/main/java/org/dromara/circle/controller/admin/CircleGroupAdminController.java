@@ -118,7 +118,7 @@ public class CircleGroupAdminController extends BaseController {
     /**
      * 审核圈子，启用 0 ，禁用 1
      */
-    @SaCheckPermission("system:group:editStatus")
+    @SaCheckPermission("system:group:editReview")
     @Log(title = "圈子审核", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PostMapping("/review")
@@ -181,7 +181,7 @@ public class CircleGroupAdminController extends BaseController {
      *
      * @param groupIds 主键串
      */
-    @SaCheckPermission("system:group:removes:recycle")
+    @SaCheckPermission("system:group:removesRecycle")
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteRecycleBinByIds/{groupIds}")
     public R<Void> deleteRecycleBinByIds(@NotEmpty(message = "主键不能为空")

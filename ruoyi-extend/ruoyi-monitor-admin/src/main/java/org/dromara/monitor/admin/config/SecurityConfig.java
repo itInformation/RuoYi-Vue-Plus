@@ -34,6 +34,7 @@ public class SecurityConfig {
         successHandler.setDefaultTargetUrl(adminContextPath + "/");
 
         return httpSecurity
+            .cors(Customizer.withDefaults())
             .headers((header) ->
                 header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
             .authorizeHttpRequests((authorize) ->

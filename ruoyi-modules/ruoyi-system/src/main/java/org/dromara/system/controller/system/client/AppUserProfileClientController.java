@@ -145,7 +145,7 @@ public class AppUserProfileClientController extends BaseController {
      *
      * @param file 用户头像
      */
-//    @SaCheckPermission("client:file:upload")
+    @SaCheckPermission("client:file:upload")
     @RepeatSubmit
     @Log(title = "用户上传文件", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
