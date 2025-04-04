@@ -90,7 +90,7 @@ public class AppUserProfileClientController extends BaseController {
      * @param bo 新旧密码
      */
     @RepeatSubmit
-    @ApiEncrypt
+//    @ApiEncrypt
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @SaCheckPermission("client:profile:pwd")
     @PostMapping("/updatePwd")
