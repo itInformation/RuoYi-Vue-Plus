@@ -82,7 +82,6 @@ public class AuthClientController {
      */
 //    @ApiEncrypt
     @PostMapping("/login")
-    @SaIgnore
     public R<LoginVo> login(@RequestBody String body) {
         LoginBody loginBody = JsonUtils.parseObject(body, LoginBody.class);
         ValidatorUtils.validate(loginBody);
