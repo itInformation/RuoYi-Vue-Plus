@@ -97,11 +97,15 @@ public class AppUserProfileClientController extends BaseController {
     public R<Void> updatePwd(@Validated @RequestBody SysUserPasswordBo bo) {
         SysUserVo user = userService.selectUserById(LoginHelper.getUserId());
         String password = user.getPassword();
-        if (!BCrypt.checkpw(bo.getOldPassword(), password)) {
-            return R.fail("修改密码失败，旧密码错误");
-        }
-        if (BCrypt.checkpw(bo.getNewPassword(), password)) {
-            return R.fail("新密码不能与旧密码相同");
+        //如果password为空，则认为用户是首次设置密码，直接修改
+        if (StringUtils.isNotEmpty(password)) {
+
+            if (!BCrypt.checkpw(bo.getOldPassword(), password)) {
+                return R.fail("修改密码失败，旧密码错误");
+            }
+            if (BCrypt.checkpw(bo.getNewPassword(), password)) {
+                return R.fail("新密码不能与旧密码相同");
+            }
         }
         int rows = DataPermissionHelper.ignore(() -> userService.resetUserPwd(user.getUserId(), BCrypt.hashpw(bo.getNewPassword())));
         if (rows > 0) {

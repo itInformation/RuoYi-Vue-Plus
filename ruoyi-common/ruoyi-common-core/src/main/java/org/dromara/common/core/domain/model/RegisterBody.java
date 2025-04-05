@@ -23,15 +23,13 @@ public class RegisterBody extends LoginBody {
     @Length(min = 2, max = 20, message = "{user.username.length.valid}")
     private String username;
 
-    /**
-     * 用户密码
-     */
-    @NotBlank(message = "{user.password.not.blank}")
-    @Length(min = 5, max = 20, message = "{user.password.length.valid}")
     private String password;
 
     private String userType;
-
+    /**
+     * 用户昵称
+     */
+    private String nickName;
 
     /**
      * 用户性别

@@ -18,7 +18,6 @@ public class SysUserPasswordBo implements Serializable {
     /**
      * 旧密码
      */
-    @NotBlank(message = "旧密码不能为空")
     private String oldPassword;
 
     /**

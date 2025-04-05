@@ -54,8 +54,10 @@ public class SysRegisterService {
         }
         SysUserBo sysUser = new SysUserBo();
         sysUser.setUserName(username);
-        sysUser.setNickName(username);
-        sysUser.setPassword(BCrypt.hashpw(password));
+        sysUser.setNickName(registerBody.getNickName());
+        if (StringUtils.isNotEmpty(password)) {
+            sysUser.setPassword(BCrypt.hashpw(password));
+        }
         sysUser.setUserType(userType);
         sysUser.setBirthday(registerBody.getBirthday());
         sysUser.setSex(registerBody.getSex());
