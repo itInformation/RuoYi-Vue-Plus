@@ -1,10 +1,12 @@
 package org.dromara.common.core.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -32,18 +34,18 @@ public class RegisterBody extends LoginBody {
     private String nickName;
 
     /**
-     * 用户性别
+     * 用户性别 0男 1女
      */
     private String sex;
 
     /**
-     * 用户头像
+     * 用户头像 传 ossId 框架会自动转话成url
      */
     private Long avatar;
 
     /**
-     * 出生年月
+     * 出生年月 日期格式
      */
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
 }

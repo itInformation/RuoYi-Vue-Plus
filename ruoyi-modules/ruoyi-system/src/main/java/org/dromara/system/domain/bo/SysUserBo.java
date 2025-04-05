@@ -12,6 +12,7 @@ import org.dromara.common.core.xss.Xss;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.system.domain.SysUser;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -131,7 +132,7 @@ public class SysUserBo extends BaseEntity {
     /**
      * 出生年月
      */
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     /**
      * 头像地址
