@@ -17,7 +17,6 @@ public class LoginBody implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
     /**
      * 客户端id
      */
@@ -41,7 +40,7 @@ public class LoginBody implements Serializable {
     private String code;
 
     /**
-     * 唯一标识
+     * 唯一标识 如果是注册的时候使用的短信验证码，uuid传手机号码
      */
     private String uuid;
 
