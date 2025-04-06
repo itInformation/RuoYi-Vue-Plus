@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.tenant.core.TenantEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -70,7 +71,7 @@ public class SysUser extends TenantEntity {
     /**
      * 出生年月
      */
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     /**
      * 密码

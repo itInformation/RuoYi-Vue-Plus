@@ -16,6 +16,7 @@ import org.dromara.common.core.enums.LoginType;
 import org.dromara.common.core.enums.UserType;
 import org.dromara.common.core.exception.user.CaptchaExpireException;
 import org.dromara.common.core.exception.user.UserException;
+import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.MessageUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.core.utils.ValidatorUtils;
@@ -30,15 +31,18 @@ import org.dromara.system.domain.vo.SysRoleVo;
 import org.dromara.system.domain.vo.SysUserVo;
 import org.dromara.system.mapper.SysRoleMapper;
 import org.dromara.system.mapper.SysUserMapper;
+import org.dromara.system.service.ISysPermissionService;
 import org.dromara.system.service.ISysUserService;
 import org.dromara.web.domain.vo.LoginVo;
 import org.dromara.web.service.IAuthStrategy;
 import org.dromara.web.service.SysLoginService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
+
+import static org.dromara.common.satoken.utils.LoginHelper.LOGIN_USER_KEY;
 
 /**
  * 短信认证策略
@@ -54,8 +58,10 @@ public class SmsAuthStrategy implements IAuthStrategy {
     private final SysUserMapper userMapper;
     private final SysRoleMapper sysRoleMapper;
     private final ISysUserService userService;
+    private final ISysPermissionService permissionService;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public LoginVo login(String body, SysClientVo client) {
         SmsLoginBody loginBody = JsonUtils.parseObject(body, SmsLoginBody.class);
         ValidatorUtils.validate(loginBody);
@@ -63,7 +69,7 @@ public class SmsAuthStrategy implements IAuthStrategy {
         String phonenumber = loginBody.getPhonenumber();
         String smsCode = loginBody.getSmsCode();
         LoginUser loginUser = TenantHelper.dynamic(tenantId, () -> {
-            SysUserVo user = loadUserByPhonenumber(phonenumber);
+            SysUserVo user = loadUserByPhonenumber(phonenumber,tenantId);
             loginService.checkLogin(LoginType.SMS, tenantId, user.getUserName(), () -> !validateSmsCode(tenantId, phonenumber, smsCode));
             // 此处可根据登录用户的数据不同 自行创建 loginUser 属性不够用继承扩展就行了
             return loginService.buildLoginUser(user);
@@ -77,9 +83,15 @@ public class SmsAuthStrategy implements IAuthStrategy {
         model.setTimeout(client.getTimeout());
         model.setActiveTimeout(client.getActiveTimeout());
         model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
-        // 生成token
 
         LoginHelper.login(loginUser, model);
+        // 生成token
+        if (!loginUser.getIsBirthday()){
+            setUserRole(loginUser.getUserId());
+            loginUser.setMenuPermission(permissionService.getMenuPermission(loginUser.getUserId()));
+            loginUser.setRolePermission(permissionService.getRolePermission(loginUser.getUserId()));
+            StpUtil.getTokenSession().set(LOGIN_USER_KEY, loginUser);
+        }
         LoginVo loginVo = new LoginVo();
         loginVo.setAccessToken(StpUtil.getTokenValue());
         loginVo.setExpireIn(StpUtil.getTokenTimeout());
@@ -106,11 +118,11 @@ public class SmsAuthStrategy implements IAuthStrategy {
         return code.equals(smsCode);
     }
 
-    private SysUserVo loadUserByPhonenumber(String phonenumber) {
+    private SysUserVo loadUserByPhonenumber(String phonenumber, String tenantId) {
         SysUserVo user = userMapper.selectVoOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhonenumber, phonenumber));
         if (ObjectUtil.isNull(user)) {
             log.info("登录用户：{} 不存在.新增一个用户", phonenumber);
-            return buildDefaultUser(phonenumber);
+            return buildDefaultUser(phonenumber,tenantId);
         } else if (SystemConstants.DISABLE.equals(user.getStatus())) {
             log.info("登录用户：{} 已被停用.", phonenumber);
             throw new UserException("user.blocked", phonenumber);
@@ -121,22 +133,29 @@ public class SmsAuthStrategy implements IAuthStrategy {
     /**
      * 新增一个默认用户
      */
-    private SysUserVo buildDefaultUser(String phoneNumber) {
+    private SysUserVo buildDefaultUser(String phoneNumber, String tenantId) {
         SysUserBo sysUser = new SysUserBo();
-        SysRoleVo sysRoleVo = sysRoleMapper.selectRoleByRoleKey(SystemRoleConstants.USER);
-        if (ObjectUtil.isNull(sysRoleVo)) {
-            throw new UserException("user.role.not.exist");
-        }
-        sysUser.setRoleId(sysRoleVo.getRoleId());
+
         sysUser.setPhonenumber(phoneNumber);
         sysUser.setUserName(phoneNumber);
         sysUser.setNickName("nickName" + ThreadLocalRandom.current().nextInt(10000));
         sysUser.setUserType(UserType.APP_USER.getUserType());
 
-        int insert = userService.insertUser(sysUser);
-        SysUserVo sysUserVo = new SysUserVo();
-        BeanUtils.copyProperties(sysUserVo, sysUser);
-        return sysUserVo;
+        userService.registerUser(sysUser,tenantId);
+        SysUserVo user = userMapper.selectVoOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhonenumber, phoneNumber));
+
+        return user;
+    }
+
+
+    private void setUserRole(Long userId) {
+        SysRoleVo sysRoleVo = sysRoleMapper.selectRoleByRoleKey(SystemRoleConstants.USER);
+        if (ObjectUtil.isNull(sysRoleVo)) {
+            throw new UserException("user.role.not.exist");
+        }
+        Long[] roleIds = new Long[1];
+        roleIds[0] = sysRoleVo.getRoleId();
+        userService.insertUserAuth(userId,roleIds);
     }
 
 }

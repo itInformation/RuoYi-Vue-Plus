@@ -177,6 +177,7 @@ public interface ISysUserService {
      * @return 结果
      */
     int updateUserProfile(SysUserBo user);
+    int updateClientUserProfile(SysUserBo user);
 
     /**
      * 修改用户头像

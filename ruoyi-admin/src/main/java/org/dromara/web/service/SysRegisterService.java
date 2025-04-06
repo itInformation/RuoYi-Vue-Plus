@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.constant.Constants;
 import org.dromara.common.core.constant.GlobalConstants;
 import org.dromara.common.core.domain.model.RegisterBody;
+import org.dromara.common.core.domain.model.RegisterClientBody;
 import org.dromara.common.core.enums.UserType;
 import org.dromara.common.core.exception.user.CaptchaException;
 import org.dromara.common.core.exception.user.CaptchaExpireException;
@@ -16,6 +17,7 @@ import org.dromara.common.core.utils.SpringUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.log.event.LogininforEvent;
 import org.dromara.common.redis.utils.RedisUtils;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.tenant.helper.TenantHelper;
 import org.dromara.common.web.config.properties.CaptchaProperties;
 import org.dromara.system.domain.SysUser;
@@ -75,6 +77,32 @@ public class SysRegisterService {
             throw new UserException("user.register.error");
         }
         recordLogininfor(tenantId, username, Constants.REGISTER, MessageUtils.message("user.register.success"));
+    }
+
+    /**
+     * 注册
+     */
+    public void clientRegister(RegisterClientBody registerBody) {
+        String tenantId = registerBody.getTenantId();
+        SysUserBo sysUser = new SysUserBo();
+        sysUser.setNickName(registerBody.getNickName());
+        sysUser.setBirthday(registerBody.getBirthday());
+        sysUser.setSex(registerBody.getSex());
+        sysUser.setAvatar(registerBody.getAvatar());
+        sysUser.setPhonenumber(registerBody.getPhonenumber());
+
+        boolean exist = TenantHelper.dynamic(tenantId, () -> {
+            return userMapper.exists(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getPhonenumber, sysUser.getPhonenumber()));
+        });
+        if (!exist) {
+            throw new UserException("user.update.error", sysUser.getUserId());
+        }
+        int result = userService.updateClientUserProfile(sysUser);
+        if (result < 0 ) {
+            throw new UserException("user.register.error");
+        }
+        recordLogininfor(tenantId, String.valueOf(LoginHelper.getUserId()), Constants.CLIENT_REGISTER, MessageUtils.message("user.update.success"));
     }
 
     /**

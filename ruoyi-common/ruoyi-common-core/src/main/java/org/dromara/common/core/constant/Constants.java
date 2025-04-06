@@ -56,6 +56,11 @@ public interface Constants {
      * 注册
      */
     String REGISTER = "Register";
+    /**
+     *
+     */
+    String CLIENT_REGISTER = "client_register";
+
 
     /**
      * 登录失败

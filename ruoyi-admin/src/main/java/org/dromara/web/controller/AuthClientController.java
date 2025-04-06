@@ -17,6 +17,7 @@ import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.domain.model.LoginBody;
 import org.dromara.common.core.domain.model.RegisterBody;
+import org.dromara.common.core.domain.model.RegisterClientBody;
 import org.dromara.common.core.domain.model.SocialLoginBody;
 import org.dromara.common.core.utils.*;
 import org.dromara.common.encrypt.annotation.ApiEncrypt;
@@ -185,11 +186,11 @@ public class AuthClientController {
      */
 //    @ApiEncrypt
     @PostMapping("/register")
-    public R<Void> register(@Validated @RequestBody RegisterBody user) {
+    public R<Void> register(@Validated @RequestBody RegisterClientBody user) {
         if (!configService.selectRegisterEnabled(user.getTenantId())) {
             return R.fail("当前系统没有开启注册功能！");
         }
-        registerService.register(user);
+        registerService.clientRegister(user);
         return R.ok();
     }
 

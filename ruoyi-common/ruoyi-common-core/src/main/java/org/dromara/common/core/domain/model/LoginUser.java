@@ -7,6 +7,7 @@ import org.dromara.common.core.domain.dto.RoleDTO;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -141,7 +142,7 @@ public class LoginUser implements Serializable {
     /**
      * 出生年月
      */
-    private LocalDateTime birthday;
+    private LocalDate birthday;
     /**
      * 是否设置了生日
      */

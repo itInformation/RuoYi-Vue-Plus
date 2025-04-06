@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.constant.CacheNames;
+import org.dromara.common.core.constant.DataDeleteStatusConstants;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.core.domain.dto.UserDTO;
 import org.dromara.common.core.exception.ServiceException;
@@ -374,6 +375,23 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
                 .eq(SysUser::getUserId, userId));
     }
 
+    /**
+     * 修改用户基本信息
+     *
+     * @param user 用户信息
+     * @return 结果
+     */
+    @Override
+    public int updateClientUserProfile(SysUserBo user) {
+        return baseMapper.update(null,
+            new LambdaUpdateWrapper<SysUser>()
+                .set(ObjectUtil.isNotNull(user.getNickName()), SysUser::getNickName, user.getNickName())
+                .set(SysUser::getBirthday, user.getBirthday())
+                .set(SysUser::getSex, user.getSex())
+                .set(SysUser::getAvatar, user.getAvatar())
+                .eq(SysUser::getPhonenumber, user.getPhonenumber())
+                .eq(SysUser::getDelFlag, DataDeleteStatusConstants.NOT_DELETED));
+    }
     /**
      * 修改用户基本信息
      *

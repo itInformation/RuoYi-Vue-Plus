@@ -1,9 +1,6 @@
 package org.dromara.common.core.domain.model;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 
@@ -13,19 +10,13 @@ import java.time.LocalDate;
  * @author Lion Li
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class RegisterBody extends LoginBody {
+public class RegisterClientBody{
 
+    private String tenantId;
     /**
-     * 用户名
+     * 手机号
      */
-    @NotBlank(message = "{user.username.not.blank}")
-    @Length(min = 2, max = 20, message = "{user.username.length.valid}")
-    private String username;
-
-    private String password;
-
-    private String userType;
+    private String phonenumber;
     /**
      * 用户昵称
      */
@@ -45,5 +36,6 @@ public class RegisterBody extends LoginBody {
      * 出生年月 日期格式
      */
     private LocalDate birthday;
+
 
 }
