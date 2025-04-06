@@ -123,7 +123,6 @@ public class AppUserProfileClientController extends BaseController {
     @RepeatSubmit
     @Log(title = "用户头像", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @SaIgnore
     public R<AvatarVo> avatar(@RequestPart("avatarfile") MultipartFile avatarfile) {
         if (!avatarfile.isEmpty()) {
             String extension = FileUtil.extName(avatarfile.getOriginalFilename());
@@ -153,7 +152,6 @@ public class AppUserProfileClientController extends BaseController {
     @RepeatSubmit
     @Log(title = "用户上传文件", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @SaIgnore
     public R<AvatarVo> uploadFile(@RequestPart("avatarfile") MultipartFile file) {
         if (!file.isEmpty()) {
             String extension = FileUtil.extName(file.getOriginalFilename());
