@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
+import java.time.LocalDateTime;
 
 /**
  * 圈子内容对象 circle_content
@@ -62,6 +63,14 @@ public class CircleContent extends BaseEntity {
      * 审核状态（0待审核 1审核通过 2审核不通过）
      */
     private Integer review;
+    /**
+     * 是否置顶
+     */
+    private Boolean isTop;
 
+    /**
+     * 置顶时间
+     */
+    private LocalDateTime topTime;
 
 }

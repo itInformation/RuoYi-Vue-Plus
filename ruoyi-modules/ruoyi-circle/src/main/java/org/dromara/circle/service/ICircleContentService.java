@@ -1,9 +1,10 @@
 package org.dromara.circle.service;
 
-import org.dromara.circle.domain.vo.CircleContentVo;
 import org.dromara.circle.domain.bo.CircleContentBo;
-import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.circle.domain.bo.CircleContentTopBo;
+import org.dromara.circle.domain.vo.CircleContentVo;
 import org.dromara.common.mybatis.core.page.PageQuery;
+import org.dromara.common.mybatis.core.page.TableDataInfo;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +23,7 @@ public interface ICircleContentService {
      * @param contentId 主键
      * @return 圈子内容
      */
-    CircleContentVo queryById(Long contentId);
+    CircleContentVo queryById(String contentId);
 
     /**
      * 分页查询圈子内容列表
@@ -64,6 +65,15 @@ public interface ICircleContentService {
      * @return 是否修改成功
      */
     Boolean updateByBo(CircleContentBo bo);
+    /**
+     * 置顶圈子，现在的逻辑是一个圈子上面只置顶一个内容
+     */
+    Boolean topCircleContent( CircleContentTopBo bo);
+
+    /**
+     * 内容发布
+     */
+    Boolean publishCircleContent( CircleContentTopBo bo);
 
     /**
      * 校验并批量删除圈子内容信息
@@ -80,5 +90,5 @@ public interface ICircleContentService {
      * @param userId
      * @return
      */
-    Boolean checkAccessPermission(Long contentId, Long userId);
+    Boolean checkAccessPermission(String contentId, Long userId);
 }

@@ -41,7 +41,7 @@ public class CircleContentPermServiceImpl implements ICircleContentPermService {
      * @return 内容权限关联
      */
     @Override
-    public CircleContentPermVo queryById(Long contentId){
+    public CircleContentPermVo queryById(String contentId){
         return baseMapper.selectVoById(contentId);
     }
 
@@ -134,7 +134,7 @@ public class CircleContentPermServiceImpl implements ICircleContentPermService {
 
     @Override
     @Cacheable(value = "contentPerm", key = "#contentId+':'+#userId")
-    public List<CircleContentPerm> checkContentPermission(Long contentId,Long userId) {
+    public List<CircleContentPerm> checkContentPermission(String contentId,Long userId) {
         QueryWrapper<CircleContentPerm> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("content_id", contentId);
         queryWrapper.eq("user_id", userId);

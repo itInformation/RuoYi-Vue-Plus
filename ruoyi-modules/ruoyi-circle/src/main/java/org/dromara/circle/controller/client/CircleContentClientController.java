@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.dromara.circle.anno.ContentPermission;
 import org.dromara.circle.domain.bo.CircleContentBo;
+import org.dromara.circle.domain.bo.CircleContentTopBo;
 import org.dromara.circle.domain.vo.CircleContentVo;
 import org.dromara.circle.service.ICircleContentService;
 import org.dromara.common.core.domain.R;
@@ -16,6 +17,7 @@ import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +56,7 @@ public class CircleContentClientController extends BaseController {
     @GetMapping("/{contentId}")
     @ContentPermission
     public R<CircleContentVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long contentId) {
+                                     @PathVariable String contentId) {
         return R.ok(circleContentService.queryById(contentId));
     }
 
@@ -75,7 +77,7 @@ public class CircleContentClientController extends BaseController {
     @SaCheckPermission("client:content:edit")
     @Log(title = "圈子内容", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+//    @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleContentBo bo) {
         return toAjax(circleContentService.updateByBo(bo));
     }
@@ -92,4 +94,20 @@ public class CircleContentClientController extends BaseController {
                           @PathVariable Long[] contentIds) {
         return toAjax(circleContentService.deleteWithValidByIds(List.of(contentIds), true));
     }
+
+
+    /**
+     * 置顶圈子内容
+     */
+    @SaCheckPermission("client:content:top")
+    @Log(title = "圈子内容置顶", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @GetMapping(value = "/top/{contentId}")
+    public R<Void> top(@Validated(EditGroup.class) @PathVariable String contentId) {
+        CircleContentTopBo bo = new CircleContentTopBo();
+        bo.setContentId(contentId);
+        bo.setUserId(LoginHelper.getUserId());
+        return toAjax(circleContentService.topCircleContent(bo));
+    }
+
 }

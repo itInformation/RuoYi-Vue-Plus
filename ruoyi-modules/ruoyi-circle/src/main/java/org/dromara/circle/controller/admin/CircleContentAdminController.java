@@ -74,7 +74,7 @@ public class CircleContentAdminController extends BaseController {
     @SaCheckPermission("system:content:query")
     @GetMapping("/{contentId}")
     public R<CircleContentVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long contentId) {
+                                     @PathVariable String contentId) {
         return R.ok(circleContentService.queryById(contentId));
     }
 

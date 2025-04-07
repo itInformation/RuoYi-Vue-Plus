@@ -53,7 +53,7 @@ public class CircleContentPermClientController extends BaseController {
     @SaCheckPermission("client:contentPerm:query")
     @GetMapping("/{contentId}")
     public R<CircleContentPermVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long contentId) {
+                                     @PathVariable String contentId) {
         return R.ok(circleContentPermService.queryById(contentId));
     }
 

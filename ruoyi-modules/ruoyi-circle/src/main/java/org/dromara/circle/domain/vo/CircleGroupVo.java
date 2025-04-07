@@ -60,7 +60,7 @@ public class CircleGroupVo implements Serializable {
      * 加入方式（0自由加入 1审核加入 2禁止加入）
      */
     @ExcelProperty(value = "加入方式", converter = ExcelDictConvert.class)
-    @ExcelDictFormat(readConverterExp = "0=自由加入,1=审核加入,2=禁止加入")
+    @ExcelDictFormat(readConverterExp = "0=免费,1=收费")
     private Long joinMode;
 
     /**

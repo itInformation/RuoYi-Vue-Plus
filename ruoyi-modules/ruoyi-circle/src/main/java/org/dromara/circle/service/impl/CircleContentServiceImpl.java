@@ -1,12 +1,25 @@
 package org.dromara.circle.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.dromara.circle.domain.CircleContent;
+import org.dromara.circle.domain.CircleGroup;
+import org.dromara.circle.domain.bo.CircleContentBo;
+import org.dromara.circle.domain.bo.CircleContentTopBo;
+import org.dromara.circle.domain.vo.CircleContentVo;
+import org.dromara.circle.enums.CircleContentReviewEnum;
+import org.dromara.circle.mapper.CircleContentMapper;
+import org.dromara.circle.mapper.CircleGroupMapper;
+import org.dromara.circle.service.ICircleContentPermService;
+import org.dromara.circle.service.ICircleContentService;
+import org.dromara.circle.service.ICircleMemberService;
 import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.enums.CircleContentPermTypeEnum;
 import org.dromara.common.core.enums.CircleGroupJoinModeEnum;
@@ -16,18 +29,13 @@ import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.satoken.utils.LoginHelper;
-import org.dromara.circle.domain.CircleContent;
-import org.dromara.circle.domain.CircleGroup;
-import org.dromara.circle.domain.bo.CircleContentBo;
-import org.dromara.circle.domain.vo.CircleContentVo;
-import org.dromara.circle.mapper.CircleContentMapper;
-import org.dromara.circle.mapper.CircleGroupMapper;
-import org.dromara.circle.service.ICircleContentPermService;
-import org.dromara.circle.service.ICircleContentService;
-import org.dromara.circle.service.ICircleMemberService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -60,10 +68,21 @@ public class CircleContentServiceImpl implements ICircleContentService {
      * @return 圈子内容
      */
     @Override
-    public CircleContentVo queryById(Long contentId) {
+    public CircleContentVo queryById(String contentId) {
         return baseMapper.selectVoById(contentId);
     }
-
+    /**
+     * 查询置顶圈子内容
+     *
+     * @param contentId 主键
+     * @return 圈子内容
+     */
+    private CircleContentVo queryTopContent(Long userId,String groupId) {
+        QueryWrapper<CircleContent> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("group_id", groupId);
+        queryWrapper.eq("user_Id",userId);
+        return baseMapper.selectVoOne(queryWrapper);
+    }
     /**
      * 分页查询圈子内容列表
      *
@@ -118,6 +137,10 @@ public class CircleContentServiceImpl implements ICircleContentService {
     public Boolean insertByBo(CircleContentBo bo) {
         CircleContent add = MapstructUtils.convert(bo, CircleContent.class);
         validEntityBeforeSave(add);
+        if (add == null){
+            throw new ServiceException("圈子内容不能为空");
+        }
+        add.setReview(CircleContentReviewEnum.NO_REVIEW.getType());
         boolean flag = baseMapper.insert(add) > 0;
         if (flag) {
             bo.setContentId(add.getContentId());
@@ -136,6 +159,53 @@ public class CircleContentServiceImpl implements ICircleContentService {
         CircleContent update = MapstructUtils.convert(bo, CircleContent.class);
         validEntityBeforeSave(update);
         return baseMapper.updateById(update) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean topCircleContent(CircleContentTopBo bo) {
+        CircleContentVo circleContentVo = queryById(bo.getContentId());
+        if (circleContentVo == null){
+            throw new ServiceException("圈子内容不存在 contentId:" + bo.getContentId());
+        }
+        if (!circleContentVo.getUserId().equals(bo.getUserId())) {
+            throw new ServiceException("无权操作此动态");
+        }
+        List<CircleContent> updateList = new ArrayList<>();
+        //1. clear 置顶
+        CircleContentVo topContent = queryTopContent(bo.getUserId(), circleContentVo.getGroupId());
+
+        if (topContent != null){
+            CircleContent content = new CircleContent();
+            content.setIsTop(false);
+            content.setTopTime(null);
+            content.setContentId(topContent.getContentId());
+            updateList.add(content);
+        }
+        //2.设置置顶
+        CircleContent content = new CircleContent();
+        content.setIsTop(true);
+        content.setTopTime(LocalDateTime.now());
+        content.setContentId(bo.getContentId());
+        updateList.add(content);
+        return baseMapper.updateBatchById(updateList);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean publishCircleContent(CircleContentTopBo bo) {
+        CircleContentVo circleContentVo = queryById(bo.getContentId());
+        if (circleContentVo == null){
+            throw new ServiceException("圈子内容不存在 contentId:" + bo.getContentId());
+        }
+        if (!circleContentVo.getUserId().equals(bo.getUserId())) {
+            throw new ServiceException("无权操作此动态");
+        }
+        //2.发布
+        CircleContent content = new CircleContent();
+        content.setReview(CircleContentReviewEnum.NO_REVIEW.getType());
+        content.setContentId(bo.getContentId());
+        return baseMapper.updateById(content) > 0 ;
     }
 
     /**
@@ -163,7 +233,7 @@ public class CircleContentServiceImpl implements ICircleContentService {
 
     @Override
     @Cacheable(value = "contentPerm", key = "#contentId+':'+#userId")
-    public Boolean checkAccessPermission(Long contentId, Long userId) {
+    public Boolean checkAccessPermission(String contentId, Long userId) {
         CircleContent content = baseMapper.selectById(contentId);
 
         if (ObjectUtils.isEmpty(content)) {

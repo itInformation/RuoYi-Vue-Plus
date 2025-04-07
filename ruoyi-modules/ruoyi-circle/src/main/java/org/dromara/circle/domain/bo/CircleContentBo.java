@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 
+import java.time.LocalDateTime;
+
 /**
  * 圈子内容业务对象 circle_content
  *
@@ -66,4 +68,13 @@ public class CircleContentBo extends BaseEntity {
      */
     private Integer review;
 
+    /**
+     * 是否置顶
+     */
+    private Boolean isTop;
+
+    /**
+     * 置顶时间
+     */
+    private LocalDateTime topTime;
 }

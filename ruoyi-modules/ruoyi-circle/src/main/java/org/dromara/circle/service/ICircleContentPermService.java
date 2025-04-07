@@ -23,7 +23,7 @@ public interface ICircleContentPermService {
      * @param contentId 主键
      * @return 内容权限关联
      */
-    CircleContentPermVo queryById(Long contentId);
+    CircleContentPermVo queryById(String contentId);
 
     /**
      * 分页查询内容权限关联列表
@@ -73,5 +73,5 @@ public interface ICircleContentPermService {
      * @param userId
      * @return
      */
-    List<CircleContentPerm> checkContentPermission(Long contentId, Long userId);
+    List<CircleContentPerm> checkContentPermission(String contentId, Long userId);
 }
