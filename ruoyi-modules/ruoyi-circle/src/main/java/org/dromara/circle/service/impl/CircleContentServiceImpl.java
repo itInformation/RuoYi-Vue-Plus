@@ -113,8 +113,17 @@ public class CircleContentServiceImpl implements ICircleContentService {
      */
     private TableDataInfo<CircleContentVo> queryPageClientList(PageQuery pageQuery, LambdaQueryWrapper<CircleContent> lqw) {
         lqw.lt(CircleContent::getPublishTime, LocalDateTime.now());
-        Page<CircleContentVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
         return queryPageSuccessList(pageQuery, lqw);
+    }
+
+    /**
+     * 查询某一个创作者的内容且审核通过
+     */
+    private TableDataInfo<CircleContentVo> queryOwnerPageClientList(PageQuery pageQuery, LambdaQueryWrapper<CircleContent> lqw) {
+        lqw.lt(CircleContent::getPublishTime, LocalDateTime.now());
+        lqw.lt(CircleContent::getGroupId, "groupId");
+        lqw.lt(CircleContent::getUserId, "userId");
+        return queryPageClientList(pageQuery, lqw);
     }
     private TableDataInfo<CircleContentVo> queryPageFailList(PageQuery pageQuery, LambdaQueryWrapper<CircleContent> lqw) {
         lqw.eq(CircleContent::getReview, CircleReviewEnum.FAILURE.getType());
