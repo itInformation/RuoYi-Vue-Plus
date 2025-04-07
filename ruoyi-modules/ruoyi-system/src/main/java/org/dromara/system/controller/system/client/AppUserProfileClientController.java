@@ -143,27 +143,5 @@ public class AppUserProfileClientController extends BaseController {
     }
 
 
-    /**
-     * 用户上传文件
-     *
-     * @param file 用户头像
-     */
-    @SaCheckPermission("client:file:upload")
-    @RepeatSubmit
-    @Log(title = "用户上传文件", businessType = BusinessType.UPDATE)
-    @PostMapping(value = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public R<AvatarVo> uploadFile(@RequestPart("avatarfile") MultipartFile file) {
-        if (!file.isEmpty()) {
-            String extension = FileUtil.extName(file.getOriginalFilename());
-            if (!StringUtils.equalsAnyIgnoreCase(extension, MimeTypeUtils.IMAGE_EXTENSION)) {
-                return R.fail("文件格式不正确，请上传" + Arrays.toString(MimeTypeUtils.IMAGE_EXTENSION) + "格式");
-            }
-            SysOssVo oss = ossService.upload(file,"storage-face");
-            AvatarVo avatarVo = new AvatarVo();
-            avatarVo.setImgUrl(oss.getUrl());
-            avatarVo.setOssId(oss.getOssId());
-            return R.ok(avatarVo);
-        }
-        return R.fail("上传图片异常，请联系管理员");
-    }
+
 }
