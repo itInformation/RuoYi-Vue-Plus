@@ -3,6 +3,7 @@ package org.dromara.circle.service;
 import org.dromara.circle.domain.CircleContentReviewBo;
 import org.dromara.circle.domain.bo.CircleContentBo;
 import org.dromara.circle.domain.bo.CircleContentTopBo;
+import org.dromara.circle.domain.bo.CircleReviewBo;
 import org.dromara.circle.domain.vo.CircleContentVo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -81,7 +82,7 @@ public interface ICircleContentService {
      * @param bo
      * @return
      */
-    Boolean reviewCircleContent(CircleContentReviewBo bo);
+    Boolean reviewCircleContent(CircleReviewBo bo);
     /**
      * 校验并批量删除圈子内容信息
      *

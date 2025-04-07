@@ -9,12 +9,14 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.dromara.circle.domain.CircleGroup;
 import org.dromara.circle.domain.CircleMember;
 import org.dromara.circle.domain.bo.CircleGroupBo;
-import org.dromara.circle.domain.bo.CircleGroupReviewBo;
+import org.dromara.circle.domain.bo.CircleReviewBo;
+import org.dromara.circle.domain.bo.CircleReviewLogBo;
 import org.dromara.circle.domain.vo.CircleGroupVo;
 import org.dromara.circle.enums.CircleReviewEnum;
 import org.dromara.circle.mapper.CircleGroupMapper;
 import org.dromara.circle.mapper.CircleMemberMapper;
 import org.dromara.circle.service.ICircleGroupService;
+import org.dromara.circle.service.ICircleReviewLogService;
 import org.dromara.common.core.constant.CircleReviewStatusConstants;
 import org.dromara.common.core.constant.CircleStatusConstants;
 import org.dromara.common.core.constant.DataDeleteStatusConstants;
@@ -52,6 +54,8 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     private final CircleGroupMapper baseMapper;
     private final CircleMemberMapper circleMemberMapper;
     private final ScheduledExecutorService scheduledExecutorService;
+    private final ICircleReviewLogService circleReviewLogService;
+
     /**
      * 查询圈子主体
      *
@@ -293,17 +297,25 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
 
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean reviewCircleGroup(CircleGroupReviewBo bo) {
-        CircleGroupVo circleGroupVo = queryById(bo.getGroupId());
+    public Boolean reviewCircleGroup(CircleReviewBo bo) {
+        CircleGroupVo circleGroupVo = queryById(bo.getId());
         if (circleGroupVo == null){
-            throw new ServiceException("圈子不存在 groupId:" + bo.getGroupId());
+            throw new ServiceException("圈子不存在 groupId:" + bo.getId());
         }
-        //2.发布
+        //2.审核
         CircleGroup group = new CircleGroup();
         group.setReview(bo.getReview());
-        group.setGroupId(bo.getGroupId());
+        group.setGroupId(bo.getId());
         int result = baseMapper.updateById(group);
+
+        CircleReviewLogBo reviewLogBo = new CircleReviewLogBo();
+        reviewLogBo.setCircleId(circleGroupVo.getGroupId());
+        reviewLogBo.setCircleName(circleGroupVo.getGroupName());
+        reviewLogBo.setMemo(bo.getMemo());
+        reviewLogBo.setUserId(bo.getUserId());
+        reviewLogBo.setReview(bo.getReview());
+        reviewLogBo.setType(bo.getType());
+        circleReviewLogService.insertByBo(reviewLogBo);
         scheduledExecutorService.schedule(() -> {
             SseMessageDto dto = new SseMessageDto();
             dto.setMessage(CircleReviewEnum.SUCCESS.getType().equals(bo.getReview())? CircleReviewEnum.SUCCESS.getDesc() : CircleReviewEnum.FAILURE.getDesc());

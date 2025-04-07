@@ -12,6 +12,8 @@ import org.dromara.circle.domain.CircleContentReviewBo;
 import org.dromara.circle.domain.CircleGroup;
 import org.dromara.circle.domain.bo.CircleContentBo;
 import org.dromara.circle.domain.bo.CircleContentTopBo;
+import org.dromara.circle.domain.bo.CircleReviewBo;
+import org.dromara.circle.domain.bo.CircleReviewLogBo;
 import org.dromara.circle.domain.vo.CircleContentVo;
 import org.dromara.circle.enums.CircleReviewEnum;
 import org.dromara.circle.mapper.CircleContentMapper;
@@ -231,17 +233,25 @@ public class CircleContentServiceImpl implements ICircleContentService {
         return baseMapper.updateById(content) > 0 ;
     }
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean reviewCircleContent(CircleContentReviewBo bo) {
-        CircleContentVo circleContentVo = queryById(bo.getContentId());
+    public Boolean reviewCircleContent(CircleReviewBo bo) {
+        CircleContentVo circleContentVo = queryById(bo.getId());
         if (circleContentVo == null){
-            throw new ServiceException("圈子内容不存在 contentId:" + bo.getContentId());
+            throw new ServiceException("圈子内容不存在 contentId:" + bo.getId());
         }
         //2.发布
         CircleContent content = new CircleContent();
         content.setReview(bo.getReview());
-        content.setContentId(bo.getContentId());
+        content.setContentId(bo.getId());
         int result = baseMapper.updateById(content);
+        CircleReviewLogBo reviewLogBo = new CircleReviewLogBo();
+        reviewLogBo.setCircleId(circleContentVo.getContentId());
+        reviewLogBo.setCircleName(circleContentVo.getTitle());
+        reviewLogBo.setMemo(bo.getMemo());
+        reviewLogBo.setUserId(bo.getUserId());
+        reviewLogBo.setReview(bo.getReview());
+        reviewLogBo.setType(bo.getType());
+        circleReviewLogService.insertByBo(reviewLogBo);
+
         scheduledExecutorService.schedule(() -> {
             SseMessageDto dto = new SseMessageDto();
             dto.setMessage(CircleReviewEnum.SUCCESS.getType().equals(bo.getReview())? CircleReviewEnum.SUCCESS.getDesc() : CircleReviewEnum.FAILURE.getDesc());

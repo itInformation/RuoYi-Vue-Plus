@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import org.dromara.circle.domain.bo.CircleGroupReviewBo;
 import org.dromara.circle.domain.bo.CircleGroupStatusBo;
+import org.dromara.circle.domain.bo.CircleReviewBo;
+import org.dromara.circle.service.ICircleReviewService;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
@@ -38,6 +40,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 public class CircleGroupAdminController extends BaseController {
 
     private final ICircleGroupService circleGroupService;
+    private final ICircleReviewService circleReviewService;
 
     /**
      * 查询圈子主体列表
@@ -116,14 +119,15 @@ public class CircleGroupAdminController extends BaseController {
         return circleGroupService.queryReviewPageList(bo, pageQuery);
     }
     /**
-     * 审核圈子，启用 0 ，禁用 1
+     * 审核圈子和动态，1审核通过 2审核不通过 type 0 代表圈子审核，1 代表动态审核
      */
     @SaCheckPermission("system:group:editReview")
     @Log(title = "圈子审核", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PostMapping("/review")
-    public R<Void> review(@Validated(EditGroup.class) @RequestBody CircleGroupReviewBo bo) {
-        return toAjax(circleGroupService.reviewCircleGroup(bo));
+    public R<Void> review(@Validated(EditGroup.class) @RequestBody CircleReviewBo bo) {
+        bo.setUserId(LoginHelper.getUserId());
+        return toAjax(circleReviewService.reviewCircle(bo));
     }
 
 

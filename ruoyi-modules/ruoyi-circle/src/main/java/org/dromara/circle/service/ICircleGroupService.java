@@ -1,6 +1,6 @@
 package org.dromara.circle.service;
 
-import org.dromara.circle.domain.bo.CircleGroupReviewBo;
+import org.dromara.circle.domain.bo.CircleReviewBo;
 import org.dromara.circle.domain.vo.CircleGroupVo;
 import org.dromara.circle.domain.bo.CircleGroupBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -99,7 +99,7 @@ public interface ICircleGroupService {
      * @param bo
      * @return
      */
-    Boolean reviewCircleGroup(CircleGroupReviewBo bo);
+    Boolean reviewCircleGroup(CircleReviewBo bo);
     /**
      * 校验并批量删除圈子主体信息
      *
