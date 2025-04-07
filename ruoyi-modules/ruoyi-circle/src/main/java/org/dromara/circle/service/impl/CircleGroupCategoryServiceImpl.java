@@ -46,7 +46,7 @@ public class CircleGroupCategoryServiceImpl implements ICircleGroupCategoryServi
      * @return 圈子-分类关系
      */
     @Override
-    public CircleGroupCategoryVo queryById(Long groupId){
+    public CircleGroupCategoryVo queryById(String groupId){
         return baseMapper.selectVoById(groupId);
     }
 
@@ -137,7 +137,7 @@ public class CircleGroupCategoryServiceImpl implements ICircleGroupCategoryServi
         return baseMapper.deleteByIds(ids) > 0;
     }
     @Transactional
-    public void updateGroupCategories(Long groupId, List<Long> catIds) {
+    public void updateGroupCategories(String groupId, List<Long> catIds) {
         // 删除旧关联
         deleteByGroup(groupId);
 
@@ -151,7 +151,7 @@ public class CircleGroupCategoryServiceImpl implements ICircleGroupCategoryServi
 //        updateCategoryCount(catIds);
     }
 
-    private void deleteByGroup(Long groupId) {
+    private void deleteByGroup(String groupId) {
         UpdateWrapper<CircleGroupCategory> updateWrapper = new UpdateWrapper<>();
         updateWrapper.lambda().eq(CircleGroupCategory::getDeleted, 1);
         updateWrapper.lambda().eq(CircleGroupCategory::getGroupId, groupId);

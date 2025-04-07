@@ -73,4 +73,10 @@ public class CircleContent extends BaseEntity {
      */
     private LocalDateTime topTime;
 
+
+
+    /**
+     * 置顶时间
+     */
+    private LocalDateTime publishTime;
 }

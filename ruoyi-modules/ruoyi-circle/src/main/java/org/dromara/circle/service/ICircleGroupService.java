@@ -22,7 +22,7 @@ public interface ICircleGroupService {
      * @param groupId 主键
      * @return 圈子主体
      */
-    CircleGroupVo queryById(Long groupId);
+    CircleGroupVo queryById(String groupId);
 
     /**
      * 按照userId查询圈子主体
@@ -35,7 +35,7 @@ public interface ICircleGroupService {
      * @param groupId
      * @return
      */
-    CircleGroupVo queryByIdWithRecycleBin(Long groupId);
+    CircleGroupVo queryByIdWithRecycleBin(String groupId);
 
     /**
      * 分页查询圈子主体列表

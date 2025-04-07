@@ -7,18 +7,17 @@ package org.dromara.circle.enums;
  * @date created in 下午9:38 2025/3/5
  * modified by
  */
-public enum CircleContentReviewEnum {
+public enum CircleReviewEnum {
 
     NO_REVIEW(0,"待审核"),
     SUCCESS(1,"审核成功"),
     FAILURE(2,"审核失败"),
-    NO_PUBLISHED(3,"待发布"),
         ;
 
     private Integer type;
     private String desc;
 
-    CircleContentReviewEnum(Integer type, String desc) {
+    CircleReviewEnum(Integer type, String desc) {
         this.type = type;
         this.desc = desc;
     }

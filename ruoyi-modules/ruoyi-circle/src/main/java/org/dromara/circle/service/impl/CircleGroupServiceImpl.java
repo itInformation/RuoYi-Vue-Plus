@@ -9,7 +9,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.dromara.circle.domain.CircleGroup;
 import org.dromara.circle.domain.CircleMember;
 import org.dromara.circle.domain.bo.CircleGroupBo;
+import org.dromara.circle.domain.bo.CircleGroupReviewBo;
 import org.dromara.circle.domain.vo.CircleGroupVo;
+import org.dromara.circle.enums.CircleReviewEnum;
 import org.dromara.circle.mapper.CircleGroupMapper;
 import org.dromara.circle.mapper.CircleMemberMapper;
 import org.dromara.circle.service.ICircleGroupService;
@@ -23,12 +25,16 @@ import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.satoken.utils.LoginHelper;
+import org.dromara.common.sse.dto.SseMessageDto;
+import org.dromara.common.sse.utils.SseMessageUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 圈子主体Service业务层处理
@@ -45,7 +51,7 @@ import java.util.Map;
 public class CircleGroupServiceImpl implements ICircleGroupService {
     private final CircleGroupMapper baseMapper;
     private final CircleMemberMapper circleMemberMapper;
-
+    private final ScheduledExecutorService scheduledExecutorService;
     /**
      * 查询圈子主体
      *
@@ -53,7 +59,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
      * @return 圈子主体
      */
     @Override
-    public CircleGroupVo queryById(Long groupId){
+    public CircleGroupVo queryById(String groupId){
         CircleGroupVo circleGroupVo = baseMapper.selectVoById(groupId);
 
         if (circleGroupVo != null && DataDeleteStatusConstants.NOT_RECYCLE_BIN.equals(circleGroupVo.getRecycleBin())){
@@ -72,7 +78,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
         return queryList(groupBo);
     }
     @Override
-    public CircleGroupVo queryByIdWithRecycleBin(Long groupId){
+    public CircleGroupVo queryByIdWithRecycleBin(String groupId){
         CircleGroupVo circleGroupVo = baseMapper.selectVoById(groupId);
         if (circleGroupVo != null && DataDeleteStatusConstants.RECYCLE_BIN.equals(circleGroupVo.getRecycleBin())){
             return circleGroupVo;
@@ -278,8 +284,33 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     public Boolean updateByBo(CircleGroupBo bo) {
         CircleGroup update = MapstructUtils.convert(bo, CircleGroup.class);
         validEntityBeforeSave(update);
+        if (update == null){
+            throw new ServiceException("圈子主体信息为空");
+        }
         update.setReview(CircleReviewStatusConstants.NOT_REVIEW);
         return baseMapper.updateById(update) > 0;
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean reviewCircleGroup(CircleGroupReviewBo bo) {
+        CircleGroupVo circleGroupVo = queryById(bo.getGroupId());
+        if (circleGroupVo == null){
+            throw new ServiceException("圈子不存在 groupId:" + bo.getGroupId());
+        }
+        //2.发布
+        CircleGroup group = new CircleGroup();
+        group.setReview(bo.getReview());
+        group.setGroupId(bo.getGroupId());
+        int result = baseMapper.updateById(group);
+        scheduledExecutorService.schedule(() -> {
+            SseMessageDto dto = new SseMessageDto();
+            dto.setMessage(CircleReviewEnum.SUCCESS.getType().equals(bo.getReview())? CircleReviewEnum.SUCCESS.getDesc() : CircleReviewEnum.FAILURE.getDesc());
+            dto.setUserIds(List.of(circleGroupVo.getOwnerId()));
+            SseMessageUtils.publishMessage(dto);
+        }, 5, TimeUnit.SECONDS);
+        return result > 0 ;
     }
 
     /**

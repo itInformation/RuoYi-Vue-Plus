@@ -22,7 +22,7 @@ public interface ICircleGroupCategoryService {
      * @param groupId 主键
      * @return 圈子-分类关系
      */
-    CircleGroupCategoryVo queryById(Long groupId);
+    CircleGroupCategoryVo queryById(String groupId);
 
     /**
      * 分页查询圈子-分类关系列表

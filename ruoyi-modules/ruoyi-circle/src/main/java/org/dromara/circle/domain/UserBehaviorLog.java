@@ -22,7 +22,7 @@ public class UserBehaviorLog extends TenantEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @TableId(value = "log_id")
     private Long logId;
@@ -35,7 +35,7 @@ public class UserBehaviorLog extends TenantEntity {
     /**
      * 圈子ID
      */
-    private Long groupId;
+    private String groupId;
 
     /**
      * 关联分类ID列表

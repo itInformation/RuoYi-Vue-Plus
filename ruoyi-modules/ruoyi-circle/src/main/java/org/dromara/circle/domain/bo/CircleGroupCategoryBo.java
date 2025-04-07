@@ -24,7 +24,7 @@ public class CircleGroupCategoryBo extends BaseEntity {
      * 圈子ID
      */
     @NotNull(message = "圈子ID不能为空", groups = { EditGroup.class })
-    private Long groupId;
+    private String groupId;
 
     /**
      * 分类ID

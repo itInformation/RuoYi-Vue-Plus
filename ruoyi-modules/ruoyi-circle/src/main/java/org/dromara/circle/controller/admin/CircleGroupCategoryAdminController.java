@@ -64,7 +64,7 @@ public class CircleGroupCategoryAdminController extends BaseController {
     @SaCheckPermission("system:groupCategory:query")
     @GetMapping("/{groupId}")
     public R<CircleGroupCategoryVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long groupId) {
+                                     @PathVariable String groupId) {
         return R.ok(circleGroupCategoryService.queryById(groupId));
     }
 

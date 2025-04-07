@@ -24,7 +24,7 @@ public class CircleGroupCategory extends TenantEntity {
     /**
      * 圈子ID
      */
-    private Long groupId;
+    private String groupId;
 
     /**
      * 分类ID
@@ -37,7 +37,7 @@ public class CircleGroupCategory extends TenantEntity {
     @TableLogic
     private Long deleted;
 
-    public CircleGroupCategory(Long groupId, Long catId) {
+    public CircleGroupCategory(String groupId, Long catId) {
         this.groupId = groupId;
         this.catId = catId;
     }

@@ -29,7 +29,7 @@ public class UserBehaviorLogVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private Long logId;
@@ -44,7 +44,7 @@ public class UserBehaviorLogVo implements Serializable {
      * 圈子ID
      */
     @ExcelProperty(value = "圈子ID")
-    private Long groupId;
+    private String groupId;
 
     /**
      * 关联分类ID列表

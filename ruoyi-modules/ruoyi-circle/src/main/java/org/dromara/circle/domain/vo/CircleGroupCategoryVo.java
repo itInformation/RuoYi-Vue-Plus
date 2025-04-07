@@ -32,7 +32,7 @@ public class CircleGroupCategoryVo implements Serializable {
      * 圈子ID
      */
     @ExcelProperty(value = "圈子ID")
-    private Long groupId;
+    private String groupId;
 
     /**
      * 分类ID

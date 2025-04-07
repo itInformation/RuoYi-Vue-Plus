@@ -1,5 +1,6 @@
 package org.dromara.circle.service;
 
+import org.dromara.circle.domain.CircleContentReviewBo;
 import org.dromara.circle.domain.bo.CircleContentBo;
 import org.dromara.circle.domain.bo.CircleContentTopBo;
 import org.dromara.circle.domain.vo.CircleContentVo;
@@ -75,6 +76,12 @@ public interface ICircleContentService {
      */
     Boolean publishCircleContent( CircleContentTopBo bo);
 
+    /**
+     * 审核圈子内容
+     * @param bo
+     * @return
+     */
+    Boolean reviewCircleContent(CircleContentReviewBo bo);
     /**
      * 校验并批量删除圈子内容信息
      *

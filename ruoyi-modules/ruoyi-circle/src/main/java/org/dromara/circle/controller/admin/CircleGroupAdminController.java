@@ -67,7 +67,7 @@ public class CircleGroupAdminController extends BaseController {
     @SaCheckPermission("system:group:query")
     @GetMapping("/{groupId}")
     public R<CircleGroupVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long groupId) {
+                                     @PathVariable String groupId) {
         return R.ok(circleGroupService.queryById(groupId));
     }
 
@@ -145,7 +145,7 @@ public class CircleGroupAdminController extends BaseController {
     @SaCheckPermission("system:group:queryRecycle")
     @GetMapping("/getInfoWithRecycleBin/{groupId}")
     public R<CircleGroupVo> getInfoWithRecycleBin(@NotNull(message = "主键不能为空")
-                                                  @PathVariable Long groupId) {
+                                                  @PathVariable String groupId) {
         return R.ok(circleGroupService.queryByIdWithRecycleBin(groupId));
     }
 
@@ -169,7 +169,7 @@ public class CircleGroupAdminController extends BaseController {
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteById/{groupId}")
     public R<Void> deleteById(@NotEmpty(message = "主键不能为空")
-                              @PathVariable Long groupId) {
+                              @PathVariable String groupId) {
         return toAjax(circleGroupService.deleteWithValidById(groupId, true));
     }
 
@@ -196,7 +196,7 @@ public class CircleGroupAdminController extends BaseController {
     @Log(title = "圈子主体", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteRecycleBinById/{groupId}")
     public R<Void> deleteRecycleBinById(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long groupId) {
+                          @PathVariable String groupId) {
         return toAjax(circleGroupService.deleteRecycleBinById(groupId, true));
     }
 }

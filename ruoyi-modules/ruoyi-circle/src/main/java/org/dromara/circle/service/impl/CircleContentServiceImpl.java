@@ -2,19 +2,18 @@ package org.dromara.circle.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.dromara.circle.domain.CircleContent;
+import org.dromara.circle.domain.CircleContentReviewBo;
 import org.dromara.circle.domain.CircleGroup;
 import org.dromara.circle.domain.bo.CircleContentBo;
 import org.dromara.circle.domain.bo.CircleContentTopBo;
 import org.dromara.circle.domain.vo.CircleContentVo;
-import org.dromara.circle.enums.CircleContentReviewEnum;
+import org.dromara.circle.enums.CircleReviewEnum;
 import org.dromara.circle.mapper.CircleContentMapper;
 import org.dromara.circle.mapper.CircleGroupMapper;
 import org.dromara.circle.service.ICircleContentPermService;
@@ -29,16 +28,19 @@ import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.satoken.utils.LoginHelper;
+import org.dromara.common.sse.dto.SseMessageDto;
+import org.dromara.common.sse.utils.SseMessageUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 圈子内容Service业务层处理
@@ -50,17 +52,13 @@ import java.util.Map;
 @Service
 @Slf4j
 public class CircleContentServiceImpl implements ICircleContentService {
-    @Resource
-    private CircleContentMapper baseMapper;
+    private final CircleContentMapper baseMapper;
 
-    @Resource
-    private CircleGroupMapper circleGroupMapper;
+    private final CircleGroupMapper circleGroupMapper;
 
-    @Resource
-    private ICircleContentPermService circleContentPermService;
-    @Resource
-    private ICircleMemberService circleMemberService;
-
+    private final ICircleContentPermService circleContentPermService;
+    private final ICircleMemberService circleMemberService;
+    private final ScheduledExecutorService scheduledExecutorService;
     /**
      * 查询圈子内容
      *
@@ -74,7 +72,6 @@ public class CircleContentServiceImpl implements ICircleContentService {
     /**
      * 查询置顶圈子内容
      *
-     * @param contentId 主键
      * @return 圈子内容
      */
     private CircleContentVo queryTopContent(Long userId,String groupId) {
@@ -96,10 +93,35 @@ public class CircleContentServiceImpl implements ICircleContentService {
         Page<CircleContentVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
         return TableDataInfo.build(result);
     }
-
+    /**
+     * 查询限制条件最低，不删除即可查到
+     */
+    private TableDataInfo<CircleContentVo> queryPageList(PageQuery pageQuery, LambdaQueryWrapper<CircleContent> lqw) {
+        Page<CircleContentVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
+        return TableDataInfo.build(result);
+    }
     @Override
     public TableDataInfo<CircleContentVo> queryPageFailList(CircleContentBo bo, PageQuery pageQuery) {
-        return null;
+        LambdaQueryWrapper<CircleContent> lqw = buildQueryWrapper(bo);
+        return queryPageFailList(pageQuery,lqw);
+    }
+
+    /**
+     * 发布时间小于当前时间且审核通过
+     */
+    private TableDataInfo<CircleContentVo> queryPageClientList(PageQuery pageQuery, LambdaQueryWrapper<CircleContent> lqw) {
+        lqw.lt(CircleContent::getPublishTime, LocalDateTime.now());
+        Page<CircleContentVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
+        return queryPageSuccessList(pageQuery, lqw);
+    }
+    private TableDataInfo<CircleContentVo> queryPageFailList(PageQuery pageQuery, LambdaQueryWrapper<CircleContent> lqw) {
+        lqw.eq(CircleContent::getReview, CircleReviewEnum.FAILURE.getType());
+        return queryPageList(pageQuery, lqw);
+    }
+
+    private TableDataInfo<CircleContentVo> queryPageSuccessList(PageQuery pageQuery, LambdaQueryWrapper<CircleContent> lqw) {
+        lqw.eq(CircleContent::getReview, CircleReviewEnum.SUCCESS.getType());
+        return queryPageList(pageQuery, lqw);
     }
 
     /**
@@ -117,7 +139,8 @@ public class CircleContentServiceImpl implements ICircleContentService {
     private LambdaQueryWrapper<CircleContent> buildQueryWrapper(CircleContentBo bo) {
         Map<String, Object> params = bo.getParams();
         LambdaQueryWrapper<CircleContent> lqw = Wrappers.lambdaQuery();
-        lqw.orderByAsc(CircleContent::getContentId);
+        lqw.orderByDesc(CircleContent::getIsTop);
+        lqw.orderByDesc(CircleContent::getCreateTime);
         lqw.eq(bo.getGroupId() != null, CircleContent::getGroupId, bo.getGroupId());
         lqw.eq(bo.getUserId() != null, CircleContent::getUserId, bo.getUserId());
         lqw.eq(StringUtils.isNotBlank(bo.getTitle()), CircleContent::getTitle, bo.getTitle());
@@ -140,7 +163,7 @@ public class CircleContentServiceImpl implements ICircleContentService {
         if (add == null){
             throw new ServiceException("圈子内容不能为空");
         }
-        add.setReview(CircleContentReviewEnum.NO_REVIEW.getType());
+        add.setReview(CircleReviewEnum.NO_REVIEW.getType());
         boolean flag = baseMapper.insert(add) > 0;
         if (flag) {
             bo.setContentId(add.getContentId());
@@ -203,9 +226,29 @@ public class CircleContentServiceImpl implements ICircleContentService {
         }
         //2.发布
         CircleContent content = new CircleContent();
-        content.setReview(CircleContentReviewEnum.NO_REVIEW.getType());
+        content.setReview(CircleReviewEnum.NO_REVIEW.getType());
         content.setContentId(bo.getContentId());
         return baseMapper.updateById(content) > 0 ;
+    }
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean reviewCircleContent(CircleContentReviewBo bo) {
+        CircleContentVo circleContentVo = queryById(bo.getContentId());
+        if (circleContentVo == null){
+            throw new ServiceException("圈子内容不存在 contentId:" + bo.getContentId());
+        }
+        //2.发布
+        CircleContent content = new CircleContent();
+        content.setReview(bo.getReview());
+        content.setContentId(bo.getContentId());
+        int result = baseMapper.updateById(content);
+        scheduledExecutorService.schedule(() -> {
+            SseMessageDto dto = new SseMessageDto();
+            dto.setMessage(CircleReviewEnum.SUCCESS.getType().equals(bo.getReview())? CircleReviewEnum.SUCCESS.getDesc() : CircleReviewEnum.FAILURE.getDesc());
+            dto.setUserIds(List.of(circleContentVo.getUserId()));
+            SseMessageUtils.publishMessage(dto);
+        }, 5, TimeUnit.SECONDS);
+        return result > 0 ;
     }
 
     /**

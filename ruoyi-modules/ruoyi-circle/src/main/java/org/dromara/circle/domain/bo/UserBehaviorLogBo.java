@@ -21,7 +21,7 @@ import jakarta.validation.constraints.*;
 public class UserBehaviorLogBo extends BaseEntity {
 
     /**
-     * 
+     *
      */
     @NotNull(message = "不能为空", groups = { EditGroup.class })
     private Long logId;
@@ -36,7 +36,7 @@ public class UserBehaviorLogBo extends BaseEntity {
      * 圈子ID
      */
     @NotNull(message = "圈子ID不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Long groupId;
+    private String groupId;
 
     /**
      * 关联分类ID列表
