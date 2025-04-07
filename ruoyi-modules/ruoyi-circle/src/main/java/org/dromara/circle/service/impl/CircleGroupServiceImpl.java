@@ -364,7 +364,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     }
 
     @Override
-    public Boolean deleteWithValidById(Long id, Boolean isValid) {
+    public Boolean deleteWithValidById(String id, Boolean isValid) {
         if(isValid){
             //TODO 做一些业务上的校验,判断是否需要校验
         }
@@ -378,7 +378,7 @@ public class CircleGroupServiceImpl implements ICircleGroupService {
     }
 
     @Override
-    public Boolean deleteRecycleBinById(Long id, Boolean isValid) {
+    public Boolean deleteRecycleBinById(String id, Boolean isValid) {
         if(isValid){
             //TODO 做一些业务上的校验,判断是否需要校验
         }

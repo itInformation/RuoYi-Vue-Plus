@@ -123,9 +123,7 @@ public class CircleGroupAdminController extends BaseController {
     @RepeatSubmit()
     @PostMapping("/review")
     public R<Void> review(@Validated(EditGroup.class) @RequestBody CircleGroupReviewBo bo) {
-        CircleGroupBo groupBo = new CircleGroupBo();
-        BeanUtils.copyProperties(bo, groupBo);
-        return toAjax(circleGroupService.updateByBo(groupBo));
+        return toAjax(circleGroupService.reviewCircleGroup(bo));
     }
 
 

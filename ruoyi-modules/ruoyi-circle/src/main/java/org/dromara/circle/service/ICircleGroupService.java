@@ -1,5 +1,6 @@
 package org.dromara.circle.service;
 
+import org.dromara.circle.domain.bo.CircleGroupReviewBo;
 import org.dromara.circle.domain.vo.CircleGroupVo;
 import org.dromara.circle.domain.bo.CircleGroupBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -94,6 +95,12 @@ public interface ICircleGroupService {
     Boolean updateByBo(CircleGroupBo bo);
 
     /**
+     * 审核圈子
+     * @param bo
+     * @return
+     */
+    Boolean reviewCircleGroup(CircleGroupReviewBo bo);
+    /**
      * 校验并批量删除圈子主体信息
      *
      * @param ids     待删除的主键集合
@@ -116,7 +123,7 @@ public interface ICircleGroupService {
      * @param isValid
      * @return
      */
-    Boolean deleteWithValidById(Long id, Boolean isValid);
+    Boolean deleteWithValidById(String id, Boolean isValid);
 
     /**
      * 从回收站删除
@@ -124,5 +131,5 @@ public interface ICircleGroupService {
      * @param isValid
      * @return
      */
-    Boolean deleteRecycleBinById(Long id, Boolean isValid);
+    Boolean deleteRecycleBinById(String id, Boolean isValid);
 }
