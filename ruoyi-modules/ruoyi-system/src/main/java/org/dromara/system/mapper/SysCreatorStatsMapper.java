@@ -15,6 +15,8 @@ import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
 public interface SysCreatorStatsMapper extends BaseMapperPlus<SysCreatorStats, SysCreatorStatsVo> {
     @Update("UPDATE sys_creator_stats SET content_count = content_count + 1 WHERE user_id = #{userId}")
     int incrementContentCount(@Param("userId") Long userId);
+    @Update("UPDATE sys_creator_stats SET friend_count = friend_count + #{count} WHERE user_id = #{userId}")
+    int incrementFriendCount(@Param("userId") Long userId,@Param("count")Integer count);
 
     @Update("UPDATE sys_creator_stats SET fans_count = fans_count + #{delta} WHERE user_id = #{userId}")
     int updateFansCount(@Param("userId") Long userId, @Param("delta") int delta);

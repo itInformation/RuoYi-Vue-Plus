@@ -21,6 +21,7 @@ import org.dromara.circle.mapper.CircleGroupMapper;
 import org.dromara.circle.service.ICircleContentPermService;
 import org.dromara.circle.service.ICircleContentService;
 import org.dromara.circle.service.ICircleMemberService;
+import org.dromara.circle.service.ICircleReviewLogService;
 import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.enums.CircleContentPermTypeEnum;
 import org.dromara.common.core.enums.CircleGroupJoinModeEnum;
@@ -61,6 +62,7 @@ public class CircleContentServiceImpl implements ICircleContentService {
     private final ICircleContentPermService circleContentPermService;
     private final ICircleMemberService circleMemberService;
     private final ScheduledExecutorService scheduledExecutorService;
+    private final ICircleReviewLogService circleReviewLogService;
     /**
      * 查询圈子内容
      *

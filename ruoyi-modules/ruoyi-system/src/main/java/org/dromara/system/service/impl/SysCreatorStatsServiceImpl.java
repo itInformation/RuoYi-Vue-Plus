@@ -1,6 +1,8 @@
 package org.dromara.system.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.constant.CacheNames;
+import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -10,10 +12,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.dromara.system.domain.SysUserFollow;
+import org.dromara.system.domain.SysUserFriend;
+import org.dromara.system.domain.vo.SysUserFriendVo;
 import org.dromara.system.mapper.SysUserFollowMapper;
+import org.dromara.system.mapper.SysUserFriendMapper;
 import org.dromara.system.service.IRedisLockService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -24,6 +30,7 @@ import org.dromara.system.mapper.SysCreatorStatsMapper;
 import org.dromara.system.service.ISysCreatorStatsService;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
@@ -36,10 +43,12 @@ import java.util.Collection;
  */
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class SysCreatorStatsServiceImpl implements ISysCreatorStatsService {
 
     private final SysCreatorStatsMapper baseMapper;
     private final SysUserFollowMapper userFollowMapper;
+    private final SysUserFriendMapper userFriendMapper;
     private final IRedisLockService redisLockService;
 
     /**
@@ -143,28 +152,6 @@ public class SysCreatorStatsServiceImpl implements ISysCreatorStatsService {
     }
 
 
-    @Transactional
-    public void handleFollowAction(Long followerId, Long creatorId, boolean isFollow) {
-        int delta = isFollow ? 1 : -1;
-
-        // 更新创作者粉丝数
-        baseMapper.updateFansCount(creatorId, delta);
-
-        // 更新关注者的关注数
-        baseMapper.updateFollowingCount(followerId, delta);
-
-        // 维护关注关系
-        if (isFollow) {
-            SysUserFollow entity = new SysUserFollow();
-            entity.setUserId(followerId);
-            entity.setCreatorId(creatorId);
-            userFollowMapper.insert(entity);
-        } else {
-            userFollowMapper.delete(new LambdaQueryWrapper<SysUserFollow>()
-                .eq(SysUserFollow::getUserId, followerId)
-                .eq(SysUserFollow::getCreatorId, creatorId));
-        }
-    }
 
     // 获取统计信息（带缓存）
     @Cacheable(value = CacheNames.CREATOR_STATS, key = "#userId")
@@ -181,7 +168,22 @@ public class SysCreatorStatsServiceImpl implements ISysCreatorStatsService {
         // 批量更新逻辑...
     }
 
+    @Transactional
+    public void handleFollowAction(Long followerId, Long creatorId, boolean isFollow) {
+        final String lockKey = String.format("follow_action:%s:%s", followerId, creatorId);
 
+        redisLockService.executeWithLock(lockKey, 3000,6000, () -> {
+            // 更新被关注者粉丝数
+            updateFansCountWithLock(creatorId, isFollow ? 1 : -1);
+
+            // 更新关注者的关注数
+            updateFollowingCountWithLock(followerId, isFollow ? 1 : -1);
+
+            // 维护关注关系
+            maintainFollowRelation(followerId, creatorId, isFollow);
+            return null;
+        });
+    }
     private void updateFansCountWithLock(Long creatorId, int delta) {
         String lockKey = "creator_stats_update:" + creatorId;
         redisLockService.executeWithLock(lockKey, 3, 5, () -> {
@@ -235,5 +237,120 @@ public class SysCreatorStatsServiceImpl implements ISysCreatorStatsService {
                 return newStats;
             }
         );
+    }
+
+    /**
+     * 维护用户关注关系（带幂等性保障）
+     * @param followerId 关注者用户ID
+     * @param creatorId  被关注的创作者ID
+     * @param isFollow   是否关注（true=关注，false=取消关注）
+     */
+    private void maintainFollowRelation(Long followerId, Long creatorId, boolean isFollow) {
+        try {
+            if (isFollow) {
+                handleFollow(followerId, creatorId);
+                checkAndCreateFriendship(followerId, creatorId); // 新增逻辑
+            } else {
+                handleUnfollow(followerId, creatorId);
+                checkAndRemoveFriendship(followerId, creatorId); // 新增逻辑
+            }
+        } catch (DuplicateKeyException e) {
+            // 幂等性处理：重复关注请求直接忽略
+            log.warn("重复关注操作，followerId={}, creatorId={}", followerId, creatorId);
+        } catch (DataIntegrityViolationException e) {
+            log.error("数据完整性异常，followerId={}, creatorId={}", followerId, creatorId, e);
+            throw new ServiceException("操作失败，请检查用户状态");
+        }
+    }
+
+    /**
+     * 处理关注逻辑（带防重复插入机制）
+     */
+    private void handleFollow(Long followerId, Long creatorId) {
+        // 1. 检查是否已存在关注关系（幂等性校验）
+        boolean exists = userFollowMapper.exists(Wrappers.<SysUserFollow>lambdaQuery()
+            .eq(SysUserFollow::getUserId, followerId)
+            .eq(SysUserFollow::getCreatorId, creatorId));
+
+        if (exists) {
+            log.info("关注关系已存在，followerId={}, creatorId={}", followerId, creatorId);
+            return;
+        }
+
+        // 2. 插入新记录
+        SysUserFollow entity = new SysUserFollow();
+        entity.setUserId(followerId);
+        entity.setCreatorId(creatorId);
+        entity.setCreateTime(new Date());
+
+        // 3. 使用INSERT IGNORE避免竞态条件
+        userFollowMapper.insertIgnore(entity);
+    }
+
+    /**
+     * 处理取消关注逻辑（带防无效删除机制）
+     */
+    private void handleUnfollow(Long followerId, Long creatorId) {
+        // 1. 使用直接删除方式（即使不存在也不影响）
+        int deleted = userFollowMapper.delete(Wrappers.<SysUserFollow>lambdaQuery()
+            .eq(SysUserFollow::getUserId, followerId)
+            .eq(SysUserFollow::getCreatorId, creatorId));
+
+        // 2. 记录异常删除情况
+        if (deleted == 0) {
+            log.info("取消关注无效，关注关系不存在，followerId={}, creatorId={}", followerId, creatorId);
+        }
+    }
+
+    /**
+     * 检测并创建朋友关系（带分布式锁）
+     */
+    @Transactional
+    public void checkAndCreateFriendship(Long userA, Long userB) {
+        // 使用双用户ID排序避免死锁
+        Long firstUserId = Math.min(userA, userB);
+        Long secondUserId = Math.max(userA, userB);
+        String lockKey = String.format("friend_lock:%s:%s", firstUserId, secondUserId);
+
+        redisLockService.executeWithLock(lockKey, 3,10, () -> {
+            // 检查是否互相关注
+            boolean aFollowB = userFollowMapper.existsFollow(userA, userB);
+            boolean bFollowA = userFollowMapper.existsFollow(userB, userA);
+
+            if (aFollowB && bFollowA) {
+                // 插入朋友关系（使用INSERT IGNORE防重复）
+                userFriendMapper.insertIgnore(userA, userB);
+                userFriendMapper.insertIgnore(userB, userA);
+
+                // 更新统计
+                baseMapper.incrementFriendCount(userA, 1);
+                baseMapper.incrementFriendCount(userB, 1);
+            }
+            return null;
+        });
+    }
+
+    /**
+     * 检测并移除朋友关系
+     */
+    @Transactional
+    public void checkAndRemoveFriendship(Long userA, Long userB) {
+        // 使用双用户ID排序避免死锁
+        Long firstUserId = Math.min(userA, userB);
+        Long secondUserId = Math.max(userA, userB);
+        String lockKey = String.format("friend_lock:%s:%s", firstUserId, secondUserId);
+        // 同上使用分布式锁
+        redisLockService.executeWithLock(lockKey,3,2, () -> {
+            boolean wasFriend = userFriendMapper.existsFriend(userA, userB);
+
+            if (wasFriend) {
+                userFriendMapper.deleteFriend(userA, userB);
+                userFriendMapper.deleteFriend(userB, userA);
+
+                baseMapper.incrementFriendCount(userA, -1);
+                baseMapper.incrementFriendCount(userB, -1);
+            }
+            return null;
+        });
     }
 }

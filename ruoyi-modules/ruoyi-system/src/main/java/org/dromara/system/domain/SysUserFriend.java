@@ -9,44 +9,41 @@ import org.dromara.common.mybatis.core.domain.BaseEntity;
 import java.io.Serial;
 
 /**
- * 创作者统计对象 sys_creator_stats
+ * 用户关注关系对象 sys_user_follow
  *
  * @author Lion Li
  * @date 2025-04-08
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_creator_stats")
-public class SysCreatorStats extends BaseEntity {
+@TableName("sys_user_friend")
+public class SysUserFriend extends BaseEntity {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户ID
+     *
      */
-    @TableId(value = "user_id")
+    @TableId(value = "id")
+    private Long id;
+
+    /**
+     * 关注者ID
+     */
     private Long userId;
 
     /**
-     * 发布内容总数
+     * 朋友ID
      */
-    private Long contentCount;
+    private Long friendId;
 
-    /**
-     * 粉丝数量
-     */
-    private Long fansCount;
+    public SysUserFriend(Long userId, Long friendId) {
+        this.userId = userId;
+        this.friendId = friendId;
+    }
 
-    /**
-     * 关注创作者数
-     */
-    private Long followingCount;
+    public SysUserFriend() {
 
-    /**
-     * 好友数
-     */
-    private Long friendCount;
-
-
+    }
 }
