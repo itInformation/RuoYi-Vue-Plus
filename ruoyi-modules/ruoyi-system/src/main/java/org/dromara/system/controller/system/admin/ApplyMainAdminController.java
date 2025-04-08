@@ -16,6 +16,7 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.system.domain.bo.ApplyMainBo;
+import org.dromara.system.domain.bo.ApplyMainReviewBo;
 import org.dromara.system.domain.vo.ApplyMainVo;
 import org.dromara.system.service.IApplyMainService;
 import org.springframework.validation.annotation.Validated;
@@ -38,7 +39,7 @@ public class ApplyMainAdminController extends BaseController {
     private final IApplyMainService applyMainService;
 
     /**
-     * 查询入驻申请主列表
+     * 查询入驻申请列表
      */
     @SaCheckPermission("system:main:list")
     @GetMapping("/list")
@@ -47,18 +48,18 @@ public class ApplyMainAdminController extends BaseController {
     }
 
     /**
-     * 导出入驻申请主列表
+     * 导出入驻申请列表
      */
     @SaCheckPermission("system:main:export")
-    @Log(title = "入驻申请主", businessType = BusinessType.EXPORT)
+    @Log(title = "入驻申请", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(ApplyMainBo bo, HttpServletResponse response) {
         List<ApplyMainVo> list = applyMainService.queryList(bo);
-        ExcelUtil.exportExcel(list, "入驻申请主", ApplyMainVo.class, response);
+        ExcelUtil.exportExcel(list, "入驻申请", ApplyMainVo.class, response);
     }
 
     /**
-     * 获取入驻申请主详细信息
+     * 获取入驻申请详细信息
      *
      * @param applyId 主键
      */
@@ -70,10 +71,10 @@ public class ApplyMainAdminController extends BaseController {
     }
 
     /**
-     * 新增入驻申请主
+     * 新增入驻申请
      */
     @SaCheckPermission("system:main:add")
-    @Log(title = "入驻申请主", businessType = BusinessType.INSERT)
+    @Log(title = "入驻申请", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody ApplyMainBo bo) {
@@ -81,23 +82,34 @@ public class ApplyMainAdminController extends BaseController {
     }
 
     /**
-     * 修改入驻申请主
+     * 修改入驻申请
+     */
+    @SaCheckPermission("system:main:review")
+    @Log(title = "入驻申请审核", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PutMapping("/review")
+    public R<Void> edit(@Validated(EditGroup.class) @RequestBody ApplyMainReviewBo bo) {
+        return toAjax(applyMainService.reviewApplyMain(bo));
+    }
+
+    /**
+     * 修改入驻申请
      */
     @SaCheckPermission("system:main:edit")
-    @Log(title = "入驻申请主", businessType = BusinessType.UPDATE)
+    @Log(title = "入驻申请", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping(value = "")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody ApplyMainBo bo) {
         return toAjax(applyMainService.updateByBo(bo));
     }
 
     /**
-     * 删除入驻申请主
+     * 删除入驻申请
      *
      * @param applyIds 主键串
      */
     @SaCheckPermission("system:main:remove")
-    @Log(title = "入驻申请主", businessType = BusinessType.DELETE)
+    @Log(title = "入驻申请", businessType = BusinessType.DELETE)
     @DeleteMapping("/{applyIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] applyIds) {

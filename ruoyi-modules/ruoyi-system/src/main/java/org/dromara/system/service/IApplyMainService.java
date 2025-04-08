@@ -1,5 +1,6 @@
 package org.dromara.system.service;
 
+import org.dromara.system.domain.bo.ApplyMainReviewBo;
 import org.dromara.system.domain.vo.ApplyMainVo;
 import org.dromara.system.domain.bo.ApplyMainBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -56,6 +57,12 @@ public interface IApplyMainService {
      * @return 是否修改成功
      */
     Boolean updateByBo(ApplyMainBo bo);
+
+    /**
+     * 审核申请
+     */
+    Boolean reviewApplyMain(ApplyMainReviewBo bo);
+
 
     /**
      * 校验并批量删除入驻申请主信息

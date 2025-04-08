@@ -34,7 +34,7 @@ public class ApplyMainClientController extends BaseController {
     private final IApplyMainService applyMainService;
 
     /**
-     * 获取入驻申请主详细信息
+     * 获取入驻申请详细信息
      *
      * @param applyId 主键
      */
@@ -46,7 +46,7 @@ public class ApplyMainClientController extends BaseController {
     }
 
     /**
-     * 新增入驻申请主
+     * 新增入驻申请
      */
     @SaCheckPermission("client:main:add")
     @Log(title = "app端入驻申请", businessType = BusinessType.INSERT)
@@ -57,7 +57,7 @@ public class ApplyMainClientController extends BaseController {
     }
 
     /**
-     * 修改入驻申请主
+     * 修改入驻申请
      */
     @SaCheckPermission("client:main:edit")
     @Log(title = "app端入驻申请", businessType = BusinessType.UPDATE)

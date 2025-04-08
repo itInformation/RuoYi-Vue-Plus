@@ -12,6 +12,7 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.system.domain.ApplyMain;
 import org.dromara.system.domain.bo.ApplyMainBo;
+import org.dromara.system.domain.bo.ApplyMainReviewBo;
 import org.dromara.system.domain.vo.ApplyGuildVo;
 import org.dromara.system.domain.vo.ApplyMainVo;
 import org.dromara.system.domain.vo.ApplyPersonalVo;
@@ -22,7 +23,9 @@ import org.dromara.system.service.IApplyPersonalService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -193,6 +196,17 @@ public class ApplyMainServiceImpl implements IApplyMainService {
         }
 
         return flag;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean reviewApplyMain(ApplyMainReviewBo bo) {
+        ApplyMain update = new ApplyMain();
+        update.setApplyId(bo.getApplyId());
+        update.setStatus(bo.getStatus());
+        update.setAuditTime(new Date());
+        update.setAuditComment(bo.getAuditComment());
+        return baseMapper.updateById(update) > 0;
     }
 
     /**
