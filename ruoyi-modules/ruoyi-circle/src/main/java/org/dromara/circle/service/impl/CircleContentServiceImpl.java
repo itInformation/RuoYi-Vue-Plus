@@ -80,6 +80,7 @@ public class CircleContentServiceImpl implements ICircleContentService {
         QueryWrapper<CircleContent> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("group_id", groupId);
         queryWrapper.eq("user_Id",userId);
+        queryWrapper.eq("is_Top", true);
         return baseMapper.selectVoOne(queryWrapper);
     }
     /**
