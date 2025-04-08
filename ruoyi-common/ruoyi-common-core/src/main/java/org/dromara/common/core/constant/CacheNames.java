@@ -79,5 +79,9 @@ public interface CacheNames {
      * 在线用户
      */
     String ONLINE_TOKEN = "online_tokens";
+    /**
+     * 创作者统计数
+     */
+    String CREATOR_STATS = "creator_stats";
 
 }
