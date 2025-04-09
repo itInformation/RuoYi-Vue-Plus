@@ -169,10 +169,11 @@ public class SysCreatorStatsServiceImpl implements ISysCreatorStatsService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheNames.CREATOR_STATS, key = "#userId")
     public void handleFollowAction(Long followerId, Long creatorId, boolean isFollow) {
         final String lockKey = String.format("follow_action:%s:%s", followerId, creatorId);
 
-        redisLockService.executeWithLock(lockKey, 3000,6000, () -> {
+        redisLockService.executeWithLock(lockKey, 10000,3000, () -> {
             // 更新被关注者粉丝数
             updateFansCountWithLock(creatorId, isFollow ? 1 : -1);
 
@@ -186,7 +187,7 @@ public class SysCreatorStatsServiceImpl implements ISysCreatorStatsService {
     }
     private void updateFansCountWithLock(Long creatorId, int delta) {
         String lockKey = "creator_stats_update:" + creatorId;
-        redisLockService.executeWithLock(lockKey, 3, 5, () -> {
+        redisLockService.executeWithLock(lockKey, 10000,3000, () -> {
             baseMapper.updateFansCount(creatorId, delta);
 
             // 处理初始化场景
@@ -200,7 +201,7 @@ public class SysCreatorStatsServiceImpl implements ISysCreatorStatsService {
 
     private void updateFollowingCountWithLock(Long userId, int delta) {
         String lockKey = "user_following_update:" + userId;
-        redisLockService.executeWithLock(lockKey, 3, 5, () -> {
+        redisLockService.executeWithLock(lockKey, 10000,3000, () -> {
             baseMapper.updateFollowingCount(userId, delta);
 
             if (baseMapper.selectById(userId) == null) {
@@ -305,7 +306,6 @@ public class SysCreatorStatsServiceImpl implements ISysCreatorStatsService {
     /**
      * 检测并创建朋友关系（带分布式锁）
      */
-    @Transactional
     public void checkAndCreateFriendship(Long userA, Long userB) {
         // 使用双用户ID排序避免死锁
         Long firstUserId = Math.min(userA, userB);
@@ -333,7 +333,6 @@ public class SysCreatorStatsServiceImpl implements ISysCreatorStatsService {
     /**
      * 检测并移除朋友关系
      */
-    @Transactional
     public void checkAndRemoveFriendship(Long userA, Long userB) {
         // 使用双用户ID排序避免死锁
         Long firstUserId = Math.min(userA, userB);

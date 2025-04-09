@@ -25,12 +25,12 @@ public class RedisLockServiceImpl implements IRedisLockService {
     private LockTemplate lockTemplate;
 
     @Override
-    public <T> T executeWithLock(String lockKey, int waitTime, int leaseTime, Supplier<T> supplier) {
+    public <T> T executeWithLock(String lockKey, long expire, long acquireTimeout, Supplier<T> supplier) {
         // 1. 尝试获取锁（单位转换为毫秒）
         log.debug("尝试获取锁：{}", lockKey);
         LockInfo lockInfo = null;
         try {
-            lockInfo = lockTemplate.lock(lockKey, waitTime, leaseTime, RedissonLockExecutor.class);
+            lockInfo = lockTemplate.lock(lockKey, expire, acquireTimeout, RedissonLockExecutor.class);
             if (lockInfo == null) {
                 log.warn("获取锁失败: {}", lockKey);
                 throw new ServiceException("业务处理中,请稍后再试");

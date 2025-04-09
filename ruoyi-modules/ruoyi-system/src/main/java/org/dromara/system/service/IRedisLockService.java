@@ -9,5 +9,5 @@ import java.util.function.Supplier;
  * @date: 2025/4/8 17:47
  */
 public interface IRedisLockService {
-    <T> T executeWithLock(String lockKey, int waitTime, int leaseTime, Supplier<T> supplier);
+    <T> T executeWithLock(String lockKey, long expire, long acquireTimeout, Supplier<T> supplier);
 }
