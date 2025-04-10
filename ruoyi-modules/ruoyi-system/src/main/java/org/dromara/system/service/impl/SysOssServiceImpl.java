@@ -23,6 +23,7 @@ import org.dromara.common.oss.core.OssClient;
 import org.dromara.common.oss.entity.UploadResult;
 import org.dromara.common.oss.enumd.AccessPolicyType;
 import org.dromara.common.oss.factory.OssFactory;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.system.domain.SysOss;
 import org.dromara.system.domain.bo.SysOssBo;
 import org.dromara.system.domain.vo.SysOssVo;
@@ -191,12 +192,14 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
     @Override
     public SysOssVo upload(MultipartFile file) {
         OssClient storage = OssFactory.instance();
+        storage.getProperties().setPrefix(String.valueOf(LoginHelper.getUserId()));
         return uploadFile(file, storage);
     }
 
     @Override
     public SysOssVo upload(MultipartFile file,String configKey) {
         OssClient storage = OssFactory.instance(configKey);
+        storage.getProperties().setPrefix(String.valueOf(LoginHelper.getUserId()));
         return uploadFile(file, storage);
     }
 

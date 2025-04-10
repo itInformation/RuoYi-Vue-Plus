@@ -131,7 +131,7 @@ public class SysOssClientController extends BaseController {
     @SaCheckPermission("client:file:upload")
     @RepeatSubmit
     @Log(title = "用户上传文件", businessType = BusinessType.UPDATE)
-    @PostMapping(value = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/uploadFileWithKey", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public R<AvatarVo> uploadFile(@RequestPart("avatarfile") MultipartFile file,String configKey) {
         if (!file.isEmpty()) {
             String extension = FileUtil.extName(file.getOriginalFilename());
