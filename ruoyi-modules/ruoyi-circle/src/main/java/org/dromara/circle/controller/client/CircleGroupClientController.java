@@ -96,7 +96,7 @@ public class CircleGroupClientController extends BaseController {
     @SaCheckPermission("client:group:edit")
     @Log(title = "圈子主体", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleGroupBo bo) {
         return toAjax(circleGroupService.updateByBo(bo));
     }

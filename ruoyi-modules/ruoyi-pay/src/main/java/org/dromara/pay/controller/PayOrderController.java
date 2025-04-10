@@ -85,7 +85,7 @@ public class PayOrderController extends BaseController {
     @SaCheckPermission("system:order:edit")
     @Log(title = "支付订单", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody PayOrderBo bo) {
         return toAjax(payOrderService.updateByBo(bo));
     }

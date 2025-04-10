@@ -85,7 +85,7 @@ public class CircleAuditLogAdminController extends BaseController {
     @SaCheckPermission("system:auditLog:edit")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleAuditLogBo bo) {
         return toAjax(circleAuditLogService.updateByBo(bo));
     }

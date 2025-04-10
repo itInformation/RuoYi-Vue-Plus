@@ -74,7 +74,7 @@ public class CircleCategoryAdminController extends BaseController {
     @SaCheckPermission("system:category:add")
     @Log(title = "圈子分类", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CircleCategoryBo bo) {
         return toAjax(circleCategoryService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class CircleCategoryAdminController extends BaseController {
     @SaCheckPermission("system:category:edit")
     @Log(title = "圈子分类", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleCategoryBo bo) {
         return toAjax(circleCategoryService.updateByBo(bo));
     }

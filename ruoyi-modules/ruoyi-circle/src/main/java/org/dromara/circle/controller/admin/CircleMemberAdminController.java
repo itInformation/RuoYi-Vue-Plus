@@ -74,7 +74,7 @@ public class CircleMemberAdminController extends BaseController {
     @SaCheckPermission("system:member:add")
     @Log(title = "用户-圈子关系", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CircleMemberBo bo) {
         return toAjax(circleMemberService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class CircleMemberAdminController extends BaseController {
     @SaCheckPermission("system:member:edit")
     @Log(title = "用户-圈子关系", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleMemberBo bo) {
         return toAjax(circleMemberService.updateByBo(bo));
     }

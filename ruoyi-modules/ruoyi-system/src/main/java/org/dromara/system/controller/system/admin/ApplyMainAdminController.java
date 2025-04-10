@@ -76,7 +76,7 @@ public class ApplyMainAdminController extends BaseController {
     @SaCheckPermission("system:main:add")
     @Log(title = "入驻申请", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody ApplyMainBo bo) {
         return toAjax(applyMainService.insertByBo(bo));
     }
@@ -87,7 +87,7 @@ public class ApplyMainAdminController extends BaseController {
     @SaCheckPermission("system:main:review")
     @Log(title = "入驻申请审核", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping("/review")
+    @PostMapping("/review")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody ApplyMainReviewBo bo) {
         return toAjax(applyMainService.reviewApplyMain(bo));
     }

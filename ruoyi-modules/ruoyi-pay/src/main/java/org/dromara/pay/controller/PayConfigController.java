@@ -85,7 +85,7 @@ public class PayConfigController extends BaseController {
     @SaCheckPermission("system:config:edit")
     @Log(title = "支付配置", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody PayConfigBo bo) {
         return toAjax(payConfigService.updateByBo(bo));
     }

@@ -85,7 +85,7 @@ public class SysAppVersionAdminController extends BaseController {
     @SaCheckPermission("system:appVersion:edit")
     @Log(title = "App版本信息", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody SysAppVersionBo bo) {
         return toAjax(sysAppVersionService.updateByBo(bo));
     }

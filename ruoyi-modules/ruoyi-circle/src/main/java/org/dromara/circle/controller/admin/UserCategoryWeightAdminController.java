@@ -85,7 +85,7 @@ public class UserCategoryWeightAdminController extends BaseController {
     @SaCheckPermission("circle:categoryWeight:edit")
     @Log(title = "用户分类兴趣权重", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody UserCategoryWeightBo bo) {
         return toAjax(userCategoryWeightService.updateByBo(bo));
     }

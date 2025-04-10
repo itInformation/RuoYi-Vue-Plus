@@ -85,7 +85,7 @@ public class CircleResourceAdminController extends BaseController {
     @SaCheckPermission("system:resource:edit")
     @Log(title = "资源文件", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleResourceBo bo) {
         return toAjax(circleResourceService.updateByBo(bo));
     }

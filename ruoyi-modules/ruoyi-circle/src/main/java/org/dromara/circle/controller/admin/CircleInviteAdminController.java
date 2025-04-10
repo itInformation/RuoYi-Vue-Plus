@@ -85,7 +85,7 @@ public class CircleInviteAdminController extends BaseController {
     @SaCheckPermission("system:invite:edit")
     @Log(title = "邀请记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleInviteBo bo) {
         return toAjax(circleInviteService.updateByBo(bo));
     }

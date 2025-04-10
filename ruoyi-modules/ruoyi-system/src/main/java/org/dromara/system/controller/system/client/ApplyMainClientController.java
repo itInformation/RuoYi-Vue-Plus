@@ -62,7 +62,7 @@ public class ApplyMainClientController extends BaseController {
     @SaCheckPermission("client:main:edit")
     @Log(title = "app端入驻申请", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody ApplyMainBo bo) {
         return toAjax(applyMainService.updateByBo(bo));
     }

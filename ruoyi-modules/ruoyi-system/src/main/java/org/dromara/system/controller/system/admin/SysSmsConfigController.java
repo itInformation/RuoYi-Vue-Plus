@@ -86,7 +86,7 @@ public class SysSmsConfigController extends BaseController {
     @SaCheckPermission("system:smsConfig:edit")
     @Log(title = "短信配置", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody SysSmsConfigBo bo) {
         return toAjax(sysSmsConfigService.updateByBo(bo));
     }

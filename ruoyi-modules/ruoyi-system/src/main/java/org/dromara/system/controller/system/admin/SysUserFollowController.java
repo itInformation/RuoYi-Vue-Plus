@@ -85,7 +85,7 @@ public class SysUserFollowController extends BaseController {
     @SaCheckPermission("system:userFollow:edit")
     @Log(title = "用户关注关系", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody SysUserFollowBo bo) {
         return toAjax(sysUserFollowService.updateByBo(bo));
     }

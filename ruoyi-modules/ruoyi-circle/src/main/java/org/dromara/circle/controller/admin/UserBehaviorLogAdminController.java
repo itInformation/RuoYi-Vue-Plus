@@ -85,7 +85,7 @@ public class UserBehaviorLogAdminController extends BaseController {
     @SaCheckPermission("circle:behaviorLog:edit")
     @Log(title = "用户行为日志", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody UserBehaviorLogBo bo) {
         return toAjax(userBehaviorLogService.updateByBo(bo));
     }

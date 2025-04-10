@@ -85,7 +85,7 @@ public class SysCreatorStatsController extends BaseController {
     @SaCheckPermission("system:creatorStats:edit")
     @Log(title = "创作者统计", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody SysCreatorStatsBo bo) {
         return toAjax(sysCreatorStatsService.updateByBo(bo));
     }

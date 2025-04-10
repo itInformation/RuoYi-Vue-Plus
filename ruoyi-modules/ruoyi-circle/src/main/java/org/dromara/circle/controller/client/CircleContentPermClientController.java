@@ -74,7 +74,7 @@ public class CircleContentPermClientController extends BaseController {
     @SaCheckPermission("client:contentPerm:edit")
     @Log(title = "内容权限关联", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CircleContentPermBo bo) {
         return toAjax(circleContentPermService.updateByBo(bo));
     }
