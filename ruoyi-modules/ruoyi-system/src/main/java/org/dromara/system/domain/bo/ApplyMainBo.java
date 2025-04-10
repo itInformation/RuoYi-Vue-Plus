@@ -29,7 +29,7 @@ public class ApplyMainBo extends BaseEntity {
     private Long applyId;
 
     /**
-     *
+     * 用户id
      */
     @NotNull(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long userId;
@@ -41,7 +41,7 @@ public class ApplyMainBo extends BaseEntity {
     private String applyType;
 
     /**
-     *
+     * 审核状态 0 待审核 1 审核通过 2 审核失败
      */
     @NotBlank(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
     private String status;

@@ -24,13 +24,13 @@ public class ApplyMain extends TenantEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @TableId(value = "apply_id")
     private Long applyId;
 
     /**
-     * 
+     *
      */
     private Long userId;
 
@@ -40,22 +40,22 @@ public class ApplyMain extends TenantEntity {
     private String applyType;
 
     /**
-     * 
+     * 0 待审核 1 审核通过 2 审核失败
      */
     private String status;
 
     /**
-     * 
+     * 提交时间
      */
     private Date submitTime;
 
     /**
-     * 
+     * 审核时间
      */
     private Date auditTime;
 
     /**
-     * 
+     * 备注
      */
     private String auditComment;
 
