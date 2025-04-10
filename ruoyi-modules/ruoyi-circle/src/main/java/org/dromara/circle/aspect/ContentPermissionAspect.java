@@ -30,7 +30,7 @@ public class ContentPermissionAspect {
     @Around("@annotation(contentPerm)")
     public Object checkPermission(ProceedingJoinPoint joinPoint, ContentPermission contentPerm) throws Throwable {
 
-        String contentId = Long.valueOf(contentPerm.getContentId());
+        String contentId = contentPerm.getContentId();
         // 获取当前用户
         LoginUser loginUser = LoginHelper.getLoginUser();
         if (loginUser == null) {
