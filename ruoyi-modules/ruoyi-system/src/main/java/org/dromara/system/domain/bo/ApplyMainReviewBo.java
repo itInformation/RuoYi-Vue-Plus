@@ -22,13 +22,13 @@ import java.util.Date;
 public class ApplyMainReviewBo {
 
     /**
-     *
+     * 主键
      */
     @NotNull(message = "不能为空", groups = { EditGroup.class })
     private Long applyId;
 
     /**
-     *
+     * 审核状态 0 待审核 1 审核通过 2 审核失败
      */
     @NotBlank(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
     private String status;

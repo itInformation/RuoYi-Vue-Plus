@@ -25,7 +25,7 @@ public class ApplyMainBo extends BaseEntity {
     /**
      *
      */
-    @NotNull(message = "不能为空", groups = { EditGroup.class })
+
     private Long applyId;
 
     /**

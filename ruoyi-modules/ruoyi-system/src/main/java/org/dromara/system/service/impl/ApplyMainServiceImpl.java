@@ -66,15 +66,11 @@ public class ApplyMainServiceImpl implements IApplyMainService {
 
         // 分离校验逻辑
         ApplyPersonalVo applyPersonalVo = applyPersonalService.queryById(applyId);
-        if (applyPersonalVo == null) {
-            throw new ServiceException("平台申请个人资料缺失, applyId:" + applyId);
-        }
 
         ApplyGuildVo applyGuildVo = applyGuildService.queryById(applyId);
-        if (applyGuildVo == null) {
-            throw new ServiceException("平台申请公会资料缺失, applyId:" + applyId);
+        if (applyGuildVo == null && applyPersonalVo == null) {
+            throw new ServiceException("平台申请资料缺失, applyId:" + applyId);
         }
-
         // 直接操作已缓存对象
         applyMainVo.setApplyPersonalVo(applyPersonalVo);
         applyMainVo.setApplyGuildVo(applyGuildVo);
@@ -170,8 +166,10 @@ public class ApplyMainServiceImpl implements IApplyMainService {
             bo.setApplyId(add.getApplyId());
         }
         if (bo.getApplyPersonalBo() != null){
+            bo.getApplyPersonalBo().setApplyId(add.getApplyId());
             applyPersonalService.insertByBo(bo.getApplyPersonalBo());
         }else {
+            bo.getApplyGuildBo().setApplyId(add.getApplyId());
             applyGuildService.insertByBo(bo.getApplyGuildBo());
         }
         return flag;
