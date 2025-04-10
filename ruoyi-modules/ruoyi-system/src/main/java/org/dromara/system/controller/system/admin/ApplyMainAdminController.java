@@ -96,9 +96,9 @@ public class ApplyMainAdminController extends BaseController {
      * 修改入驻申请
      */
     @SaCheckPermission("system:main:edit")
-    @Log(title = "入驻申请", businessType = BusinessType.UPDATE)
+    @Log(title = "修改入驻申请", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PostMapping(value = "")
+    @PostMapping(value = "/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody ApplyMainBo bo) {
         return toAjax(applyMainService.updateByBo(bo));
     }

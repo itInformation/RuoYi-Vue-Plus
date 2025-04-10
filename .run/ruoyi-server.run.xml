@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="ruoyi-server" type="docker-deploy" factoryName="dockerfile" server-name="Docker-baota">
+  <configuration default="false" name="ruoyi-server" type="docker-deploy" factoryName="dockerfile" server-name="Docker-cr">
     <deployment type="dockerfile">
       <settings>
         <option name="imageTag" value="ruoyi/ruoyi-server:5.3.0" />
