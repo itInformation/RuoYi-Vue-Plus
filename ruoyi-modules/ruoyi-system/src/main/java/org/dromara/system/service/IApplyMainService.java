@@ -1,7 +1,7 @@
 package org.dromara.system.service;
 
-import org.dromara.system.domain.ApplyMain;
 import org.dromara.system.domain.bo.ApplyMainReviewBo;
+import org.dromara.system.domain.vo.ApplyMainSubmitVo;
 import org.dromara.system.domain.vo.ApplyMainVo;
 import org.dromara.system.domain.bo.ApplyMainBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -29,7 +29,7 @@ public interface IApplyMainService {
      * 是否可以再次申请入驻
      *
      */
-    Boolean validatorInsert(Long userId);
+    ApplyMainSubmitVo queryApplyResult(Long userId);
 
     /**
      * 分页查询入驻申请列表

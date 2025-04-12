@@ -51,7 +51,7 @@ public class ApplyMainVo implements Serializable {
     private String applyType;
 
     /**
-     *
+     * 审核状态 0 待审核 1 审核通过 2 审核失败
      */
     @ExcelProperty(value = "")
     private String status;

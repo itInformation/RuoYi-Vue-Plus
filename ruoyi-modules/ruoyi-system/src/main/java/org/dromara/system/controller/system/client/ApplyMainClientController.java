@@ -10,9 +10,12 @@ import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
 import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
+import org.dromara.common.mybatis.core.page.PageQuery;
+import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.system.domain.bo.ApplyMainBo;
+import org.dromara.system.domain.vo.ApplyMainSubmitVo;
 import org.dromara.system.domain.vo.ApplyMainVo;
 import org.dromara.system.service.IApplyMainService;
 import org.springframework.validation.annotation.Validated;
@@ -33,7 +36,15 @@ import java.util.List;
 public class ApplyMainClientController extends BaseController {
 
     private final IApplyMainService applyMainService;
-
+    /**
+     * 查询入驻申请列表
+     */
+    @SaCheckPermission("client:main:list")
+    @GetMapping("/list")
+    public TableDataInfo<ApplyMainVo> list(ApplyMainBo bo, PageQuery pageQuery) {
+        bo.setUserId(LoginHelper.getUserId());
+        return applyMainService.queryPageList(bo, pageQuery);
+    }
     /**
      * 获取入驻申请详细信息
      *
@@ -46,12 +57,12 @@ public class ApplyMainClientController extends BaseController {
         return R.ok(applyMainService.queryById(applyId));
     }
     /**
-     * 查询是否可以再次申请
+     * 查询用户的入驻申请结果
      */
     @SaCheckPermission("client:main:query")
-    @GetMapping("/validatorAdd")
-    public R<Boolean> validatorAdd() {
-        return R.ok(applyMainService.validatorInsert(LoginHelper.getUserId()));
+    @GetMapping("/queryApplyResult")
+    public R<ApplyMainSubmitVo> queryApplyResult() {
+        return R.ok(applyMainService.queryApplyResult(LoginHelper.getUserId()));
     }
     /**
      * 新增入驻申请

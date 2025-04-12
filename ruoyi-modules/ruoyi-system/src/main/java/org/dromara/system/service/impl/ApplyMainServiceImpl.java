@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.dromara.common.core.constant.CircleReviewStatusConstants;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
@@ -16,6 +17,7 @@ import org.dromara.system.domain.ApplyMain;
 import org.dromara.system.domain.bo.ApplyMainBo;
 import org.dromara.system.domain.bo.ApplyMainReviewBo;
 import org.dromara.system.domain.vo.ApplyGuildVo;
+import org.dromara.system.domain.vo.ApplyMainSubmitVo;
 import org.dromara.system.domain.vo.ApplyMainVo;
 import org.dromara.system.domain.vo.ApplyPersonalVo;
 import org.dromara.system.mapper.ApplyMainMapper;
@@ -215,9 +217,39 @@ public class ApplyMainServiceImpl implements IApplyMainService {
 
 
     /**
+     * 查询用户的申请结果，是审核中还是审核失败，还是审核成功
+     */
+    public ApplyMainSubmitVo queryApplyResult(Long userId) {
+        ApplyMainSubmitVo mainSubmitVo = new ApplyMainSubmitVo();
+        mainSubmitVo.setUserId(userId);
+        List<String> statusList = new ArrayList<>();
+        statusList.add("0");
+        statusList.add("1");
+        QueryWrapper<ApplyMain> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.in("status", statusList);
+        List<ApplyMainVo> applyMainVos = baseMapper.selectVoList(queryWrapper);
+        if (CollectionUtils.isNotEmpty(applyMainVos)) {
+            Map<String, List<ApplyMainVo>> statusListMap = applyMainVos.stream().collect(Collectors.groupingBy(ApplyMainVo::getStatus));
+            if (statusListMap.containsKey(String.valueOf(CircleReviewStatusConstants.SUCCESS))) {
+                mainSubmitVo.setStatus(String.valueOf(CircleReviewStatusConstants.SUCCESS));
+            } else {
+                mainSubmitVo.setStatus(String.valueOf(CircleReviewStatusConstants.NOT_REVIEW));
+            }
+            mainSubmitVo.setSubmit(false);
+        } else {
+            mainSubmitVo.setStatus(String.valueOf(CircleReviewStatusConstants.FAILURE));
+            mainSubmitVo.setSubmit(true);
+        }
+
+
+        return mainSubmitVo;
+    }
+
+    /**
      * 1，userId不能是创作者 2，状态是审核中的不能再提交 3.已经审核成功的不能再提交
      */
-    public Boolean validatorInsert(Long userId) {
+    private Boolean validatorInsert(Long userId) {
         if (LoginHelper.getCreator()) {
             throw new ServiceException("创作者不能再次提交入驻申请");
         }
