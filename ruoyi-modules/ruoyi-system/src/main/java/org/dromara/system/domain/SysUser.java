@@ -117,6 +117,11 @@ public class SysUser extends TenantEntity {
      */
     private Integer circleNum;
 
+    /**
+     * 用户标签
+     */
+    private String tag;
+
     public SysUser(Long userId) {
         this.userId = userId;
     }

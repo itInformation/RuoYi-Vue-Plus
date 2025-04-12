@@ -138,4 +138,9 @@ public class SysUserBo extends BaseEntity {
      * 头像地址
      */
     private Long avatar;
+
+    /**
+     * 用户标签
+     */
+    private String tag;
 }
