@@ -10,6 +10,7 @@ import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
 import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.system.domain.bo.ApplyMainBo;
 import org.dromara.system.domain.vo.ApplyMainVo;
@@ -44,7 +45,14 @@ public class ApplyMainClientController extends BaseController {
                                      @PathVariable Long applyId) {
         return R.ok(applyMainService.queryById(applyId));
     }
-
+    /**
+     * 查询是否可以再次申请
+     */
+    @SaCheckPermission("client:main:query")
+    @GetMapping("/validatorAdd")
+    public R<Boolean> validatorAdd() {
+        return R.ok(applyMainService.validatorInsert(LoginHelper.getUserId()));
+    }
     /**
      * 新增入驻申请
      */

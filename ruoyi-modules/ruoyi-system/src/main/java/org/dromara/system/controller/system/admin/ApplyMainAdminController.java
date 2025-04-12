@@ -71,14 +71,7 @@ public class ApplyMainAdminController extends BaseController {
         return R.ok(applyMainService.queryById(applyId));
     }
 
-    /**
-     * 查询是否可以再次申请
-     */
-    @SaCheckPermission("system:main:query")
-    @GetMapping("/validatorAdd")
-    public R<Boolean> validatorAdd() {
-        return R.ok(applyMainService.validatorInsert(LoginHelper.getUserId()));
-    }
+
 
     /**
      * 新增入驻申请
