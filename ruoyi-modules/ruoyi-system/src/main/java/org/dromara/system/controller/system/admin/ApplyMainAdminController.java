@@ -14,6 +14,7 @@ import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.system.domain.bo.ApplyMainBo;
 import org.dromara.system.domain.bo.ApplyMainReviewBo;
@@ -68,6 +69,15 @@ public class ApplyMainAdminController extends BaseController {
     public R<ApplyMainVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long applyId) {
         return R.ok(applyMainService.queryById(applyId));
+    }
+
+    /**
+     * 查询是否可以再次申请
+     */
+    @SaCheckPermission("system:main:query")
+    @GetMapping("/validatorAdd")
+    public R<Boolean> validatorAdd() {
+        return R.ok(applyMainService.validatorInsert(LoginHelper.getUserId()));
     }
 
     /**

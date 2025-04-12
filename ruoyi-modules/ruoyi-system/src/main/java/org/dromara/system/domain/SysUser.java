@@ -109,7 +109,7 @@ public class SysUser extends TenantEntity {
      */
     private String remark;
     /**
-     * 是否是创作者
+     * 是否是创作者 0 不是 1 是
      */
     private Integer creator;
     /**

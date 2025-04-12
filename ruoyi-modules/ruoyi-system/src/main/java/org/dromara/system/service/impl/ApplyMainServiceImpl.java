@@ -1,6 +1,7 @@
 package org.dromara.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.system.domain.ApplyMain;
 import org.dromara.system.domain.bo.ApplyMainBo;
 import org.dromara.system.domain.bo.ApplyMainReviewBo;
@@ -23,11 +25,7 @@ import org.dromara.system.service.IApplyPersonalService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,7 +50,7 @@ public class ApplyMainServiceImpl implements IApplyMainService {
      * @return 入驻申请主
      */
     @Override
-    public ApplyMainVo queryById(Long applyId){
+    public ApplyMainVo queryById(Long applyId) {
         // 参数合法性校验
         if (applyId == null || applyId <= 0) {
             throw new IllegalArgumentException("非法的申请ID: " + applyId);
@@ -88,7 +86,7 @@ public class ApplyMainServiceImpl implements IApplyMainService {
     public TableDataInfo<ApplyMainVo> queryPageList(ApplyMainBo bo, PageQuery pageQuery) {
         LambdaQueryWrapper<ApplyMain> lqw = buildQueryWrapper(bo);
         Page<ApplyMainVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
-        if (result == null){
+        if (result == null) {
             return TableDataInfo.build();
         }
         buildPersonAndGuidVo(bo, result.getRecords());
@@ -100,12 +98,12 @@ public class ApplyMainServiceImpl implements IApplyMainService {
      * apply_main apply_person apply_guild是主子表关系
      */
     private void buildPersonAndGuidVo(ApplyMainBo bo, List<ApplyMainVo> applyMainVoList) {
-        if (CollectionUtils.isEmpty(applyMainVoList)){
+        if (CollectionUtils.isEmpty(applyMainVoList)) {
             return;
         }
         List<ApplyPersonalVo> applyPersonalVoList = applyPersonalService.queryList(bo.getApplyPersonalBo());
         //个人申请信息
-        if (CollectionUtils.isNotEmpty(applyPersonalVoList)){
+        if (CollectionUtils.isNotEmpty(applyPersonalVoList)) {
             Map<Long, ApplyPersonalVo> itemsMap = applyPersonalVoList.stream()
                 .collect(Collectors.toMap(ApplyPersonalVo::getApplyId, Function.identity()));
             applyMainVoList.forEach(applyMainVo -> {
@@ -114,7 +112,7 @@ public class ApplyMainServiceImpl implements IApplyMainService {
         }
         //达人申请信息
         List<ApplyGuildVo> applyGuildVoPageList = applyGuildService.queryList(bo.getApplyGuildBo());
-        if (CollectionUtils.isNotEmpty(applyGuildVoPageList)){
+        if (CollectionUtils.isNotEmpty(applyGuildVoPageList)) {
             Map<Long, ApplyGuildVo> itemsMap = applyGuildVoPageList.stream()
                 .collect(Collectors.toMap(ApplyGuildVo::getApplyId, Function.identity()));
             applyMainVoList.forEach(applyMainVo -> {
@@ -133,7 +131,7 @@ public class ApplyMainServiceImpl implements IApplyMainService {
     public List<ApplyMainVo> queryList(ApplyMainBo bo) {
         LambdaQueryWrapper<ApplyMain> lqw = buildQueryWrapper(bo);
         List<ApplyMainVo> applyMainVoList = baseMapper.selectVoList(lqw);
-        buildPersonAndGuidVo(bo,applyMainVoList);
+        buildPersonAndGuidVo(bo, applyMainVoList);
         return baseMapper.selectVoList(lqw);
     }
 
@@ -165,10 +163,10 @@ public class ApplyMainServiceImpl implements IApplyMainService {
         if (flag) {
             bo.setApplyId(add.getApplyId());
         }
-        if (bo.getApplyPersonalBo() != null){
+        if (bo.getApplyPersonalBo() != null) {
             bo.getApplyPersonalBo().setApplyId(add.getApplyId());
             applyPersonalService.insertByBo(bo.getApplyPersonalBo());
-        }else {
+        } else {
             bo.getApplyGuildBo().setApplyId(add.getApplyId());
             applyGuildService.insertByBo(bo.getApplyGuildBo());
         }
@@ -187,9 +185,9 @@ public class ApplyMainServiceImpl implements IApplyMainService {
         ApplyMain update = MapstructUtils.convert(bo, ApplyMain.class);
         validEntityBeforeSave(update);
         boolean flag = baseMapper.updateById(update) > 0;
-        if (bo.getApplyPersonalBo() != null){
+        if (bo.getApplyPersonalBo() != null) {
             applyPersonalService.updateByBo(bo.getApplyPersonalBo());
-        }else {
+        } else {
             applyGuildService.updateByBo(bo.getApplyGuildBo());
         }
 
@@ -210,8 +208,30 @@ public class ApplyMainServiceImpl implements IApplyMainService {
     /**
      * 保存前的数据校验
      */
-    private void validEntityBeforeSave(ApplyMain entity){
-        //TODO 做一些数据校验,如唯一约束
+    private void validEntityBeforeSave(ApplyMain entity) {
+        //三个条件
+        validatorInsert(entity.getUserId());
+    }
+
+
+    /**
+     * 1，userId不能是创作者 2，状态是审核中的不能再提交 3.已经审核成功的不能再提交
+     */
+    public Boolean validatorInsert(Long userId) {
+        if (LoginHelper.getCreator()) {
+            throw new ServiceException("创作者不能再次提交入驻申请");
+        }
+        List<String> statusList = new ArrayList<>();
+        statusList.add("0");
+        statusList.add("1");
+        QueryWrapper<ApplyMain> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.in("status", statusList);
+        List<ApplyMainVo> applyMainVos = baseMapper.selectVoList(queryWrapper);
+        if (CollectionUtils.isNotEmpty(applyMainVos)) {
+            throw new ServiceException("不能再次提交申请，入驻申请已经提交成功或者处于审核中");
+        }
+        return true;
     }
 
     /**
@@ -224,11 +244,11 @@ public class ApplyMainServiceImpl implements IApplyMainService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
-        if(isValid){
+        if (isValid) {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
-        applyPersonalService.deleteWithValidByIds(ids,isValid);
-        applyGuildService.deleteWithValidByIds(ids,isValid);
+        applyPersonalService.deleteWithValidByIds(ids, isValid);
+        applyGuildService.deleteWithValidByIds(ids, isValid);
         return baseMapper.deleteByIds(ids) > 0;
     }
 }

@@ -138,7 +138,10 @@ public class LoginUser implements Serializable {
      * 可以创建的圈子数量
      */
     private Integer circleNum;
-
+    /**
+     * 创作者身份 0 不是 1 是
+     */
+    private Integer creator;
     /**
      * 出生年月
      */
