@@ -85,7 +85,7 @@ public class ApplyMainAdminController extends BaseController {
     }
 
     /**
-     * 修改入驻申请
+     * 审核入驻申请
      */
     @SaCheckPermission("system:main:review")
     @Log(title = "入驻申请审核", businessType = BusinessType.UPDATE)
