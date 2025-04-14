@@ -143,4 +143,13 @@ public class SysUserBo extends BaseEntity {
      * 用户标签
      */
     private String tag;
+
+    /**
+     * vip套餐
+     */
+    private String vipPlan;
+    /**
+     * vip等级
+     */
+    private String vipLevel;
 }

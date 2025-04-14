@@ -118,6 +118,15 @@ public class SysUser extends TenantEntity {
     private Integer circleNum;
 
     /**
+     * vip套餐
+     */
+    private String vipPlan;
+    /**
+     * vip等级
+     */
+    private String vipLevel;
+
+    /**
      * 用户标签
      */
     private String tag;

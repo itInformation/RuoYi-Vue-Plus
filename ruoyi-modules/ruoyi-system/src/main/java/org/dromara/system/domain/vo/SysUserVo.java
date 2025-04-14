@@ -156,5 +156,14 @@ public class SysUserVo implements Serializable {
      * 出生年月
      */
     private LocalDate birthday;
+    /**
+     * vip套餐
+     */
+    private String vipPlan;
+    /**
+     * vip等级
+     */
+    private String vipLevel;
+
 
 }
