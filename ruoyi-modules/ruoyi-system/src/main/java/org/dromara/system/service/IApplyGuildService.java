@@ -4,6 +4,7 @@ import org.dromara.system.domain.vo.ApplyGuildVo;
 import org.dromara.system.domain.bo.ApplyGuildBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
+import org.dromara.system.domain.vo.ApplyPersonalVo;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,6 +41,13 @@ public interface IApplyGuildService {
      * @return 公会入驻申请列表
      */
     List<ApplyGuildVo> queryList(ApplyGuildBo bo);
+
+    /**
+     * 根据applyIds查询申请
+     * @param applyIds
+     * @return
+     */
+    List<ApplyGuildVo> queryByIds(Collection<Long> applyIds);
 
     /**
      * 新增公会入驻申请

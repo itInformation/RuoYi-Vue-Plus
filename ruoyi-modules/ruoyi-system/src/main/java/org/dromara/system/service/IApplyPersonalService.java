@@ -25,6 +25,13 @@ public interface IApplyPersonalService {
     ApplyPersonalVo queryById(Long applyId);
 
     /**
+     * 根据applyIds查询申请
+     * @param applyIds
+     * @return
+     */
+    List<ApplyPersonalVo> queryByIds(Collection<Long> applyIds);
+
+    /**
      * 分页查询个人入驻申请列表
      *
      * @param bo        查询条件

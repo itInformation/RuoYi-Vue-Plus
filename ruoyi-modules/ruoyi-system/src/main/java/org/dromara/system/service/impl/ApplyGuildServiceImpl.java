@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.system.domain.vo.ApplyPersonalVo;
 import org.springframework.stereotype.Service;
 import org.dromara.system.domain.bo.ApplyGuildBo;
 import org.dromara.system.domain.vo.ApplyGuildVo;
@@ -40,6 +41,14 @@ public class ApplyGuildServiceImpl implements IApplyGuildService {
     @Override
     public ApplyGuildVo queryById(Long applyId){
         return baseMapper.selectVoById(applyId);
+    }
+
+     /**
+     * 根据applyIds查询申请
+     */
+     @Override
+    public List<ApplyGuildVo> queryByIds(Collection<Long> applyIds){
+        return baseMapper.selectVoByIds(applyIds);
     }
 
     /**

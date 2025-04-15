@@ -42,6 +42,11 @@ public class ApplyPersonalServiceImpl implements IApplyPersonalService {
         return baseMapper.selectVoById(applyId);
     }
 
+
+    @Override
+    public List<ApplyPersonalVo> queryByIds(Collection<Long> applyIds){
+        return baseMapper.selectVoByIds(applyIds);
+    }
     /**
      * 分页查询个人入驻申请列表
      *

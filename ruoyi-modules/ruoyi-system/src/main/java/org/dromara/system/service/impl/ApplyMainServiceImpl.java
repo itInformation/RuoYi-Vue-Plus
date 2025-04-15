@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 入驻申请主Service业务层处理
@@ -91,7 +92,7 @@ public class ApplyMainServiceImpl implements IApplyMainService {
         if (result == null) {
             return TableDataInfo.build();
         }
-        buildPersonAndGuidVo(bo, result.getRecords());
+        buildPersonAndGuidVo(result.getRecords());
 
         return TableDataInfo.build(result);
     }
@@ -99,11 +100,12 @@ public class ApplyMainServiceImpl implements IApplyMainService {
     /**
      * apply_main apply_person apply_guild是主子表关系
      */
-    private void buildPersonAndGuidVo(ApplyMainBo bo, List<ApplyMainVo> applyMainVoList) {
+    private void buildPersonAndGuidVo(List<ApplyMainVo> applyMainVoList) {
         if (CollectionUtils.isEmpty(applyMainVoList)) {
             return;
         }
-        List<ApplyPersonalVo> applyPersonalVoList = applyPersonalService.queryList(bo.getApplyPersonalBo());
+        Set<Long> applyIds = applyMainVoList.stream().map(ApplyMainVo::getApplyId).collect(Collectors.toSet());
+        List<ApplyPersonalVo> applyPersonalVoList = applyPersonalService.queryByIds(applyIds);
         //个人申请信息
         if (CollectionUtils.isNotEmpty(applyPersonalVoList)) {
             Map<Long, ApplyPersonalVo> itemsMap = applyPersonalVoList.stream()
@@ -113,7 +115,7 @@ public class ApplyMainServiceImpl implements IApplyMainService {
             });
         }
         //达人申请信息
-        List<ApplyGuildVo> applyGuildVoPageList = applyGuildService.queryList(bo.getApplyGuildBo());
+        List<ApplyGuildVo> applyGuildVoPageList = applyGuildService.queryByIds(applyIds);
         if (CollectionUtils.isNotEmpty(applyGuildVoPageList)) {
             Map<Long, ApplyGuildVo> itemsMap = applyGuildVoPageList.stream()
                 .collect(Collectors.toMap(ApplyGuildVo::getApplyId, Function.identity()));
