@@ -135,7 +135,7 @@ public class ApplyMainServiceImpl implements IApplyMainService {
     public List<ApplyMainVo> queryList(ApplyMainBo bo) {
         LambdaQueryWrapper<ApplyMain> lqw = buildQueryWrapper(bo);
         List<ApplyMainVo> applyMainVoList = baseMapper.selectVoList(lqw);
-        buildPersonAndGuidVo(bo, applyMainVoList);
+        buildPersonAndGuidVo(applyMainVoList);
         return baseMapper.selectVoList(lqw);
     }
 
