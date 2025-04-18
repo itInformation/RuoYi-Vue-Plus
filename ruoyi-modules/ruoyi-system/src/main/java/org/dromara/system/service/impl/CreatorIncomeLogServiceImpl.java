@@ -1,5 +1,6 @@
 package org.dromara.system.service.impl;
 
+import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -8,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.springframework.stereotype.Service;
 import org.dromara.system.domain.bo.CreatorIncomeLogBo;
 import org.dromara.system.domain.vo.CreatorIncomeLogVo;
@@ -51,6 +53,15 @@ public class CreatorIncomeLogServiceImpl implements ICreatorIncomeLogService {
      */
     @Override
     public TableDataInfo<CreatorIncomeLogVo> queryPageList(CreatorIncomeLogBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<CreatorIncomeLog> lqw = buildQueryWrapper(bo);
+        Page<CreatorIncomeLogVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
+        return TableDataInfo.build(result);
+    }
+    public TableDataInfo<CreatorIncomeLogVo> queryClientPageList(CreatorIncomeLogBo bo, PageQuery pageQuery) {
+        Long loginUserId = LoginHelper.getUserId();
+        if (!bo.getUserId().equals(loginUserId)) {
+            throw new ServiceException("无权查看他人收益记录");
+        }
         LambdaQueryWrapper<CreatorIncomeLog> lqw = buildQueryWrapper(bo);
         Page<CreatorIncomeLogVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
         return TableDataInfo.build(result);

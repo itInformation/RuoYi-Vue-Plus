@@ -45,16 +45,6 @@ public class UserAssetClientController extends BaseController {
         return userAssetService.queryPageList(bo, pageQuery);
     }
 
-    /**
-     * 导出普通用户资产列表
-     */
-    @SaCheckPermission("client:asset:export")
-    @Log(title = "普通用户资产", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(UserAssetBo bo, HttpServletResponse response) {
-        List<UserAssetVo> list = userAssetService.queryList(bo);
-        ExcelUtil.exportExcel(list, "普通用户资产", UserAssetVo.class, response);
-    }
 
     /**
      * 获取普通用户资产详细信息
