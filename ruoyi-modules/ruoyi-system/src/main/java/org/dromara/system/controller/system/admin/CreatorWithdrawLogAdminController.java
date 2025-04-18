@@ -74,7 +74,7 @@ public class CreatorWithdrawLogAdminController extends BaseController {
     @SaCheckPermission("system:withdrawLog:add")
     @Log(title = "创作者提现记录", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CreatorWithdrawLogBo bo) {
         return toAjax(creatorWithdrawLogService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class CreatorWithdrawLogAdminController extends BaseController {
     @SaCheckPermission("system:withdrawLog:edit")
     @Log(title = "创作者提现记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CreatorWithdrawLogBo bo) {
         return toAjax(creatorWithdrawLogService.updateByBo(bo));
     }

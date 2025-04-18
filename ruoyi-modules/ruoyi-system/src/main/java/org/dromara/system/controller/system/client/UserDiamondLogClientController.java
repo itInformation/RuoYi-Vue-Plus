@@ -33,7 +33,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/client/diamondLog")
-public class UserDiamondLogController extends BaseController {
+public class UserDiamondLogClientController extends BaseController {
 
     private final IUserDiamondLogService userDiamondLogService;
 
@@ -75,7 +75,7 @@ public class UserDiamondLogController extends BaseController {
     @SaCheckPermission("client:diamondLog:add")
     @Log(title = "用户钻石流水", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody UserDiamondLogBo bo) {
         return toAjax(userDiamondLogService.insertByBo(bo));
     }
@@ -86,7 +86,7 @@ public class UserDiamondLogController extends BaseController {
     @SaCheckPermission("client:diamondLog:edit")
     @Log(title = "用户钻石流水", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody UserDiamondLogBo bo) {
         return toAjax(userDiamondLogService.updateByBo(bo));
     }

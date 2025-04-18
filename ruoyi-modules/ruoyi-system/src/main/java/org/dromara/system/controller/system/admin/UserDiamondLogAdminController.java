@@ -74,7 +74,7 @@ public class UserDiamondLogAdminController extends BaseController {
     @SaCheckPermission("system:diamondLog:add")
     @Log(title = "用户钻石流水", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody UserDiamondLogBo bo) {
         return toAjax(userDiamondLogService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class UserDiamondLogAdminController extends BaseController {
     @SaCheckPermission("system:diamondLog:edit")
     @Log(title = "用户钻石流水", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody UserDiamondLogBo bo) {
         return toAjax(userDiamondLogService.updateByBo(bo));
     }

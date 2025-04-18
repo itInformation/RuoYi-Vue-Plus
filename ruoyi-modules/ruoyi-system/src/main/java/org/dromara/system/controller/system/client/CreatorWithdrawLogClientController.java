@@ -32,7 +32,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/client/withdrawLog")
-public class CreatorWithdrawLogController extends BaseController {
+public class CreatorWithdrawLogClientController extends BaseController {
 
     private final ICreatorWithdrawLogService creatorWithdrawLogService;
 
@@ -74,7 +74,7 @@ public class CreatorWithdrawLogController extends BaseController {
     @SaCheckPermission("client:withdrawLog:add")
     @Log(title = "创作者提现记录", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CreatorWithdrawLogBo bo) {
         return toAjax(creatorWithdrawLogService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class CreatorWithdrawLogController extends BaseController {
     @SaCheckPermission("client:withdrawLog:edit")
     @Log(title = "创作者提现记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CreatorWithdrawLogBo bo) {
         return toAjax(creatorWithdrawLogService.updateByBo(bo));
     }

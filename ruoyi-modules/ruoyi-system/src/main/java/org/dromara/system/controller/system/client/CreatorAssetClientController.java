@@ -44,18 +44,6 @@ public class CreatorAssetClientController extends BaseController {
     public TableDataInfo<CreatorAssetVo> list(CreatorAssetBo bo, PageQuery pageQuery) {
         return creatorAssetService.queryPageList(bo, pageQuery);
     }
-
-    /**
-     * 导出创作者资产列表
-     */
-    @SaCheckPermission("client:asset:export")
-    @Log(title = "创作者资产", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(CreatorAssetBo bo, HttpServletResponse response) {
-        List<CreatorAssetVo> list = creatorAssetService.queryList(bo);
-        ExcelUtil.exportExcel(list, "创作者资产", CreatorAssetVo.class, response);
-    }
-
     /**
      * 获取创作者资产详细信息
      *
@@ -74,7 +62,7 @@ public class CreatorAssetClientController extends BaseController {
     @SaCheckPermission("client:asset:add")
     @Log(title = "创作者资产", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CreatorAssetBo bo) {
         return toAjax(creatorAssetService.insertByBo(bo));
     }
@@ -85,7 +73,7 @@ public class CreatorAssetClientController extends BaseController {
     @SaCheckPermission("client:asset:edit")
     @Log(title = "创作者资产", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CreatorAssetBo bo) {
         return toAjax(creatorAssetService.updateByBo(bo));
     }

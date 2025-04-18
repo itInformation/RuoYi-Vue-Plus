@@ -74,7 +74,7 @@ public class SysAppVersionAdminController extends BaseController {
     @SaCheckPermission("system:appVersion:add")
     @Log(title = "App版本信息", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody SysAppVersionBo bo) {
         return toAjax(sysAppVersionService.insertByBo(bo));
     }

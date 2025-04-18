@@ -32,7 +32,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/client/user/asset")
-public class UserAssetController extends BaseController {
+public class UserAssetClientController extends BaseController {
 
     private final IUserAssetService userAssetService;
 
@@ -74,7 +74,7 @@ public class UserAssetController extends BaseController {
     @SaCheckPermission("client:asset:add")
     @Log(title = "普通用户资产", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody UserAssetBo bo) {
         return toAjax(userAssetService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class UserAssetController extends BaseController {
     @SaCheckPermission("client:asset:edit")
     @Log(title = "普通用户资产", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody UserAssetBo bo) {
         return toAjax(userAssetService.updateByBo(bo));
     }

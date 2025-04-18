@@ -70,7 +70,7 @@ public class ApplyMainClientController extends BaseController {
     @SaCheckPermission("client:main:add")
     @Log(title = "app端入驻申请", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody ApplyMainBo bo) {
         return toAjax(applyMainService.insertByBo(bo));
     }

@@ -74,7 +74,7 @@ public class CreatorAssetAdminController extends BaseController {
     @SaCheckPermission("system:asset:add")
     @Log(title = "创作者资产", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CreatorAssetBo bo) {
         return toAjax(creatorAssetService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class CreatorAssetAdminController extends BaseController {
     @SaCheckPermission("system:asset:edit")
     @Log(title = "创作者资产", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping(value = "/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CreatorAssetBo bo) {
         return toAjax(creatorAssetService.updateByBo(bo));
     }

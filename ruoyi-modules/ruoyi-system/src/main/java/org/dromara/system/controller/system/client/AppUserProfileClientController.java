@@ -66,7 +66,7 @@ public class AppUserProfileClientController extends BaseController {
     @RepeatSubmit
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @SaCheckPermission("client:profile:update")
-    @PutMapping
+    @PostMapping("/update")
     public R<Void> updateProfile(@Validated @RequestBody SysUserProfileBo profile) {
         SysUserBo user = BeanUtil.toBean(profile, SysUserBo.class);
         user.setUserId(LoginHelper.getUserId());

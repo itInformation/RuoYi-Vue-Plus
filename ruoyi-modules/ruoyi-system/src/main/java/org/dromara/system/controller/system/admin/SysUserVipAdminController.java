@@ -32,7 +32,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/system/userVip")
-public class SysUserVipController extends BaseController {
+public class SysUserVipAdminController extends BaseController {
 
     private final ISysUserVipService sysUserVipService;
 
@@ -74,7 +74,7 @@ public class SysUserVipController extends BaseController {
     @SaCheckPermission("system:userVip:add")
     @Log(title = "用户会员信息", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody SysUserVipBo bo) {
         return toAjax(sysUserVipService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class SysUserVipController extends BaseController {
     @SaCheckPermission("system:userVip:edit")
     @Log(title = "用户会员信息", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody SysUserVipBo bo) {
         return toAjax(sysUserVipService.updateByBo(bo));
     }

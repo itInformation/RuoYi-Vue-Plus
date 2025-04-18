@@ -74,7 +74,7 @@ public class CreatorIncomeLogAdminController extends BaseController {
     @SaCheckPermission("system:incomeLog:add")
     @Log(title = "创作者收入明细", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody CreatorIncomeLogBo bo) {
         return toAjax(creatorIncomeLogService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class CreatorIncomeLogAdminController extends BaseController {
     @SaCheckPermission("system:incomeLog:edit")
     @Log(title = "创作者收入明细", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody CreatorIncomeLogBo bo) {
         return toAjax(creatorIncomeLogService.updateByBo(bo));
     }

@@ -32,7 +32,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/system/userFollow")
-public class SysUserFollowController extends BaseController {
+public class SysUserFollowAdminController extends BaseController {
 
     private final ISysUserFollowService sysUserFollowService;
 
@@ -74,7 +74,7 @@ public class SysUserFollowController extends BaseController {
     @SaCheckPermission("system:userFollow:add")
     @Log(title = "用户关注关系", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody SysUserFollowBo bo) {
         return toAjax(sysUserFollowService.insertByBo(bo));
     }

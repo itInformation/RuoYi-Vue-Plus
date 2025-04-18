@@ -32,7 +32,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/system/vipLevel")
-public class SysVipLevelController extends BaseController {
+public class SysVipLevelAdminController extends BaseController {
 
     private final ISysVipLevelService sysVipLevelService;
 
@@ -74,7 +74,7 @@ public class SysVipLevelController extends BaseController {
     @SaCheckPermission("system:vipLevel:add")
     @Log(title = "会员等级", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping()
+    @PostMapping("/add")
     public R<Void> add(@Validated(AddGroup.class) @RequestBody SysVipLevelBo bo) {
         return toAjax(sysVipLevelService.insertByBo(bo));
     }
@@ -85,7 +85,7 @@ public class SysVipLevelController extends BaseController {
     @SaCheckPermission("system:vipLevel:edit")
     @Log(title = "会员等级", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
+    @PostMapping("/update")
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody SysVipLevelBo bo) {
         return toAjax(sysVipLevelService.updateByBo(bo));
     }
