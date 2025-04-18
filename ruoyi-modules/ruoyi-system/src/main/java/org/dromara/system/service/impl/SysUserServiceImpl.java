@@ -392,6 +392,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
                 .eq(SysUser::getPhonenumber, user.getPhonenumber())
                 .eq(SysUser::getDelFlag, DataDeleteStatusConstants.NOT_DELETED));
     }
+
     /**
      * 修改用户基本信息
      *
@@ -567,6 +568,12 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         lqw.eq(SysUser::getDeptId, deptId);
         lqw.orderByAsc(SysUser::getUserId);
         return baseMapper.selectVoList(lqw);
+    }
+
+    @Override
+    public boolean existsUser(Long userId) {
+
+        return selectUserById(userId) != null;
     }
 
     /**
