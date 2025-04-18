@@ -58,7 +58,7 @@ public class SysFaceRecognizedClientController extends BaseController {
     /**
      * 查询OSS对象存储列表
      */
-    @SaCheckPermission("system:oss:list")
+    @SaCheckPermission("client:oss:list")
     @GetMapping("/list")
     public TableDataInfo<SysOssVo> list(@Validated(QueryGroup.class) SysOssBo bo, PageQuery pageQuery) {
         return ossService.queryPageList(bo, pageQuery);
@@ -69,7 +69,7 @@ public class SysFaceRecognizedClientController extends BaseController {
      *
      * @param ossIds OSS对象ID串
      */
-    @SaCheckPermission("system:oss:query")
+    @SaCheckPermission("client:oss:query")
     @GetMapping("/listByIds/{ossIds}")
     public R<List<SysOssVo>> listByIds(@NotEmpty(message = "主键不能为空")
                                        @PathVariable Long[] ossIds) {
@@ -82,7 +82,7 @@ public class SysFaceRecognizedClientController extends BaseController {
      *
      * @param file 文件
      */
-    @SaCheckPermission("system:oss:upload")
+    @SaCheckPermission("client:oss:upload")
     @Log(title = "OSS对象存储", businessType = BusinessType.INSERT)
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public R<SysOssUploadVo> upload(@RequestPart("file") MultipartFile file) {
@@ -102,7 +102,7 @@ public class SysFaceRecognizedClientController extends BaseController {
      *
      * @param file 文件
      */
-    @SaCheckPermission("system:oss:upload")
+    @SaCheckPermission("client:oss:upload")
     @Log(title = "OSS对象存储", businessType = BusinessType.INSERT)
     @PostMapping(value = "/uploadWithKey", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public R<SysOssUploadVo> upload(@RequestPart("file") MultipartFile file,String configKey) {
@@ -122,7 +122,7 @@ public class SysFaceRecognizedClientController extends BaseController {
      *
      * @param ossId OSS对象ID
      */
-    @SaCheckPermission("system:oss:download")
+    @SaCheckPermission("client:oss:download")
     @GetMapping("/download/{ossId}")
     public void download(@PathVariable Long ossId, HttpServletResponse response) throws IOException {
         ossService.download(ossId, response);
@@ -133,7 +133,7 @@ public class SysFaceRecognizedClientController extends BaseController {
      *
      * @param ossIds OSS对象ID串
      */
-    @SaCheckPermission("system:oss:remove")
+    @SaCheckPermission("client:oss:remove")
     @Log(title = "OSS对象存储", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ossIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
