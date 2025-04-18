@@ -22,28 +22,28 @@ public class CreatorWithdrawLog extends TenantEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @TableId(value = "id")
     private Long id;
 
     /**
-     * 
+     *
      */
     private Long userId;
 
     /**
-     * 
+     *
      */
     private Long amount;
 
     /**
      * 状态(0待审核 1已打款 2已拒绝)
      */
-    private Long status;
+    private Integer status;
 
     /**
-     * 
+     *
      */
     private String remark;
 

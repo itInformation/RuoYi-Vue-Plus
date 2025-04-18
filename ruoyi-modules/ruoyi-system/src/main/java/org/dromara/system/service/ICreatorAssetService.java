@@ -5,7 +5,9 @@ import org.dromara.system.domain.bo.CreatorAssetBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 
+import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,4 +67,22 @@ public interface ICreatorAssetService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+    /**
+     * 申请提现
+     */
+    void applyWithdraw(Long userId, BigDecimal amount);
+
+    /**
+     * 冻结提现金额
+     * @param userId
+     * @param amount
+     */
+    void freezeWithdrawable(Long userId, BigDecimal amount);
+
+    /**
+     * 待入账
+     */
+    void addIncome(Long userId, BigDecimal amount, String sourceType);
+//    List<IncomeVO> queryIncome(Long userId, Date start, Date end);
 }

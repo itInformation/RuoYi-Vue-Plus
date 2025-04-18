@@ -220,4 +220,6 @@ public interface ISysUserService {
      * @return 结果
      */
     List<SysUserVo> selectUserListByDept(Long deptId);
+
+    boolean existsUser(Long userId);
 }

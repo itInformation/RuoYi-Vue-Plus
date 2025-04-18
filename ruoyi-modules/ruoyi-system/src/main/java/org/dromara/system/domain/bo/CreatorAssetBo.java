@@ -1,30 +1,29 @@
-package org.dromara.system.domain.vo;
+package org.dromara.system.domain.bo;
 
-import org.dromara.common.tenant.core.TenantEntity;
-import com.baomidou.mybatisplus.annotation.*;
+import org.dromara.system.domain.CreatorAsset;
+import org.dromara.common.mybatis.core.domain.BaseEntity;
+import org.dromara.common.core.validate.AddGroup;
+import org.dromara.common.core.validate.EditGroup;
+import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.io.Serial;
+import jakarta.validation.constraints.*;
 
 /**
- * 创作者资产对象 creator_asset
+ * 创作者资产业务对象 creator_asset
  *
  * @author Lion Li
  * @date 2025-04-18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("creator_asset")
-public class CreatorAsset extends TenantEntity {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+@AutoMapper(target = CreatorAsset.class, reverseConvertGenerate = false)
+public class CreatorAssetBo extends BaseEntity {
 
     /**
      * 用户ID
      */
-    @TableId(value = "user_id")
+    @NotNull(message = "用户ID不能为空", groups = { EditGroup.class })
     private Long userId;
 
     /**
@@ -61,12 +60,6 @@ public class CreatorAsset extends TenantEntity {
      * 累计退款金额
      */
     private Long totalRefund;
-
-    /**
-     * 乐观锁版本号
-     */
-    @Version
-    private Long version;
 
 
 }

@@ -65,4 +65,11 @@ public interface IUserAssetService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+
+    void recharge(Long userId, Long diamonds);
+    void consume(Long userId, Long diamonds);
+    void freezeDiamond(Long userId, Long diamonds);
+    void unfreezeDiamond(Long userId, Long diamonds);
+
 }
