@@ -1,4 +1,4 @@
-package org.dromara.pay.controller;
+package org.dromara.pay.controller.admin;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ import org.dromara.pay.service.IPayConfigService;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 
 /**
- * 支付配置
+ * 支付配置 管理端
  *
  * @author Lion Li
  * @date 2025-03-10
@@ -31,7 +31,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/pay/config")
+@RequestMapping("/admin/pay/config")
 public class PayConfigController extends BaseController {
 
     private final IPayConfigService payConfigService;

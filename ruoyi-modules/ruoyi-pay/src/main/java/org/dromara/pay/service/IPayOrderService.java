@@ -33,6 +33,7 @@ public interface IPayOrderService {
      * @return 支付订单分页列表
      */
     TableDataInfo<PayOrderVo> queryPageList(PayOrderBo bo, PageQuery pageQuery);
+    TableDataInfo<PayOrderVo> queryClientPageList(PayOrderBo bo, PageQuery pageQuery);
 
     /**
      * 查询符合条件的支付订单列表
