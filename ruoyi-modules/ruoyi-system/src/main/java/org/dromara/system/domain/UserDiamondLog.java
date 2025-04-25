@@ -1,5 +1,6 @@
 package org.dromara.system.domain;
 
+import lombok.experimental.Accessors;
 import org.dromara.common.tenant.core.TenantEntity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -16,19 +17,20 @@ import java.io.Serial;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("user_diamond_log")
+@Accessors(chain = true)
 public class UserDiamondLog extends TenantEntity {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @TableId(value = "id")
     private Long id;
 
     /**
-     * 
+     *
      */
     private Long userId;
 
@@ -38,12 +40,20 @@ public class UserDiamondLog extends TenantEntity {
     private String opType;
 
     /**
-     * 
+     * 操作金额
      */
     private Long amount;
+    /**
+     * 操作前余额
+     */
+    private Long beforeBalance;
+    /**
+     * 操作后余额
+     */
+    private Long afterBalance;
 
     /**
-     * 
+     *
      */
     private String remark;
 

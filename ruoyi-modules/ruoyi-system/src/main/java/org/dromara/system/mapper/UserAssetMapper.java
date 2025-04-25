@@ -37,8 +37,8 @@ public interface UserAssetMapper extends BaseMapperPlus<UserAsset, UserAssetVo> 
      * @param userId 用户ID
      * @return 锁定状态的资产记录
      */
-    @Select("SELECT * FROM user_asset WHERE user_id = #{userId} FOR UPDATE")
-    UserAsset selectForUpdate(@Param("userId") Long userId);
+    @Select("SELECT * FROM user_asset WHERE user_id = #{userId} ")
+    UserAsset selectByUserId(@Param("userId") Long userId);
 
     /**
      * 带版本号的CAS更新

@@ -29,13 +29,13 @@ public class UserDiamondLogVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private Long id;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private Long userId;
@@ -47,16 +47,24 @@ public class UserDiamondLogVo implements Serializable {
     private String opType;
 
     /**
-     * 
+     * 操作金额
      */
     @ExcelProperty(value = "")
     private Long amount;
 
     /**
-     * 
+     *
      */
     @ExcelProperty(value = "")
     private String remark;
 
+    /**
+     * 操作前余额
+     */
+    private Long beforeBalance;
+    /**
+     * 操作后余额
+     */
+    private Long afterBalance;
 
 }
