@@ -142,7 +142,9 @@ public class UserAssetServiceImpl implements IUserAssetService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void recharge(Long userId, Long diamonds) {
+    public void rechargeDiamond(UserAssetDiamondBo bo) {
+        Long diamonds = bo.getDiamond();
+        Long userId = bo.getUserId();
         // 参数校验
         if (diamonds <= 0) {
             throw new ServiceException("充值钻石数必须大于0");
@@ -150,17 +152,21 @@ public class UserAssetServiceImpl implements IUserAssetService {
         if (!userService.existsUser(userId)) {
             throw new ServiceException("用户不存在");
         }
-
-        // 原子性增加钻石余额
-        int updateRows = baseMapper.updateBalance(userId, diamonds);
-        if (updateRows == 0) {
+        // 获取当前版本号
+        UserAsset asset = baseMapper.selectForUpdate(userId);
+        if (asset == null){
             // 初始化用户资产（首次充值）
             UserAsset newAsset = new UserAsset();
             newAsset.setUserId(userId);
             newAsset.setDiamondBalance(diamonds);
             baseMapper.insert(newAsset);
+            asset = newAsset;
         }
-
+        // 原子性增加钻石余额
+        int updateRows = baseMapper.casUpdateBalance(userId, diamonds, asset.getVersion());
+        if (updateRows == 0) {
+            throw new ServiceException("操作冲突，请重试");
+        }
         // 记录充值流水
         UserDiamondLog log = new UserDiamondLog();
         log.setUserId(userId);
@@ -171,20 +177,24 @@ public class UserAssetServiceImpl implements IUserAssetService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void consume(Long userId, Long diamonds) {
+    public void consumeDiamonds(UserAssetDiamondBo bo) {
+        Long diamonds = bo.getDiamond();
+        Long userId = bo.getUserId();
         // 参数校验
         if (diamonds <= 0) {
             throw new ServiceException("消费钻石数必须大于0");
         }
+        // 获取当前版本号
+        UserAsset asset = baseMapper.selectForUpdate(userId);
 
-        // 使用CAS方式扣减余额
-        int updateRows = baseMapper.deductBalance(userId, diamonds);
-        if (updateRows == 0) {
+        if (asset.getDiamondBalance() < diamonds) {
             throw new ServiceException("钻石余额不足");
         }
-
-        // 更新累计消费
-        baseMapper.updateConsumed(userId, diamonds);
+        // 使用CAS方式扣减余额
+        int updateRows = baseMapper.casUpdateDiamonds(userId,(asset.getDiamondBalance() - diamonds),asset.getVersion());
+        if (updateRows == 0) {
+            throw new ServiceException("操作冲突，请重试");
+        }
 
         // 记录消费流水
         UserDiamondLog log = new UserDiamondLog();
@@ -196,16 +206,41 @@ public class UserAssetServiceImpl implements IUserAssetService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void freezeDiamond(Long userId, Long diamonds) {
+    public void consumeAmount(Long userId, Long amount) {
+        // 参数校验
+        if (amount <= 0) {
+            throw new ServiceException("消费余额数必须大于0");
+        }
+        // 获取当前版本号
+        UserAsset asset = baseMapper.selectForUpdate(userId);
+        // 使用CAS方式扣减余额
+        int updateRows = baseMapper.casUpdateAmount(userId,amount,asset.getVersion());
+        if (updateRows == 0) {
+            throw new ServiceException("操作冲突，请重试");
+        }
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void freezeDiamond(UserAssetDiamondBo bo) {
+        Long diamonds = bo.getDiamond();
+        Long userId = bo.getUserId();
         // 参数校验
         if (diamonds <= 0) {
             throw new ServiceException("冻结钻石数必须大于0");
         }
 
-        // 冻结操作（从可用转冻结）
-        int updateRows = baseMapper.freezeDiamond(userId, diamonds);
-        if (updateRows == 0) {
+        // 获取当前版本号
+        UserAsset asset = baseMapper.selectForUpdate(userId);
+
+        if (asset.getDiamondBalance() < diamonds) {
             throw new ServiceException("可用钻石不足");
+        }
+        // 冻结操作（从可用转冻结）
+        int updateRows = baseMapper.casFreezeDiamond(userId,(asset.getDiamondBalance() - diamonds),asset.getVersion());
+        if (updateRows == 0) {
+            throw new ServiceException("操作冲突，请重试");
         }
 
         // 记录冻结流水
@@ -218,28 +253,30 @@ public class UserAssetServiceImpl implements IUserAssetService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void unfreezeDiamond(Long userId, Long diamonds) {
+    public void unfreezeDiamond(UserAssetDiamondBo bo) {
+        Long diamonds = bo.getDiamond();
+        Long userId = bo.getUserId();
         // 参数校验
         if (diamonds <= 0) {
-            throw new ServiceException("解冻钻石数必须大于0");
+            throw new ServiceException("冻结钻石数必须大于0");
         }
 
+        // 获取当前版本号
+        UserAsset asset = baseMapper.selectForUpdate(userId);
+
+        if (asset.getDiamondBalance() < diamonds) {
+            throw new ServiceException("可用钻石不足");
+        }
         // 解冻操作（从冻结转可用）
-        int updateRows = baseMapper.unFreezeDiamond(userId, diamonds);
+        int updateRows = baseMapper.casUnFreezeDiamond(userId, diamonds,asset.getVersion());
         if (updateRows == 0) {
-            throw new ServiceException("冻结钻石不足");
+            throw new ServiceException("操作冲突，请重试");
         }
-
         // 记录解冻流水
         UserDiamondLog log = new UserDiamondLog();
         log.setUserId(userId);
         log.setOpType(DiamondOpTypeEnum.UNFREEZE.name());
         log.setAmount(diamonds);
         diamondLogMapper.insert(log);
-    }
-
-    @Override
-    public int rechargeDiamond(UserAssetDiamondBo bo) {
-        return 0;
     }
 }

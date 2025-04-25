@@ -98,7 +98,7 @@ public class UserAssetAdminController extends BaseController {
     @RepeatSubmit()
     @PostMapping("/rechargeDiamond")
     public R<Void> rechargeDiamond(@Validated(EditGroup.class) @RequestBody UserAssetDiamondBo bo) {
-        userAssetService.recharge(bo.getUserId(),bo.getDiamond());
+        userAssetService.rechargeDiamond(bo);
         return R.ok();
     }
 
@@ -110,7 +110,7 @@ public class UserAssetAdminController extends BaseController {
     @RepeatSubmit()
     @PostMapping("/frozenDiamond")
     public R<Void> frozenDiamond(@Validated(EditGroup.class) @RequestBody UserAssetDiamondBo bo) {
-        userAssetService.freezeDiamond(bo.getUserId(),bo.getDiamond());
+        userAssetService.freezeDiamond(bo);
         return R.ok();
     }
 
@@ -122,7 +122,7 @@ public class UserAssetAdminController extends BaseController {
     @RepeatSubmit()
     @PostMapping("/unfrozenDiamond")
     public R<Void> unfrozenDiamond(@Validated(EditGroup.class) @RequestBody UserAssetDiamondBo bo) {
-        userAssetService.unfreezeDiamond(bo.getUserId(),bo.getDiamond());
+        userAssetService.unfreezeDiamond(bo);
         return R.ok();
     }
     /**
