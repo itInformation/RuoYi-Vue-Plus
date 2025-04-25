@@ -1,5 +1,7 @@
 package org.dromara.system.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
+import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -8,12 +10,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.dromara.system.domain.SysVipLevel;
+import org.dromara.system.domain.SysVipLevelUser;
+import org.dromara.system.mapper.SysVipLevelMapper;
+import org.dromara.system.mapper.SysVipLevelUserMapper;
 import org.springframework.stereotype.Service;
 import org.dromara.system.domain.bo.SysVipUserPointsBo;
 import org.dromara.system.domain.vo.SysVipUserPointsVo;
 import org.dromara.system.domain.SysVipUserPoints;
 import org.dromara.system.mapper.SysVipUserPointsMapper;
 import org.dromara.system.service.ISysVipUserPointsService;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -27,9 +34,12 @@ import java.util.Collection;
  */
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class SysVipUserPointsServiceImpl implements ISysVipUserPointsService {
 
     private final SysVipUserPointsMapper baseMapper;
+    private final SysVipLevelUserMapper vipLevelUserMapper;
+    private final SysVipLevelMapper vipLevelMapper;
 
     /**
      * 查询积分记录
@@ -38,7 +48,7 @@ public class SysVipUserPointsServiceImpl implements ISysVipUserPointsService {
      * @return 积分记录
      */
     @Override
-    public SysVipUserPointsVo queryById(Long pointsId){
+    public SysVipUserPointsVo queryById(Long pointsId) {
         return baseMapper.selectVoById(pointsId);
     }
 
@@ -78,11 +88,6 @@ public class SysVipUserPointsServiceImpl implements ISysVipUserPointsService {
         lqw.eq(bo.getTotalPoints() != null, SysVipUserPoints::getTotalPoints, bo.getTotalPoints());
         lqw.eq(bo.getCreatorId() != null, SysVipUserPoints::getCreatorId, bo.getCreatorId());
         lqw.eq(StringUtils.isNotBlank(bo.getCircleId()), SysVipUserPoints::getCircleId, bo.getCircleId());
-        lqw.eq(bo.getRevision() != null, SysVipUserPoints::getRevision, bo.getRevision());
-        lqw.eq(bo.getCreatedBy() != null, SysVipUserPoints::getCreatedBy, bo.getCreatedBy());
-        lqw.eq(bo.getCreatedTime() != null, SysVipUserPoints::getCreatedTime, bo.getCreatedTime());
-        lqw.eq(bo.getUpdatedBy() != null, SysVipUserPoints::getUpdatedBy, bo.getUpdatedBy());
-        lqw.eq(bo.getUpdatedTime() != null, SysVipUserPoints::getUpdatedTime, bo.getUpdatedTime());
         return lqw;
     }
 
@@ -119,7 +124,7 @@ public class SysVipUserPointsServiceImpl implements ISysVipUserPointsService {
     /**
      * 保存前的数据校验
      */
-    private void validEntityBeforeSave(SysVipUserPoints entity){
+    private void validEntityBeforeSave(SysVipUserPoints entity) {
         //TODO 做一些数据校验,如唯一约束
     }
 
@@ -132,9 +137,77 @@ public class SysVipUserPointsServiceImpl implements ISysVipUserPointsService {
      */
     @Override
     public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
-        if(isValid){
+        if (isValid) {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         return baseMapper.deleteByIds(ids) > 0;
+    }
+
+
+    @Transactional
+    public void addPointsWithCAS(Long userId, Long typeId, Long points, Long creatorId, String circleId) {
+        boolean updated = false;
+        int retryCount = 0;
+        final int MAX_RETRY = 3;  // 最大重试次数
+
+        while (!updated && retryCount < MAX_RETRY) {
+            // 查询当前积分和版本号
+            SysVipUserPoints userPoints = baseMapper.selectByUserAndType(userId, typeId);
+            if (userPoints == null) {
+                // 初始化积分记录
+                userPoints = new SysVipUserPoints();
+                userPoints.setUserId(userId)
+                    .setCurrentPoints(points)
+                    .setTotalPoints(points)
+                    .setVersion(0L)
+                    .setCreatorId(creatorId)
+                    .setCircleId(circleId);
+                baseMapper.insert(userPoints);
+                updated = true;
+                break;
+            }
+
+            // 计算新积分和版本号
+            Long newCurrent = userPoints.getCurrentPoints() + points;
+            Long newTotal = userPoints.getTotalPoints() + points;
+
+            // CAS更新（返回受影响行数）
+            int affectedRows = baseMapper.updatePointsCAS(
+                userId, typeId, creatorId, circleId,
+                newCurrent, newTotal,
+                userPoints.getVersion()
+            );
+
+            if (affectedRows > 0) {
+                updated = true;
+            } else {
+                retryCount++;  // 版本冲突，重试
+                log.warn("积分更新冲突，用户ID={}, 类型ID={}, 重试次数={}", userId, typeId, retryCount);
+            }
+            if (!updated) {
+                throw new ServiceException("积分更新失败，请稍后重试");
+            }
+
+            // 检查等级升级
+            checkLevelUp(userId, typeId, newCurrent,creatorId,circleId);
+        }
+
+    }
+
+    private void checkLevelUp(Long userId, Long typeId, Long currentPoints, Long creatorId, String circleId) {
+        // 查询匹配的等级规则（利用索引快速定位）
+        SysVipLevel targetLevel = vipLevelMapper.findMatchLevel(typeId, currentPoints);
+
+        if (targetLevel != null) {
+            SysVipLevelUser sysVipLevelUser = new SysVipLevelUser();
+            sysVipLevelUser.setUserId(userId)
+                .setTypeId(typeId)
+                .setCurrentLevel(targetLevel.getLevelName())
+                .setCircleId(circleId)
+                .setCreatorId(creatorId);
+            // 更新用户等级（使用UPSERT语法）
+            vipLevelUserMapper.upsert(sysVipLevelUser);
+
+        }
     }
 }

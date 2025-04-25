@@ -1,5 +1,7 @@
 package org.dromara.system.domain;
 
+import lombok.experimental.Accessors;
+import org.dromara.common.mybatis.core.domain.BaseEntity;
 import org.dromara.common.tenant.core.TenantEntity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -18,7 +20,8 @@ import java.io.Serial;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_vip_user_points")
-public class SysVipUserPoints extends TenantEntity {
+@Accessors(chain = true)
+public class SysVipUserPoints extends BaseEntity {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -62,27 +65,8 @@ public class SysVipUserPoints extends TenantEntity {
     /**
      * 乐观锁
      */
-    private Long revision;
+    private Long version;
 
-    /**
-     * 创建人
-     */
-    private Long createdBy;
-
-    /**
-     * 创建时间
-     */
-    private Date createdTime;
-
-    /**
-     * 更新人
-     */
-    private Long updatedBy;
-
-    /**
-     * 更新时间
-     */
-    private Date updatedTime;
 
 
 }

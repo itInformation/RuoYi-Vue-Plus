@@ -11,5 +11,10 @@ import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
  * @date 2025-04-25
  */
 public interface SysVipLevelUserMapper extends BaseMapperPlus<SysVipLevelUser, SysVipLevelUserVo> {
-
+    /**
+     * 插入或更新用户等级信息
+     * @param userLevel 用户等级实体
+     * @return 受影响行数
+     */
+    int upsert(SysVipLevelUser userLevel);
 }

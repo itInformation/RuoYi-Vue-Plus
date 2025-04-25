@@ -1,5 +1,6 @@
 package org.dromara.system.domain;
 
+import lombok.experimental.Accessors;
 import org.dromara.common.tenant.core.TenantEntity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -18,6 +19,7 @@ import java.io.Serial;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_vip_level_user")
+@Accessors(chain = true)
 public class SysVipLevelUser extends TenantEntity {
 
     @Serial

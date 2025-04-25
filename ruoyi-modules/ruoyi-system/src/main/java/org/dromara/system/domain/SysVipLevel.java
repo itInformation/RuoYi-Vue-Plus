@@ -60,6 +60,10 @@ public class SysVipLevel extends TenantEntity {
      * 等级特权
      */
     private String privileges;
+    /**
+     * 有效期天数
+     */
+    private Integer duration;
 
 
 }
