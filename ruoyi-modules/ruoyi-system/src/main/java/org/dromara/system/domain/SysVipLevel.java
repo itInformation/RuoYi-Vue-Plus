@@ -1,5 +1,6 @@
 package org.dromara.system.domain;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import org.dromara.common.tenant.core.TenantEntity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -26,7 +27,10 @@ public class SysVipLevel extends TenantEntity {
      */
     @TableId(value = "level_id")
     private Long levelId;
-
+    /**
+     * 会员类型ID
+     */
+    private Long typeId;
     /**
      * 等级名称
      */

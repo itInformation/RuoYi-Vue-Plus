@@ -27,7 +27,11 @@ public class SysVipPlanVo implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
+    /**
+     * 类型ID
+     */
+    @ExcelProperty(value = "类型ID")
+    private Long typeId;
     /**
      * 套餐ID
      */
