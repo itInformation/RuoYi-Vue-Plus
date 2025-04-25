@@ -12,7 +12,12 @@ import java.io.Serial;
 
 /**
  * 支付订单对象 pay_order
- *
+ *字段	orderId（主键ID）	orderNo（商户订单号）
+ * 生成方	支付系统内部生成（如自增ID、雪花算法ID）	商户/业务系统生成
+ * 唯一性	全局唯一（数据库主键保证）	业务唯一（需商户自行保证）
+ * 可见性	内部使用（不暴露给外部）	暴露给商户和第三方支付平台（如微信/支付宝）
+ * 用途	系统内部关联查询（如数据库JOIN）	商户对账、第三方支付回调、幂等性控制
+ * 数据结构	通常为数值类型（BIGINT）	字符串类型（符合第三方规范，如"20230801123456"）
  * @author Lion Li
  * @date 2025-03-10
  */
@@ -43,7 +48,6 @@ public class PayOrder extends BaseEntity {
     /**
      * 支付金额(元)
      */
-//    @Column(precision = 15, scale = 2)
     private BigDecimal amount;
 
     /**

@@ -56,6 +56,16 @@ public class PayOrderServiceImpl implements IPayOrderService {
     @Override
     public TableDataInfo<PayOrderVo> queryPageList(PayOrderBo bo, PageQuery pageQuery) {
         LambdaQueryWrapper<PayOrder> lqw = buildQueryWrapper(bo);
+        return queryPage(lqw,pageQuery);
+    }
+
+    @Override
+    public TableDataInfo<PayOrderVo> queryClientPageList(PayOrderBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<PayOrder> lqw = buildQueryWrapper(bo);
+        return queryPage(lqw,pageQuery);
+    }
+
+    private TableDataInfo<PayOrderVo> queryPage(LambdaQueryWrapper<PayOrder> lqw,PageQuery pageQuery){
         Page<PayOrderVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
         return TableDataInfo.build(result);
     }
