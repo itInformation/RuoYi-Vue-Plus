@@ -33,7 +33,6 @@ public interface UserAssetMapper extends BaseMapperPlus<UserAsset, UserAssetVo> 
 
 
     /**
-     * 悲观锁查询（带行级锁）
      * @param userId 用户ID
      * @return 锁定状态的资产记录
      */

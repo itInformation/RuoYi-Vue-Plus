@@ -1,26 +1,26 @@
 package org.dromara.system.controller.system.client;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.annotation.Validated;
-import org.dromara.common.idempotent.annotation.RepeatSubmit;
-import org.dromara.common.log.annotation.Log;
-import org.dromara.common.web.core.BaseController;
-import org.dromara.common.mybatis.core.page.PageQuery;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
+import org.dromara.common.idempotent.annotation.RepeatSubmit;
+import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
-import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.system.domain.vo.CreatorAssetVo;
-import org.dromara.system.domain.bo.CreatorAssetBo;
-import org.dromara.system.service.ICreatorAssetService;
+import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.web.core.BaseController;
+import org.dromara.system.domain.bo.CreatorAssetBo;
+import org.dromara.system.domain.bo.CreatorAssetWithdrawBo;
+import org.dromara.system.domain.vo.CreatorAssetVo;
+import org.dromara.system.service.ICreatorAssetService;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 创作者资产 app端
@@ -89,5 +89,17 @@ public class CreatorAssetClientController extends BaseController {
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] userIds) {
         return toAjax(creatorAssetService.deleteWithValidByIds(List.of(userIds), true));
+    }
+
+    /**
+     * 申请提现
+     */
+    @SaCheckPermission("client:asset:apply")
+    @Log(title = "普通用户资产-申请体现", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PostMapping("/applyWithdraw")
+    public R<Void> applyWithdraw(@Validated(EditGroup.class) @RequestBody CreatorAssetWithdrawBo bo) {
+        creatorAssetService.applyWithdraw(bo.getUserId(),bo.getAmount());
+        return R.ok();
     }
 }

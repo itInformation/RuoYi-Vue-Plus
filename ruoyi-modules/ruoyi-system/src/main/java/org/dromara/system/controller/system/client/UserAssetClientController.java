@@ -92,4 +92,6 @@ public class UserAssetClientController extends BaseController {
                           @PathVariable Long[] userIds) {
         return toAjax(userAssetService.deleteWithValidByIds(List.of(userIds), true));
     }
+
+
 }

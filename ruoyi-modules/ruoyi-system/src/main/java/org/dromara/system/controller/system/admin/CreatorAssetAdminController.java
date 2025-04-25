@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.system.domain.bo.CreatorAssetConfirmWithdrawBo;
+import org.dromara.system.domain.bo.CreatorAssetWithdrawBo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -102,4 +104,28 @@ public class CreatorAssetAdminController extends BaseController {
                           @PathVariable Long[] userIds) {
         return toAjax(creatorAssetService.deleteWithValidByIds(List.of(userIds), true));
     }
+
+    /**
+     * 审核打款
+     */
+    @SaCheckPermission("system:asset:")
+    @Log(title = "普通用户资产-申请体现", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PostMapping("/confirmWithdraw")
+    public R<Void> confirmWithdraw(@Validated(EditGroup.class) @RequestBody CreatorAssetConfirmWithdrawBo bo) {
+        creatorAssetService.confirmWithdraw(bo.getUserId(),bo.getLogId());
+        return R.ok();
+    }
+    /**
+     * 冻结待入账金额
+     */
+    @SaCheckPermission("system:asset:apply")
+    @Log(title = "普通用户资产-申请体现", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PostMapping("/freezePendingAmount")
+    public R<Void> freezePendingAmount(@Validated(EditGroup.class) @RequestBody CreatorAssetWithdrawBo bo) {
+        creatorAssetService.freezePendingAmount(bo.getUserId(),bo.getAmount());
+        return R.ok();
+    }
+
 }
