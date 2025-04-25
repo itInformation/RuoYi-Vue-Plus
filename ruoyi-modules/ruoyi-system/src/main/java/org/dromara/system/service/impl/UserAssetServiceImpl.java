@@ -12,6 +12,7 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.system.domain.UserAsset;
 import org.dromara.system.domain.UserDiamondLog;
 import org.dromara.system.domain.bo.UserAssetBo;
+import org.dromara.system.domain.bo.UserAssetDiamondBo;
 import org.dromara.system.domain.vo.UserAssetVo;
 import org.dromara.system.mapper.UserAssetMapper;
 import org.dromara.system.mapper.UserDiamondLogMapper;
@@ -235,5 +236,10 @@ public class UserAssetServiceImpl implements IUserAssetService {
         log.setOpType(DiamondOpTypeEnum.UNFREEZE.name());
         log.setAmount(diamonds);
         diamondLogMapper.insert(log);
+    }
+
+    @Override
+    public int rechargeDiamond(UserAssetDiamondBo bo) {
+        return 0;
     }
 }

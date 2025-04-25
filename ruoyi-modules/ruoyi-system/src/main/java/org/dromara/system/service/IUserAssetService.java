@@ -1,5 +1,6 @@
 package org.dromara.system.service;
 
+import org.dromara.system.domain.bo.UserAssetDiamondBo;
 import org.dromara.system.domain.vo.UserAssetVo;
 import org.dromara.system.domain.bo.UserAssetBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -72,4 +73,10 @@ public interface IUserAssetService {
     void freezeDiamond(Long userId, Long diamonds);
     void unfreezeDiamond(Long userId, Long diamonds);
 
+    /**
+     * 钻石余额充值
+     * @param bo
+     * @return
+     */
+    int rechargeDiamond(UserAssetDiamondBo bo);
 }

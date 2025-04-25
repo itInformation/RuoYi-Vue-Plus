@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.dromara.system.domain.bo.UserAssetDiamondBo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -89,7 +90,41 @@ public class UserAssetAdminController extends BaseController {
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody UserAssetBo bo) {
         return toAjax(userAssetService.updateByBo(bo));
     }
+    /**
+     * 充值钻石余额
+     */
+    @SaCheckPermission("system:asset:edit")
+    @Log(title = "普通用户资产充值钻石余额", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PostMapping("/rechargeDiamond")
+    public R<Void> rechargeDiamond(@Validated(EditGroup.class) @RequestBody UserAssetDiamondBo bo) {
+        userAssetService.recharge(bo.getUserId(),bo.getDiamond());
+        return R.ok();
+    }
 
+    /**
+     * 冻结钻石余额
+     */
+    @SaCheckPermission("system:asset:edit")
+    @Log(title = "冻结钻石余额", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PostMapping("/frozenDiamond")
+    public R<Void> frozenDiamond(@Validated(EditGroup.class) @RequestBody UserAssetDiamondBo bo) {
+        userAssetService.freezeDiamond(bo.getUserId(),bo.getDiamond());
+        return R.ok();
+    }
+
+    /**
+     * 解冻钻石余额
+     */
+    @SaCheckPermission("system:asset:edit")
+    @Log(title = "解冻钻石余额", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PostMapping("/unfrozenDiamond")
+    public R<Void> unfrozenDiamond(@Validated(EditGroup.class) @RequestBody UserAssetDiamondBo bo) {
+        userAssetService.unfreezeDiamond(bo.getUserId(),bo.getDiamond());
+        return R.ok();
+    }
     /**
      * 删除普通用户资产
      *
