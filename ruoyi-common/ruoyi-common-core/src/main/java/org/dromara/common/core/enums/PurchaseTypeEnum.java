@@ -7,11 +7,15 @@ package org.dromara.common.core.enums;
  * @date: 2025/4/25 14:48
  */
 public enum PurchaseTypeEnum {
-    content("content","RMB" ,"购买付费帖子"),
-    vip("vip", "RMB","购买铁粉权益"),
-    svip("svip", "RMB","购买超粉权益"),
-    circle("circle", "RMB","购买圈子"),
+    CONTENT("content","RMB" ,"购买付费帖子"),
+    /**
+     * 铁粉权益不是直接买的 是购买付费文章累计消耗多少钱自动升级的
+     */
+    VIP("vip", "RMB","购买铁粉权益"),
+    SVIP("svip", "RMB","购买超粉权益"),
+    CIRCLE("circle", "RMB","购买圈子"),
     WECHAT("wechat", "diamond","购买微信"),
+    MEMBER("member", "RMB","购买软件会员"),
     OTHER("other", "RMB","其他收入");
     ;
 
