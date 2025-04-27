@@ -16,7 +16,7 @@ public enum WithdrawStatusEnum {
     /**
      * 待审核
      */
-    UN_REVIEW(0, "待审核"),
+    PENDING(0, "待审核"),
     /**
      * 已打款
      */

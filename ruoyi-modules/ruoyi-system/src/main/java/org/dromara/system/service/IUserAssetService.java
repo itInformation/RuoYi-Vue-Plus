@@ -1,5 +1,6 @@
 package org.dromara.system.service;
 
+import org.dromara.system.domain.bo.UserAssetDiamondBo;
 import org.dromara.system.domain.vo.UserAssetVo;
 import org.dromara.system.domain.bo.UserAssetBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -67,9 +68,27 @@ public interface IUserAssetService {
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
 
 
-    void recharge(Long userId, Long diamonds);
-    void consume(Long userId, Long diamonds);
-    void freezeDiamond(Long userId, Long diamonds);
-    void unfreezeDiamond(Long userId, Long diamonds);
 
+    /**
+     * 消费钻石
+     * @param userId
+     * @param diamonds
+     */
+    void consumeDiamonds(UserAssetDiamondBo bo);
+
+    /**
+     * 消费金额
+     * @param userId
+     * @param amount
+     */
+    void consumeAmount(Long userId,Long amounts);
+    void freezeDiamond(UserAssetDiamondBo bo);
+    void unfreezeDiamond(UserAssetDiamondBo bo);
+
+    /**
+     * 钻石余额充值
+     * @param bo
+     * @return
+     */
+    void rechargeDiamond(UserAssetDiamondBo bo);
 }

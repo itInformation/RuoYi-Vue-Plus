@@ -6,6 +6,8 @@ import org.dromara.system.domain.SysCreatorStats;
 import org.dromara.system.domain.vo.SysCreatorStatsVo;
 import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
 
+import java.util.List;
+
 /**
  * 创作者统计Mapper接口
  *
@@ -22,4 +24,5 @@ public interface SysCreatorStatsMapper extends BaseMapperPlus<SysCreatorStats, S
     int updateFansCount(@Param("userId") Long userId, @Param("delta") int delta);
     @Update("UPDATE sys_creator_stats SET following_count = following_count + #{delta} WHERE user_id = #{userId}")
     int updateFollowingCount(@Param("userId") Long userId, @Param("delta") int delta);
+
 }

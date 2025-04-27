@@ -72,9 +72,9 @@ public interface ICreatorAssetService {
      * 申请提现
      */
     void applyWithdraw(Long userId, BigDecimal amount);
-
+    void freezePendingAmount(Long userId, BigDecimal amount);
     /**
-     * 冻结提现金额
+     * 将创作者的部分或全部“待入账金额”（pending_amount）暂时冻结
      * @param userId
      * @param amount
      */
@@ -84,5 +84,8 @@ public interface ICreatorAssetService {
      * 待入账
      */
     void addIncome(Long userId, BigDecimal amount, String sourceType);
-//    List<IncomeVO> queryIncome(Long userId, Date start, Date end);
+    List<Long> selectAllUserIds();
+
+
+    void confirmWithdraw(Long logId,Long userId);
 }

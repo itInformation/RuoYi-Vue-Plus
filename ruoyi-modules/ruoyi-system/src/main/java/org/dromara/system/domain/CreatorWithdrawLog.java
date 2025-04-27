@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
+import java.math.BigDecimal;
 
 /**
  * 创作者提现记录对象 creator_withdraw_log
@@ -35,7 +36,7 @@ public class CreatorWithdrawLog extends TenantEntity {
     /**
      *
      */
-    private Long amount;
+    private BigDecimal amount;
 
     /**
      * 状态(0待审核 1已打款 2已拒绝)
@@ -47,5 +48,9 @@ public class CreatorWithdrawLog extends TenantEntity {
      */
     private String remark;
 
-
+    /**
+     * 乐观锁版本号
+     */
+    @Version
+    private Long version;
 }

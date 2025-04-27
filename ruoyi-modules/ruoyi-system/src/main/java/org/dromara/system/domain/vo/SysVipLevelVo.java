@@ -33,6 +33,11 @@ public class SysVipLevelVo implements Serializable {
      */
     @ExcelProperty(value = "等级ID")
     private Long levelId;
+    /**
+     * 会员类型ID
+     */
+    @ExcelProperty(value = "会员类型ID")
+    private Long typeId;
 
     /**
      * 等级名称

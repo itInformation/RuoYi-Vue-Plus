@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
+import java.math.BigDecimal;
 
 /**
  * 创作者资产对象 creator_asset
@@ -30,37 +31,38 @@ public class CreatorAsset extends TenantEntity {
     /**
      * 可提现金额
      */
-    private Long withdrawable;
+    private BigDecimal withdrawable;
 
     /**
      * 冻结可提现
+     * frozen_withdrawable是在处理中的金额
      */
-    private Long frozenWithdrawable;
+    private BigDecimal frozenWithdrawable;
 
     /**
      * 待入账金额
      */
-    private Long pendingAmount;
+    private BigDecimal pendingAmount;
 
     /**
      * 冻结待入账
      */
-    private Long frozenPending;
+    private BigDecimal frozenPending;
 
     /**
      * 累计提现金额
      */
-    private Long totalWithdrawn;
+    private BigDecimal totalWithdrawn;
 
     /**
      * 累计收益金额
      */
-    private Long totalIncome;
+    private BigDecimal totalIncome;
 
     /**
      * 累计退款金额
      */
-    private Long totalRefund;
+    private BigDecimal totalRefund;
 
     /**
      * 乐观锁版本号

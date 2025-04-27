@@ -8,6 +8,7 @@ import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
 import org.dromara.system.domain.CreatorIncomeLog;
 import org.dromara.system.domain.vo.CreatorIncomeLogVo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -29,4 +30,14 @@ public interface CreatorIncomeLogMapper extends BaseMapperPlus<CreatorIncomeLog,
     })
     List<CreatorIncomeLogVo> selectIncomeList(@Param("userId") Long userId);
 
+
+
+
+    /**
+     * 统计用户总收入（排除退款）
+     * @param userId 用户ID
+     * @return 总收入金额（单位：元）
+     */
+    @Select("select COALESCE(SUM(amount), 0) from creator_income_log where user_id = #{userId}   AND source_type NOT IN ('REFUND')")
+    BigDecimal sumIncome(@Param("userId") Long userId);
 }

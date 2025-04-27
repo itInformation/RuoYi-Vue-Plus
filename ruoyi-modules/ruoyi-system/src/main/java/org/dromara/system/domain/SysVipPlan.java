@@ -26,7 +26,10 @@ public class SysVipPlan extends TenantEntity {
      */
     @TableId(value = "plan_id")
     private Long planId;
-
+    /**
+     * 会员类型ID
+     */
+    private Long typeId;
     /**
      * 套餐名称
      */
