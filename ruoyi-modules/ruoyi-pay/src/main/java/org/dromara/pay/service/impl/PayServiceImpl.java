@@ -125,6 +125,7 @@ public class PayServiceImpl implements IPayService {
             }
             // 4.更新订单状态
             updateOrderStatus(orderNo, PayStatusEnum.SUCCESS.getCode());
+            //todo 更新用户资产表  包括创作者和普通用户的资产表
 
             // 5.记录处理日志
 //            insertNotifyLog(params);
