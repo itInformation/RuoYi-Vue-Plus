@@ -17,6 +17,7 @@ import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.pay.domain.bo.PayOrderBo;
 import org.dromara.pay.domain.bo.PayOrderCancelBo;
+import org.dromara.pay.domain.vo.PayAddOrderVo;
 import org.dromara.pay.domain.vo.PayOrderVo;
 import org.dromara.pay.service.IPayOrderService;
 import org.dromara.pay.service.IPayService;
@@ -57,7 +58,7 @@ public class PayOrderClientController extends BaseController {
     @Log(title = "支付订单", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping("/add")
-    public R<String> add(@Validated(AddGroup.class) @RequestBody PayOrderBo bo) {
+    public R<PayAddOrderVo> add(@Validated(AddGroup.class) @RequestBody PayOrderBo bo) {
 
         return R.ok(payOrderService.createOrder(bo));
     }

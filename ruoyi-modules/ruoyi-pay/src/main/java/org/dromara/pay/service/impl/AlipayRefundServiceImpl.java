@@ -3,14 +3,18 @@ package org.dromara.pay.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
+import com.alipay.api.AlipayConfig;
+import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeRefundResponse;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.pay.domain.PayOrder;
 import org.dromara.pay.domain.bo.PayRefundBo;
 import org.dromara.pay.domain.bo.RefundBo;
+import org.dromara.pay.domain.vo.PayConfigVo;
 import org.dromara.pay.domain.vo.RefundRequest;
 import org.dromara.pay.domain.vo.RefundResult;
 import org.dromara.pay.service.IPayRefundStrategy;
@@ -33,10 +37,7 @@ import java.util.Map;
 @Service("alipayRefundService")
 @RequiredArgsConstructor
 public class AlipayRefundServiceImpl implements IPayRefundStrategy {
-
-
     private final AlipayClient alipayClient;
-
     @Override
     public Object refund(PayRefundBo payRefundBo) {
         // 2. 构造退款请求

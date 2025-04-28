@@ -12,6 +12,7 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.pay.domain.PayOrder;
 import org.dromara.pay.domain.bo.PayOrderBo;
+import org.dromara.pay.domain.vo.PayAddOrderVo;
 import org.dromara.pay.domain.vo.PayOrderVo;
 import org.dromara.pay.enums.PayStatusEnum;
 import org.dromara.pay.mapper.PayOrderMapper;
@@ -126,18 +127,21 @@ public class PayOrderServiceImpl implements IPayOrderService {
         return flag;
     }
 
-    public String createOrder(PayOrderBo orderBo) {
+    @Override
+    public PayAddOrderVo createOrder(PayOrderBo orderBo) {
         orderBo.setOrderId(IdUtil.getSnowflakeNextIdStr());
         orderBo.setOrderNo(OrderNoGenerator.generate());
         orderBo.setStatus(PayStatusEnum.WAITING.getCode());
         orderBo.setExpireTime(LocalDateTime.now().plusMinutes(30));
-        orderBo.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/order/alipay/callback");
+        orderBo.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/alipay/callback");
         PayOrder add = MapstructUtils.convert(orderBo, PayOrder.class);
         validEntityBeforeSave(add);
         boolean flag = baseMapper.insert(add) > 0;
         if (flag) {
             orderBo.setOrderId(add.getOrderId());
-            return add.getOrderId();
+            PayAddOrderVo addOrderVo = new PayAddOrderVo();
+            addOrderVo.setOrderId(add.getOrderId());
+            return addOrderVo;
         }
         return null;
     }

@@ -1,5 +1,6 @@
 package org.dromara.pay.service;
 
+import org.dromara.pay.domain.vo.PayAddOrderVo;
 import org.dromara.pay.domain.vo.PayOrderVo;
 import org.dromara.pay.domain.bo.PayOrderBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -57,7 +58,7 @@ public interface IPayOrderService {
      * @param orderBo
      * @return
      */
-    String createOrder(PayOrderBo orderBo);
+    PayAddOrderVo createOrder(PayOrderBo orderBo);
     /**
      * 修改支付订单
      *
