@@ -1,6 +1,8 @@
 package org.dromara.pay.controller.client;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.alipay.api.internal.util.AlipaySignature;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,10 +22,13 @@ import org.dromara.common.web.core.BaseController;
 import org.dromara.pay.domain.bo.PayOrderBo;
 import org.dromara.pay.domain.vo.PayOrderVo;
 import org.dromara.pay.service.IPayOrderService;
+import org.dromara.pay.service.IPayService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 支付订单 app端
@@ -39,6 +44,7 @@ import java.util.List;
 public class PayOrderClientController extends BaseController {
 
     private final IPayOrderService payOrderService;
+    private final IPayService payService;
 
     /**
      * 查询支付订单列表 只查用户自己的支付订单
@@ -69,8 +75,9 @@ public class PayOrderClientController extends BaseController {
     @Log(title = "支付订单", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
-    public R<Void> add(@Validated(AddGroup.class) @RequestBody PayOrderBo bo) {
-        return toAjax(payOrderService.insertByBo(bo));
+    public R<Map<String, String>> add(@Validated(AddGroup.class) @RequestBody PayOrderBo bo) {
+        Map<String, String> order = payService.createOrder(bo);
+        return R.ok(order);
     }
 
     /**
@@ -103,8 +110,14 @@ public class PayOrderClientController extends BaseController {
      *
      */
 //    @SaCheckPermission("client:order:remove")
-    @GetMapping("/callback}")
-    public R<Void> callBack() {
-        log.info("callBack start");
+    @GetMapping("/alipay/callback")
+    public R<Void> callBack(HttpServletRequest request) {
+        log.info("alipay callback start");
+        payService.processNotify(request);
+        return R.ok();
     }
+
+
+    // 转换请求参数
+
 }
