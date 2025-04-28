@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * description:
+ * 退款 app端
  *
  * @author minghuiZhang
  * @date created in 下午10:33 2025/4/21
@@ -27,8 +27,13 @@ public class PayRefundClientController {
     @Autowired
     private IPayRefundService refundService;
 
+    /**
+     * 退款申请
+     * @param bo
+     * @return
+     */
     @PostMapping("/apply")
-    @SaCheckPermission("pay:refund:apply'")// 权限控制
+    @SaCheckPermission("pay:refund:apply")// 权限控制
     public R<?> applyRefund(@Valid @RequestBody RefundBo bo) {
         String refund = refundService.refund(bo);
         return R.ok(refund);

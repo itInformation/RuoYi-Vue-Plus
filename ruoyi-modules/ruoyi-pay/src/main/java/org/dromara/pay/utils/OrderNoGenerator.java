@@ -53,4 +53,6 @@ public class OrderNoGenerator {
         // 5. 格式化输出（补足前导零）
         return String.format("%s%s%06d", timestamp, machineId, sequence);
     }
+
+
 }

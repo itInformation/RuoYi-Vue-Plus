@@ -1,6 +1,5 @@
 package org.dromara.pay.service.impl;
 
-import cn.hutool.core.util.IdUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.baomidou.lock.LockInfo;
@@ -21,12 +20,10 @@ import org.dromara.pay.service.IPayConfigService;
 import org.dromara.pay.service.IPayOrderService;
 import org.dromara.pay.service.IPayService;
 import org.dromara.pay.service.IPayStrategy;
-import org.dromara.pay.utils.OrderNoGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -101,7 +98,7 @@ public class PayServiceImpl implements IPayService {
         String lockKey = "pay:notify:lock:" + orderNo;
         final LockInfo lockInfo = lockTemplate.lock(lockKey, 30000L, 5000L, RedissonLockExecutor.class);
         if (null == lockInfo) {
-            log.warn("[支付宝回调] 正在处理交易：{}", tradeNo);
+            log.warn("[支付宝回调] 正在处理交易：{}", orderNo);
             throw new RuntimeException("业务处理中,请稍后再试");
         }
         // 获取锁成功，处理业务
@@ -124,7 +121,7 @@ public class PayServiceImpl implements IPayService {
                 throw new ServiceException("金额不一致");
             }
             // 4.更新订单状态
-            updateOrderStatus(orderNo, PayStatusEnum.SUCCESS.getCode());
+            updateOrderStatusAndTradeNo(orderNo,tradeNo, PayStatusEnum.SUCCESS.getCode());
             //todo 更新用户资产表  包括创作者和普通用户的资产表
 
             // 5.记录处理日志
@@ -148,7 +145,8 @@ public class PayServiceImpl implements IPayService {
     private boolean verifyBasicParams(Map<String, String> params) {
         return params.containsKey("trade_status")
             && params.containsKey("out_trade_no")
-            && params.containsKey("total_amount");
+            && params.containsKey("total_amount")
+            && params.containsKey("trade_no");
     }
 
     // 签名验证
@@ -168,12 +166,13 @@ public class PayServiceImpl implements IPayService {
     }
 
     /**
-     * 更新订单状态
+     * 更新订单状态和交易单号
      */
-    private void updateOrderStatus(String orderNo, String status) {
+    private void updateOrderStatusAndTradeNo(String orderNo, String status, String tradeNo) {
         PayOrderBo bo = new PayOrderBo();
         bo.setOrderNo(orderNo);
         bo.setStatus(status);
+        bo.setTradeNo(tradeNo);
         payOrderService.updateByBo(bo);
     }
 }

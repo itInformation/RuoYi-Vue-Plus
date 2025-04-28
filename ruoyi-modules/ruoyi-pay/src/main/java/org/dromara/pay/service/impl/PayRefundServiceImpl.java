@@ -58,12 +58,11 @@ import java.util.stream.Collectors;
 public class PayRefundServiceImpl implements IPayRefundService {
 
     private final PayRefundMapper baseMapper;
-    private AlipayClient alipayClient;
-    private IPayOrderService payOrderService;
-    private RefundStrategyFactory refundStrategyFactory;
-    private IPayConfigService payConfigService;
-    @Resource
-    private LockTemplate lockTemplate;
+    private final IPayOrderService payOrderService;
+    private final RefundStrategyFactory refundStrategyFactory;
+    private final IPayConfigService payConfigService;
+
+    private final LockTemplate lockTemplate;
     /**
      * 查询退款记录
      *

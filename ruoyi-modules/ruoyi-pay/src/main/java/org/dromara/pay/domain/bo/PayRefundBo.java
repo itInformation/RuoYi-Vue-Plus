@@ -72,7 +72,7 @@ public class PayRefundBo extends BaseEntity {
     /**
      * 创建时间
      */
-    private Date createdTime;
+    private LocalDateTime createdTime;
 
     /**
      * 更新人
@@ -82,7 +82,7 @@ public class PayRefundBo extends BaseEntity {
     /**
      * 更新时间
      */
-    private Date updatedTime;
+    private LocalDateTime updatedTime;
 
 
 }
