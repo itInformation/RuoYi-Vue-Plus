@@ -1,6 +1,7 @@
 package org.dromara.pay.controller.client;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dev33.satoken.annotation.SaIgnore;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,8 @@ public class PayClientController extends BaseController {
      * 支付回调
      *
      */
-    @GetMapping("/alipay/callback")
+    @PostMapping("/alipay/callback")
+    @SaIgnore
     public R<Void> callBack(HttpServletRequest request) {
         log.info("alipay callback start");
         payService.processNotify(request);

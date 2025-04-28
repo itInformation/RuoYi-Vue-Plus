@@ -1,6 +1,7 @@
 package org.dromara.pay.controller.client;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dev33.satoken.annotation.SaIgnore;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.dromara.common.core.domain.R;
@@ -34,6 +35,7 @@ public class PayRefundClientController {
     }
 
     @PostMapping("/callback/")
+    @SaIgnore
     public R<?> callbackHandler(HttpServletRequest request) {
         refundService.processNotify(request);
         return R.ok();
