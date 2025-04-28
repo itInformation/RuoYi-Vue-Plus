@@ -3,11 +3,14 @@ package org.dromara.pay.service.impl;
 import cn.hutool.core.util.IdUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.baomidou.lock.LockInfo;
 import com.baomidou.lock.LockTemplate;
+import com.baomidou.lock.executor.RedissonLockExecutor;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.exception.ServiceException;
+import org.dromara.common.json.utils.JsonUtils;
 import org.dromara.pay.domain.bo.PayBo;
 import org.dromara.pay.domain.bo.PayOrderBo;
 import org.dromara.pay.domain.vo.PayConfigVo;
@@ -79,53 +82,57 @@ public class PayServiceImpl implements IPayService {
     @Override
     public void processNotify(HttpServletRequest request) {
         Map<String, String> params = convertRequestParams(request);
-        log.info("[支付宝支付回调] 收到通知参数：{}", params);
+        log.info("[支付宝支付回调] 收到通知参数：{}", JsonUtils.toJsonString(params));
         // 1. 基础验证
-//        if (!verifyBasicParams(params)) {
-//            throw new ServiceException("参数验证失败");
-//        }
-//        // 2. 验证签名
-//        if (!verifySignature(params)) {
-//            log.error("[支付宝回调] 签名验证失败");
-//            throw new ServiceException("签名验证失败");
-//        }
-//        // 3. 获取订单号
-//        String orderNo = params.get("out_trade_no");
-//        String tradeNo = params.get("trade_no");
-//        BigDecimal amount = new BigDecimal(params.get("total_amount"));
-//        // 1.使用Redis分布式锁
-//        String lockKey = "pay:notify:lock:" + orderNo;
-//        final LockInfo lockInfo = lockTemplate.lock(lockKey, 30000L, 5000L, RedissonLockExecutor.class);
-//        if (null == lockInfo) {
-//            log.warn("[支付宝回调] 正在处理交易：{}", tradeNo);
-//            throw new RuntimeException("业务处理中,请稍后再试");
-//        }
-//        // 获取锁成功，处理业务
-//        try {
-//            // 2.查询订单
-//            PayOrderVo order = payOrderService.queryById(orderNo);
-//
-//            // 3.检查订单状态
-//            if (!"WAITING".equals(order.getStatus())) {
-//                log.info("订单已处理，直接返回成功");
-//                return;
-//            }
-//            // 2. 校验金额
-//            if (order.getAmount().compareTo(amount) != 0) {
-//                log.error("[支付宝回调] 金额不一致，订单：{}，通知：{}",
-//                    order.getAmount(), amount);
-//                throw new ServiceException("金额不一致");
-//            }
-//            // 4.更新订单状态
-//            updateOrderStatus(orderNo, PayStatusEnum.SUCCESS.getCode());
-//
-//            // 5.记录处理日志
-////            insertNotifyLog(params);
-//
-//        } finally {
-//            //释放锁
-//            lockTemplate.releaseLock(lockInfo);
-//        }
+        if (!verifyBasicParams(params)) {
+            throw new ServiceException("参数验证失败");
+        }
+        // 2. 验证签名
+        if (!verifySignature(params)) {
+            log.error("[支付宝回调] 签名验证失败");
+            throw new ServiceException("签名验证失败");
+        }
+        // 3. 获取订单号
+        String orderNo = params.get("out_trade_no");
+        String tradeNo = params.get("trade_no");
+        String tradeSuccess = params.get("trade_status");
+        BigDecimal amount = new BigDecimal(params.get("total_amount"));
+        // 1.使用Redis分布式锁
+        String lockKey = "pay:notify:lock:" + orderNo;
+        final LockInfo lockInfo = lockTemplate.lock(lockKey, 30000L, 5000L, RedissonLockExecutor.class);
+        if (null == lockInfo) {
+            log.warn("[支付宝回调] 正在处理交易：{}", tradeNo);
+            throw new RuntimeException("业务处理中,请稍后再试");
+        }
+        // 获取锁成功，处理业务
+        try {
+            // 2.查询订单
+            PayOrderVo order = payOrderService.queryById(orderNo);
+
+            // 3.检查订单状态
+            if (!"WAITING".equals(order.getStatus())) {
+                log.info("订单已处理，直接返回成功");
+                return;
+            }
+            if (!"TRADE_SUCCESS".equals(tradeSuccess)){
+                log.info("支付宝回调trade_status没有成功，实际是{}",tradeSuccess);
+            }
+            // 2. 校验金额
+            if (order.getAmount().compareTo(amount) != 0) {
+                log.error("[支付宝回调] 金额不一致，订单：{}，通知：{}",
+                    order.getAmount(), amount);
+                throw new ServiceException("金额不一致");
+            }
+            // 4.更新订单状态
+            updateOrderStatus(orderNo, PayStatusEnum.SUCCESS.getCode());
+
+            // 5.记录处理日志
+//            insertNotifyLog(params);
+
+        } finally {
+            //释放锁
+            lockTemplate.releaseLock(lockInfo);
+        }
     }
 
     private Map<String, String> convertRequestParams(HttpServletRequest request) {

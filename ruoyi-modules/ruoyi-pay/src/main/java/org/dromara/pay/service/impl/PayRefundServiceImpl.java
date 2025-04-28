@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
+import org.dromara.common.json.utils.JsonUtils;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -243,7 +244,7 @@ public class PayRefundServiceImpl implements IPayRefundService {
     @Override
     public void processNotify(HttpServletRequest request){
         Map<String, String> params = convertRequestParams(request);
-        log.info("[支付宝退款回调] 收到通知参数：{}", params);
+        log.info("[支付宝退款回调] 收到通知参数：{}",  JsonUtils.toJsonString(params));
         // 1. 基础验证
         if (!verifyBasicParams(params)) {
             throw new ServiceException("参数验证失败");
