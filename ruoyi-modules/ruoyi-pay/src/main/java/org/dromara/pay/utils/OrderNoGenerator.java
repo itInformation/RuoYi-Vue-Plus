@@ -27,7 +27,7 @@ public class OrderNoGenerator {
     // Redis key前缀（按秒限流）
     private static final String REDIS_KEY_PREFIX = "pay:order_no:";
     @Value("${machine.id:01}") // 默认值"01"
-    private String machineId;
+    private static String machineId;
     private static final DateTimeFormatter TIMESTAMP_FORMATTER =
         DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
@@ -35,7 +35,7 @@ public class OrderNoGenerator {
      * 生成规则：时间戳（12位） + 机器ID（2位） + 自增序列（6位）
      * 总长度：12 + 2 + 6 = 20位
      */
-    public String generate() {
+    public static String generate() {
         // 1. 获取时间戳（线程安全方式）
         String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
 

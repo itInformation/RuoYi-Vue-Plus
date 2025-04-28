@@ -1,10 +1,6 @@
 package org.dromara.pay.service.impl;
 
-import com.alipay.api.AlipayClient;
-import com.alipay.api.DefaultAlipayClient;
-
-import org.dromara.pay.domain.PayConfig;
-import org.dromara.pay.domain.PayOrder;
+import org.dromara.pay.domain.vo.PayOrderVo;
 import org.dromara.pay.service.IPayStrategy;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +12,11 @@ import java.util.Map;
  * @email: zhangminghui@gycloud.com
  * @date: 2025/3/10 16:37
  */
-@Component("wxPayStrategy")
+@Component("wxpay")
 public class WXPayStrategy implements IPayStrategy {
 
     @Override
-    public Map<String, String> createOrder(PayOrder order) {
+    public Map<String, String> pay(PayOrderVo order) {
         return Map.of();
     }
 
@@ -35,7 +31,7 @@ public class WXPayStrategy implements IPayStrategy {
     }
 
     @Override
-    public PayOrder queryOrder(String orderNo) {
+    public PayOrderVo queryOrder(String orderNo) {
         return null;
     }
 }

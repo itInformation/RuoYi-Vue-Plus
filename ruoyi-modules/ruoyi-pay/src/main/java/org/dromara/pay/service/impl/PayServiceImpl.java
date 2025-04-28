@@ -1,15 +1,14 @@
 package org.dromara.pay.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
-import com.baomidou.lock.LockInfo;
 import com.baomidou.lock.LockTemplate;
-import com.baomidou.lock.executor.RedissonLockExecutor;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.exception.ServiceException;
-import org.dromara.pay.domain.PayOrder;
+import org.dromara.pay.domain.bo.PayBo;
 import org.dromara.pay.domain.bo.PayOrderBo;
 import org.dromara.pay.domain.vo.PayConfigVo;
 import org.dromara.pay.domain.vo.PayOrderVo;
@@ -19,12 +18,12 @@ import org.dromara.pay.service.IPayConfigService;
 import org.dromara.pay.service.IPayOrderService;
 import org.dromara.pay.service.IPayService;
 import org.dromara.pay.service.IPayStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.dromara.pay.utils.OrderNoGenerator;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.RollbackOn;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -48,23 +47,31 @@ public class PayServiceImpl implements IPayService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, String> createOrder(PayOrderBo orderBo) {
+    public Map<String, String> payOrder(PayBo orderBo) {
         // 1. 校验业务参数
+
+        PayOrderVo orderVo = validateAmount(orderBo.getAmount(), orderBo.getOrderId());
+
         // 2. 调用策略生成支付订单
-        IPayStrategy strategy = strategyFactory.getStrategy(orderBo.getChannel());
-        Map<String, String> order = strategy.createOrder(orderBo);
-        // 3. 保存订单记录（需事务管理）
-        payOrderService.insertByBo(orderBo);
-        return order;
+        IPayStrategy strategy = strategyFactory.getStrategy(orderVo.getChannel());
+
+        return strategy.pay(orderVo);
     }
 
-    public void validateAmount(BigDecimal requestAmount, Long orderNo) {
-        PayOrderVo order = payOrderService.queryById(orderNo);
+    /**
+     * 订单支付前校验
+     */
+    private PayOrderVo validateAmount(BigDecimal requestAmount, String orderId) {
+        PayOrderVo order = payOrderService.queryById(orderId);
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
 
         // 使用BigDecimal的compareTo方法进行精确比较
         if (order.getAmount().compareTo(requestAmount) != 0) {
             throw new ServiceException("支付金额不一致");
         }
+        return order;
     }
 
 

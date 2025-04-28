@@ -33,7 +33,7 @@ public class PayOrder extends BaseEntity {
      * 订单ID
      */
     @TableId(value = "order_id")
-    private Long orderId;
+    private String orderId;
 
     /**
      * 商户订单号

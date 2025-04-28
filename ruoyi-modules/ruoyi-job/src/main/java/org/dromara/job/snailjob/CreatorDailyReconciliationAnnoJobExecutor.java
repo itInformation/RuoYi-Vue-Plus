@@ -21,7 +21,7 @@ import java.util.List;
  * @date 2024-05-17
  */
 @Component
-@JobExecutor(name = "systemCreatorStatsJob")
+@JobExecutor(name = "creatorDailyReconciliationAnnoJob")
 @RequiredArgsConstructor
 @Slf4j
 public class CreatorDailyReconciliationAnnoJobExecutor {

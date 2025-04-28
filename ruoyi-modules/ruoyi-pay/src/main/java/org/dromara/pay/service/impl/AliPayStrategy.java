@@ -26,7 +26,7 @@ import java.util.Map;
  * @date: 2025/3/10 16:37
  */
 @RequiredArgsConstructor
-@Component("aliPayStrategy")
+@Component("alipay")
 public class AliPayStrategy implements IPayStrategy {
     private final IPayConfigService payConfigService;
     private AlipayClient client;
@@ -54,15 +54,15 @@ public class AliPayStrategy implements IPayStrategy {
         return client;
     }
     @Override
-    public Map<String, String> createOrder(PayOrderBo orderBo) {
+    public Map<String, String> pay(PayOrderVo orderVo) {
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         request.setReturnUrl(null);
-        request.setNotifyUrl(orderBo.getNotifyUrl());
+        request.setNotifyUrl(orderVo.getNotifyUrl());
 
         AlipayTradePagePayModel model = new AlipayTradePagePayModel();
-        model.setOutTradeNo(orderBo.getOrderNo());
-        model.setTotalAmount(orderBo.getAmount().toString());
-        model.setSubject(orderBo.getSubject());
+        model.setOutTradeNo(orderVo.getOrderNo());
+        model.setTotalAmount(orderVo.getAmount().toString());
+        model.setSubject(orderVo.getSubject());
         model.setProductCode("FAST_INSTANT_TRADE_PAY");
         request.setBizModel(model);
         try {

@@ -1,6 +1,5 @@
 package org.dromara.pay.service;
 
-import org.dromara.pay.domain.bo.PayOrderBo;
 import org.dromara.pay.domain.vo.PayOrderVo;
 
 import java.util.Map;
@@ -13,7 +12,7 @@ import java.util.Map;
  */
 public interface IPayStrategy{
 
-    Map<String, String> createOrder(PayOrderBo order);
+    Map<String, String> pay(PayOrderVo order);
     boolean verifyNotify(Map<String, String> params);
     void processNotify(Map<String, String> params);
     PayOrderVo queryOrder(String orderNo);

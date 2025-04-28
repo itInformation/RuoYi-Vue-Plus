@@ -1,7 +1,7 @@
 package org.dromara.pay.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.dromara.pay.domain.PayOrder;
+import org.dromara.pay.domain.bo.PayBo;
 import org.dromara.pay.domain.bo.PayOrderBo;
 
 import java.util.Map;
@@ -13,7 +13,14 @@ import java.util.Map;
  * @date: 2025/3/10 17:38
  */
 public interface IPayService {
-    Map<String, String> createOrder(PayOrderBo order);
+    /**
+     * 支付订单
+     */
+    Map<String, String> payOrder(PayBo order);
+
+    /**
+     * 处理支付回调
+     */
     void processNotify(HttpServletRequest request);
 
 }

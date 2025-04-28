@@ -23,7 +23,6 @@ public class PayStrategyFactory {
     private IPayConfigService configService;
 
     public IPayStrategy getStrategy(String channel) {
-        PayConfigVo config = configService.queryByChannel(channel);
         IPayStrategy iPayStrategy = payStrategyMap.get(channel);
         if (iPayStrategy == null){
             throw new ServiceException("不支持的支付渠道");

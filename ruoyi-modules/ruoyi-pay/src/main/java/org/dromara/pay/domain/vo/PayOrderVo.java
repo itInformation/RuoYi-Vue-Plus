@@ -31,7 +31,7 @@ public class PayOrderVo implements Serializable {
      * 订单ID
      */
     @ExcelProperty(value = "订单ID")
-    private Long orderId;
+    private String orderId;
 
     /**
      * 商户订单号

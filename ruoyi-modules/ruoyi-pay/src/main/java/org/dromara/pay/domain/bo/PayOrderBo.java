@@ -8,6 +8,8 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -24,13 +26,11 @@ public class PayOrderBo extends BaseEntity {
     /**
      * 订单ID
      */
-    @NotNull(message = "订单ID不能为空", groups = { EditGroup.class })
-    private Long orderId;
+    private String orderId;
 
     /**
      * 商户订单号
      */
-    @NotBlank(message = "商户订单号不能为空", groups = { AddGroup.class, EditGroup.class })
     private String orderNo;
 
     /**
@@ -48,7 +48,6 @@ public class PayOrderBo extends BaseEntity {
     /**
      * 支付状态
      */
-    @NotBlank(message = "支付状态不能为空", groups = { AddGroup.class, EditGroup.class })
     private String status;
 
     /**
@@ -66,18 +65,16 @@ public class PayOrderBo extends BaseEntity {
     /**
      * 支付时间
      */
-    private Date payTime;
+    private LocalDateTime payTime;
 
     /**
      * 过期时间
      */
-    @NotNull(message = "过期时间不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Date expireTime;
+    private LocalDateTime expireTime;
 
     /**
      * 异步通知URL
      */
-    @NotBlank(message = "异步通知URL不能为空", groups = { AddGroup.class, EditGroup.class })
     private String notifyUrl;
 
 

@@ -27,19 +27,19 @@ import java.util.Map;
 @Service("alipayRefundService")
 public class AlipayRefundServiceImpl implements IRefundService {
 
-    @Autowired
+
     private AlipayClient alipayClient;
 
     @Override
     @Transactional
     public RefundResult refund(RefundRequest req) {
         // 1. 参数校验
-        PayOrder order = validateRefund(req);
+//        PayOrder order = validateRefund(req);
 
         // 2. 构造退款请求
         AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
         request.setBizContent(JSON.toJSONString(new HashMap<String, Object>(){{
-            put("out_trade_no", order.getOrderNo());
+//            put("out_trade_no", order.getOrderNo());
             put("refund_amount", req.getRefundAmount());
             put("out_request_no", req.getRefundNo());
         }}));

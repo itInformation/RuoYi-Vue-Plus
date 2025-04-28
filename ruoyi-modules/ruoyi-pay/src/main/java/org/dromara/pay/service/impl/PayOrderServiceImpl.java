@@ -1,5 +1,6 @@
 package org.dromara.pay.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,10 +12,13 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.pay.domain.PayOrder;
 import org.dromara.pay.domain.bo.PayOrderBo;
 import org.dromara.pay.domain.vo.PayOrderVo;
+import org.dromara.pay.enums.PayStatusEnum;
 import org.dromara.pay.mapper.PayOrderMapper;
 import org.dromara.pay.service.IPayOrderService;
+import org.dromara.pay.utils.OrderNoGenerator;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -101,18 +105,39 @@ public class PayOrderServiceImpl implements IPayOrderService {
     /**
      * 新增支付订单
      *
-     * @param bo 支付订单
+     * @param orderBo 支付订单
      * @return 是否新增成功
      */
     @Override
-    public Boolean insertByBo(PayOrderBo bo) {
-        PayOrder add = MapstructUtils.convert(bo, PayOrder.class);
+    public Boolean insertByBo(PayOrderBo orderBo) {
+        orderBo.setOrderId(IdUtil.getSnowflakeNextIdStr());
+        orderBo.setOrderNo(OrderNoGenerator.generate());
+        orderBo.setStatus(PayStatusEnum.WAITING.getCode());
+        orderBo.setExpireTime(LocalDateTime.now().plusMinutes(30));
+        orderBo.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/order/alipay/callback");
+        PayOrder add = MapstructUtils.convert(orderBo, PayOrder.class);
         validEntityBeforeSave(add);
         boolean flag = baseMapper.insert(add) > 0;
         if (flag) {
-            bo.setOrderId(add.getOrderId());
+            orderBo.setOrderId(add.getOrderId());
         }
         return flag;
+    }
+
+    public String createOrder(PayOrderBo orderBo) {
+        orderBo.setOrderId(IdUtil.getSnowflakeNextIdStr());
+        orderBo.setOrderNo(OrderNoGenerator.generate());
+        orderBo.setStatus(PayStatusEnum.WAITING.getCode());
+        orderBo.setExpireTime(LocalDateTime.now().plusMinutes(30));
+        orderBo.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/order/alipay/callback");
+        PayOrder add = MapstructUtils.convert(orderBo, PayOrder.class);
+        validEntityBeforeSave(add);
+        boolean flag = baseMapper.insert(add) > 0;
+        if (flag) {
+            orderBo.setOrderId(add.getOrderId());
+            return add.getOrderId();
+        }
+        return null;
     }
 
     /**

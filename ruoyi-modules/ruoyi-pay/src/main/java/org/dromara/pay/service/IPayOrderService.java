@@ -52,6 +52,12 @@ public interface IPayOrderService {
     Boolean insertByBo(PayOrderBo bo);
 
     /**
+     * 创建支付订单
+     * @param orderBo
+     * @return
+     */
+    String createOrder(PayOrderBo orderBo);
+    /**
      * 修改支付订单
      *
      * @param bo 支付订单
