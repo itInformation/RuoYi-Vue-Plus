@@ -1,5 +1,6 @@
 package org.dromara.pay.service;
 
+import org.dromara.pay.domain.bo.RefundBo;
 import org.dromara.pay.domain.vo.RefundRequest;
 import org.dromara.pay.domain.vo.RefundResult;
 
@@ -15,10 +16,9 @@ public interface IRefundService {
 
     /**
      * 执行退款
-     * @param req 退款请求参数
      * @return 退款受理结果
      */
-    RefundResult refund(RefundRequest req);
+    RefundResult refund(RefundBo refundBo);
 
     /**
      * 处理支付平台回调

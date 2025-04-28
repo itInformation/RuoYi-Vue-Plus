@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -77,5 +78,13 @@ public class PayOrderBo extends BaseEntity {
      */
     private String notifyUrl;
 
+    /**
+     * 支付渠道单号
+     */
+    private String tradeNo;
 
+    /**
+     * 退款金额(元)
+     */
+    private BigDecimal refundAmount;
 }

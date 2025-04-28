@@ -51,12 +51,12 @@ public class PayOrderClientController extends BaseController {
     }
 
     /**
-     * 支付订单
+     * 新增支付订单
      */
     @SaCheckPermission("client:order:add")
     @Log(title = "支付订单", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping("/pay")
+    @PostMapping("/add")
     public R<String> add(@Validated(AddGroup.class) @RequestBody PayOrderBo bo) {
 
         return R.ok(payOrderService.createOrder(bo));

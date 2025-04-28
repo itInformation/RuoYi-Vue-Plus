@@ -5,6 +5,7 @@ import org.dromara.pay.domain.bo.PayOrderBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -73,4 +74,6 @@ public interface IPayOrderService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+    void updateRefundAmount(String orderNo, BigDecimal amount);
 }

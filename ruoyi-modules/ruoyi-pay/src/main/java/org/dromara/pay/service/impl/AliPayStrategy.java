@@ -26,7 +26,7 @@ import java.util.Map;
  * @date: 2025/3/10 16:37
  */
 @RequiredArgsConstructor
-@Component("alipay")
+@Component("alipayStrategy")
 public class AliPayStrategy implements IPayStrategy {
     private final IPayConfigService payConfigService;
     private AlipayClient client;

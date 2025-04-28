@@ -12,7 +12,7 @@ import java.util.Map;
  * @email: zhangminghui@gycloud.com
  * @date: 2025/3/10 16:37
  */
-@Component("wxpay")
+@Component("wxpayStrategy")
 public class WXPayStrategy implements IPayStrategy {
 
     @Override

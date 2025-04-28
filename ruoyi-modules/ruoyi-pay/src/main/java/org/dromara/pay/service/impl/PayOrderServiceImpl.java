@@ -2,6 +2,7 @@ package org.dromara.pay.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.dromara.pay.service.IPayOrderService;
 import org.dromara.pay.utils.OrderNoGenerator;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -173,5 +175,13 @@ public class PayOrderServiceImpl implements IPayOrderService {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         return baseMapper.deleteByIds(ids) > 0;
+    }
+
+    @Override
+    public void updateRefundAmount(String orderNo, BigDecimal amount) {
+        UpdateWrapper<PayOrder> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.setSql("refund_amount = refund_amount + " + amount);
+        updateWrapper.eq("order_no", orderNo);
+        baseMapper.update(updateWrapper);
     }
 }

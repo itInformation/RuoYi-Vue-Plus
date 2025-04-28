@@ -1,21 +1,17 @@
 package org.dromara.pay.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayApiException;
-import com.alipay.api.AlipayClient;
-import com.alipay.api.request.AlipayTradeRefundRequest;
-import com.alipay.api.response.AlipayTradeRefundResponse;
-import org.dromara.common.core.exception.ServiceException;
-import org.dromara.pay.domain.PayOrder;
-import org.dromara.pay.domain.vo.RefundRequest;
+import com.alipay.api.internal.util.AlipaySignature;
+import jakarta.servlet.http.HttpServletRequest;
+import org.dromara.pay.domain.bo.PayRefundBo;
+import org.dromara.pay.domain.vo.PayConfigVo;
 import org.dromara.pay.domain.vo.RefundResult;
-import org.dromara.pay.service.IRefundService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.dromara.pay.service.IPayRefundStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * description:
@@ -25,18 +21,17 @@ import java.util.Map;
  * modified by
  */
 @Service("wxpayRefundService")
-public class WxpayRefundServiceImpl implements IRefundService {
+public class WxpayRefundServiceImpl implements IPayRefundStrategy {
 
 //    @Autowired
 //    private WxPayService wxPayService;
 
     @Override
     @Transactional
-    public RefundResult refund(RefundRequest req) {
-//        // 1. 参数校验
-//        PayOrder order = validateRefund(req);
-//
-//        // 2. 构造退款请求
+    public RefundResult refund(PayRefundBo payRefundBo) {
+
+////
+////        // 2. 构造退款请求
 //        WxPayRefundRequest request = new WxPayRefundRequest();
 //        request.setOutTradeNo(order.getOrderNo());
 //        request.setOutRefundNo(req.getRefundNo());
@@ -57,9 +52,9 @@ public class WxpayRefundServiceImpl implements IRefundService {
     }
 
     @Override
-    public String handleNotify(Map<String, String> notifyData) {
-        return "";
+    public boolean verifyNotify(Map<String, String> params) {
+        return false;
     }
 
-    // 其他辅助方法...
+
 }

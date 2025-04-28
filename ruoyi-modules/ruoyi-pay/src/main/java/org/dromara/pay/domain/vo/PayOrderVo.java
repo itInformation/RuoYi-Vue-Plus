@@ -87,5 +87,14 @@ public class PayOrderVo implements Serializable {
     @ExcelProperty(value = "异步通知URL")
     private String notifyUrl;
 
+    /**
+     * 支付渠道单号
+     */
+    @ExcelProperty(value = "支付渠道单号")
+    private String tradeNo;
 
+    /**
+     * 退款金额(元)
+     */
+    private BigDecimal refundAmount;
 }

@@ -5,10 +5,15 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeRefundResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.pay.domain.PayOrder;
+import org.dromara.pay.domain.bo.PayRefundBo;
+import org.dromara.pay.domain.bo.RefundBo;
 import org.dromara.pay.domain.vo.RefundRequest;
 import org.dromara.pay.domain.vo.RefundResult;
+import org.dromara.pay.service.IPayRefundStrategy;
 import org.dromara.pay.service.IRefundService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,47 +29,41 @@ import java.util.Map;
  * @date created in 下午10:25 2025/4/21
  * modified by
  */
+@Slf4j
 @Service("alipayRefundService")
-public class AlipayRefundServiceImpl implements IRefundService {
+@RequiredArgsConstructor
+public class AlipayRefundServiceImpl implements IPayRefundStrategy {
 
 
-    private AlipayClient alipayClient;
+    private final AlipayClient alipayClient;
 
     @Override
-    @Transactional
-    public RefundResult refund(RefundRequest req) {
-        // 1. 参数校验
-//        PayOrder order = validateRefund(req);
-
+    public Object refund(PayRefundBo payRefundBo) {
         // 2. 构造退款请求
         AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
         request.setBizContent(JSON.toJSONString(new HashMap<String, Object>(){{
-//            put("out_trade_no", order.getOrderNo());
-            put("refund_amount", req.getRefundAmount());
-            put("out_request_no", req.getRefundNo());
+            put("out_trade_no", payRefundBo.getOrderNo());
+            put("refund_amount", payRefundBo.getAmount());
+            put("out_request_no", payRefundBo.getRefundNo());
         }}));
 
         // 3. 执行退款
         AlipayTradeRefundResponse response = null;
         try {
             response = alipayClient.execute(request);
+            if (!response.isSuccess()) {
+                throw new ServiceException("支付宝退款失败：" + response.getSubMsg());
+            }
         } catch (AlipayApiException e) {
-            throw new RuntimeException(e);
+            log.error("支付宝退款接口调用异常", e);
+            throw new ServiceException("退款申请失败");
         }
-
-        // 4. 处理结果
-        if (response.isSuccess()) {
-            //更新订单状态
-//            updateOrderStatus(order, response.getFundChange());
-            return RefundResult.success(response.getTradeNo(),response.getOutTradeNo());
-        } else {
-            throw new ServiceException("支付宝退款失败：" + response.getSubMsg());
-        }
+        return response;
     }
 
     @Override
-    public String handleNotify(Map<String, String> notifyData) {
-        return "";
+    public boolean verifyNotify(Map<String, String> params) {
+        return false;
     }
 
     // 其他辅助方法...
