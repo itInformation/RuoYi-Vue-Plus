@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.dromara.common.core.utils.SpringUtils;
 import org.redisson.api.*;
 import org.redisson.api.options.KeysScanOptions;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 import java.time.Duration;
 import java.util.Collection;
@@ -581,4 +582,9 @@ public class RedisUtils {
         RKeys rKeys = CLIENT.getKeys();
         return rKeys.countExists(key) > 0;
     }
+    public static <T> T executeScript(String script, Class<T> resultType, List<String> keys, Object... args) {
+        DefaultRedisScript<T> redisScript = new DefaultRedisScript<>(script, resultType);
+        return CLIENT.execute(redisScript, keys, args);
+    }
+
 }

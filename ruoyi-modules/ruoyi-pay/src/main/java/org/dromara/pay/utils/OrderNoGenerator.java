@@ -1,6 +1,18 @@
 package org.dromara.pay.utils;
 
+import cn.hutool.core.util.IdUtil;
+import jakarta.annotation.Resource;
+import org.dromara.common.core.utils.DateUtils;
+import org.dromara.common.redis.utils.RedisUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -10,96 +22,35 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date created in 下午10:10 2025/4/21
  * modified by
  */
+@Component
 public class OrderNoGenerator {
-    // 基础配置（建议通过配置中心管理）
-    private static final String BUSINESS_PREFIX = "ORD"; // 业务标识（3位）
-    private static final int DATA_CENTER_ID = 1;         // 数据中心ID（0-31）
-    private static final int WORKER_ID = 1;              // 工作节点ID（0-31）
+    // Redis key前缀（按秒限流）
+    private static final String REDIS_KEY_PREFIX = "pay:order_no:";
+    @Value("${machine.id:01}") // 默认值"01"
+    private String machineId;
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER =
+        DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
-    // 时间相关配置
-    private static final long EPOCH = Instant.parse("2024-01-01T00:00:00Z").toEpochMilli();
+    /**
+     * 生成规则：时间戳（12位） + 机器ID（2位） + 自增序列（6位）
+     * 总长度：12 + 2 + 6 = 20位
+     */
+    public String generate() {
+        // 1. 获取时间戳（线程安全方式）
+        String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
 
-    // 序列号相关
-    private static final int SEQUENCE_BITS = 12;
-    private static final AtomicInteger sequence = new AtomicInteger(0);
-    private static final int MAX_SEQUENCE = (1 << SEQUENCE_BITS) - 1;
+        // 2. 构造Redis Key
+        String redisKey = REDIS_KEY_PREFIX + timestamp;
 
-    // ID组成
-    private static final int TIMESTAMP_SHIFT = SEQUENCE_BITS + 10; // 12+5+5
-    private static final int DATA_CENTER_SHIFT = SEQUENCE_BITS + 5;
-    private static final int WORKER_SHIFT = SEQUENCE_BITS;
+        // 3. 获取自增序列（保证原子性操作）
+        Long sequence = RedisUtils.incrAtomicValue(redisKey);
 
-    // 异常处理
-    private static long lastTimestamp = -1L;
-
-    public static synchronized String generate() {
-        long currentTimestamp = timeGen();
-
-        if (currentTimestamp < lastTimestamp) {
-            throw new RuntimeException("Clock moved backwards");
+        // 4. 首次创建Key时设置过期时间（60秒自动清理）
+        if (sequence != null && sequence == 1L) {
+            RedisUtils.expire(redisKey, 60);
         }
 
-        if (currentTimestamp == lastTimestamp) {
-            int seq = sequence.incrementAndGet() & MAX_SEQUENCE;
-            if (seq == 0) {
-                currentTimestamp = tilNextMillis(lastTimestamp);
-            }
-        } else {
-            sequence.set(0);
-        }
-
-        lastTimestamp = currentTimestamp;
-
-        long id = ((currentTimestamp - EPOCH) << TIMESTAMP_SHIFT)
-            | (DATA_CENTER_ID << DATA_CENTER_SHIFT)
-            | (WORKER_ID << WORKER_SHIFT)
-            | sequence.get();
-
-        return BUSINESS_PREFIX + formatTimestamp(currentTimestamp) + id;
-    }
-
-    public static synchronized String generate(String businessType) {
-        long currentTimestamp = timeGen();
-
-        if (currentTimestamp < lastTimestamp) {
-            throw new RuntimeException("Clock moved backwards");
-        }
-
-        if (currentTimestamp == lastTimestamp) {
-            int seq = sequence.incrementAndGet() & MAX_SEQUENCE;
-            if (seq == 0) {
-                currentTimestamp = tilNextMillis(lastTimestamp);
-            }
-        } else {
-            sequence.set(0);
-        }
-
-        lastTimestamp = currentTimestamp;
-
-        long id = ((currentTimestamp - EPOCH) << TIMESTAMP_SHIFT)
-            | (DATA_CENTER_ID << DATA_CENTER_SHIFT)
-            | (WORKER_ID << WORKER_SHIFT)
-            | sequence.get();
-
-        return businessType + formatTimestamp(currentTimestamp) + id;
-    }
-
-    private static long tilNextMillis(long lastTimestamp) {
-        long timestamp = timeGen();
-        while (timestamp <= lastTimestamp) {
-            timestamp = timeGen();
-        }
-        return timestamp;
-    }
-
-    private static long timeGen() {
-        return System.currentTimeMillis();
-    }
-
-    private static String formatTimestamp(long timestamp) {
-        Instant instant = Instant.ofEpochMilli(timestamp);
-        return instant.toString()
-            .replaceAll("[-T:Z]","")
-                .substring(2, 15); // 示例输出：240102153015（年月日时分秒）
+        // 5. 格式化输出（补足前导零）
+        return String.format("%s%s%06d", timestamp, machineId, sequence);
     }
 }

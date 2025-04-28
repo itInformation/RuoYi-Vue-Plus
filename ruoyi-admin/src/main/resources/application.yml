@@ -6,7 +6,8 @@ ruoyi:
   version: ${revision}
   # 版权年份
   copyrightYear: 2024
-
+machine:
+  id: ${MACHINE_ID:01}
 captcha:
   enable: true
   # 页面 <参数设置> 可开启关闭 验证码校验
