@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
@@ -30,6 +31,7 @@ import java.util.List;
  * @author Lion Li
  * @date 2025-03-10
  */
+@Slf4j
 @Validated
 @RequiredArgsConstructor
 @RestController
@@ -93,5 +95,16 @@ public class PayOrderClientController extends BaseController {
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] orderIds) {
         return toAjax(payOrderService.deleteWithValidByIds(List.of(orderIds), true));
+    }
+
+
+    /**
+     * 支付回调
+     *
+     */
+//    @SaCheckPermission("client:order:remove")
+    @GetMapping("/callback}")
+    public R<Void> callBack() {
+        log.info("callBack start");
     }
 }
