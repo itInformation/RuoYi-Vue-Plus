@@ -1,6 +1,14 @@
 package org.dromara.pay.controller.client;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.dromara.common.core.domain.R;
+import org.dromara.pay.domain.bo.RefundBo;
+import org.dromara.pay.service.IPayRefundService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,25 +20,22 @@ import org.springframework.web.bind.annotation.RestController;
  * modified by
  */
 @RestController
-@RequestMapping("/pay/refund")
+@RequestMapping("/client/pay/refund")
 public class PayRefundClientController {
 
-//    @Autowired
-//    private RefundServiceFactory refundServiceFactory;
+    @Autowired
+    private IPayRefundService refundService;
 
-//    @PostMapping("/apply")
-//    @SaCheckPermission("pay:refund:apply'")// 权限控制
-//    public R<?> applyRefund(@Valid @RequestBody RefundApplyDTO dto) {
-//        RefundService service = refundServiceFactory.getService(dto.getChannel());
-//        RefundResult result = service.refund(convertDTO(dto));
-//        return R.ok(result);
-//    }
+    @PostMapping("/apply")
+    @SaCheckPermission("pay:refund:apply'")// 权限控制
+    public R<?> applyRefund(@Valid @RequestBody RefundBo bo) {
+        String refund = refundService.refund(bo);
+        return R.ok(refund);
+    }
 
-//    @PostMapping("/callback/{channel}")
-//    public String callbackHandler(@PathVariable String channel,
-//                                  HttpServletRequest request) {
-//        Map<String, String> params = getNotifyParams(request);
-//        RefundService service = refundServiceFactory.getService(channel);
-//        return service.handleNotify(params);
-//    }
+    @PostMapping("/callback/")
+    public R<?> callbackHandler(HttpServletRequest request) {
+        refundService.processNotify(request);
+        return R.ok();
+    }
 }

@@ -243,6 +243,7 @@ public class PayRefundServiceImpl implements IPayRefundService {
     @Override
     public void processNotify(HttpServletRequest request){
         Map<String, String> params = convertRequestParams(request);
+        log.info("[支付宝退款回调] 收到通知参数：{}", params);
         // 1. 基础验证
         if (!verifyBasicParams(params)) {
             throw new ServiceException("参数验证失败");
