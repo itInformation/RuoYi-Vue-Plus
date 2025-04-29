@@ -6,6 +6,7 @@ import org.dromara.system.domain.bo.UserAssetBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -81,7 +82,8 @@ public interface IUserAssetService {
      * @param userId
      * @param amount
      */
-    void consumeAmount(Long userId,Long amounts);
+    void consumeAmount(Long userId, BigDecimal amounts);
+    void refundAmount(Long userId, BigDecimal amounts);
     void freezeDiamond(UserAssetDiamondBo bo);
     void unfreezeDiamond(UserAssetDiamondBo bo);
 

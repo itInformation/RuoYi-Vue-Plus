@@ -7,6 +7,8 @@ import org.dromara.system.domain.UserAsset;
 import org.dromara.system.domain.vo.UserAssetVo;
 import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
 
+import java.math.BigDecimal;
+
 /**
  * 普通用户资产Mapper接口
  *
@@ -78,9 +80,24 @@ public interface UserAssetMapper extends BaseMapperPlus<UserAsset, UserAssetVo> 
         "total_consumed_amount = total_consumed_amount + #{newBalance} " +
         "WHERE user_id = #{userId} AND version = #{oldVersion}")
     int casUpdateAmount(@Param("userId") Long userId,
-                  @Param("newBalance") Long amount,
+                  @Param("newBalance") BigDecimal newBalance,
                   @Param("oldVersion") Long oldVersion);
 
+
+    /**
+     * 带版本号的CAS更新
+     * @param userId 用户ID
+     * @param amount 新余额
+     * @param oldVersion 旧版本号
+     * @return 更新影响行数
+     */
+    @Update("UPDATE user_asset SET " +
+        "version = version + 1, " +
+        "total_refund_amount = total_refund_amount + #{newBalance} " +
+        "WHERE user_id = #{userId} AND version = #{oldVersion}")
+    int casUpdateRefundAmount(@Param("userId") Long userId,
+                        @Param("newBalance") BigDecimal newBalance,
+                        @Param("oldVersion") Long oldVersion);
     /**
      * 带版本号的CAS更新冻结钻石
 

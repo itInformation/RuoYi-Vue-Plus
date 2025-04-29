@@ -25,6 +25,7 @@ import org.dromara.pay.service.IPayOrderService;
 import org.dromara.pay.service.IPayRefundService;
 import org.dromara.pay.service.IPayRefundStrategy;
 import org.dromara.pay.utils.OrderNoGenerator;
+import org.dromara.system.service.IUserAssetService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +50,7 @@ public class PayRefundServiceImpl implements IPayRefundService {
     private final IPayOrderService payOrderService;
     private final RefundStrategyFactory refundStrategyFactory;
     private final OrderNoGenerator orderNoGenerator;
+    private final IUserAssetService userAssetService;
     /**
      * 查询退款记录
      *
@@ -194,6 +196,7 @@ public class PayRefundServiceImpl implements IPayRefundService {
                 refundBo.getOrderNo(),
                 refundBo.getAmount()
             );
+            userAssetService.refundAmount(refundBo.getUserId(),refundAmount);
         } else {
             updateRefundStatus(refundBo.getRefundId(), RefundStatusEnum.FAILURE.getCode());
         }

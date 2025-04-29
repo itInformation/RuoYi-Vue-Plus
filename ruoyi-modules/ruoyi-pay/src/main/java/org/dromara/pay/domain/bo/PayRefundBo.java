@@ -72,6 +72,10 @@ public class PayRefundBo extends BaseEntity {
      * 状态 PROCESSING  SUCCESS FAILURE
      */
     private String status;
+    /**
+     * 用户ID
+     */
+    private Long userId;
 
 
 

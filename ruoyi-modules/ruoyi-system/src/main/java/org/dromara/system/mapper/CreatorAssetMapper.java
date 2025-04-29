@@ -61,7 +61,7 @@ public interface CreatorAssetMapper extends BaseMapperPlus<CreatorAsset, Creator
 
     @Select("SELECT user_id FROM creator_asset")
     List<Long> selectAllUserIds();
-    @Update("UPDATE creator_asset SET pending_amount  = pending_amount  - #{amount} ," +
+    @Update("UPDATE creator_asset SET pending_amount  = pending_amount  + #{amount} ," +
         " total_income  = total_income  + #{amount} ," +
         "version = version + 1 " +
         " WHERE user_id = #{userId} " +

@@ -19,6 +19,8 @@ import org.dromara.pay.enums.PayStatusEnum;
 import org.dromara.pay.service.IPayConfigService;
 import org.dromara.pay.service.IPayOrderService;
 import org.dromara.pay.service.IPayStrategy;
+import org.dromara.system.service.ICreatorAssetService;
+import org.dromara.system.service.IUserAssetService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,12 +39,12 @@ import java.util.Map;
 @Slf4j
 public class AliPayStrategy implements IPayStrategy {
     private final AlipayClient client;
-    @Resource
-    private IPayConfigService payConfigService;
-    @Resource
-    private LockTemplate lockTemplate;
-    @Resource
-    private IPayOrderService payOrderService;
+    private final IPayConfigService payConfigService;
+    private final LockTemplate lockTemplate;
+    private final IPayOrderService payOrderService;
+    private final IUserAssetService userAssetService;
+    private final ICreatorAssetService creatorAssetService;
+
     @Override
     public Map<String, String> pay(PayOrderVo orderVo) {
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
@@ -88,6 +90,7 @@ public class AliPayStrategy implements IPayStrategy {
         String orderNo = params.get("out_trade_no");
         String tradeNo = params.get("trade_no");
         String tradeSuccess = params.get("trade_status");
+        String subject = params.get("subject");
         BigDecimal amount = new BigDecimal(params.get("total_amount"));
         // 1.使用Redis分布式锁
         String lockKey = "pay:notify:lock:" + orderNo;
@@ -117,6 +120,8 @@ public class AliPayStrategy implements IPayStrategy {
             }
             // 4.更新订单状态
             payOrderService.updateOrderStatusAndTradeNo(order.getOrderId(), PayStatusEnum.SUCCESS.getCode(),tradeNo);
+            userAssetService.consumeAmount(order.getUserId(),amount);
+            creatorAssetService.addIncome(order.getUserId(),amount,subject);
             //todo 更新用户资产表  包括创作者和普通用户的资产表
 
             // 5.记录处理日志

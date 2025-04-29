@@ -78,6 +78,9 @@ public class PayRefund extends BaseEntity {
      * 订单总金额
      */
     private BigDecimal orderAmount;
-
+    /**
+     * 用户ID
+     */
+    private Long userId;
 
 }

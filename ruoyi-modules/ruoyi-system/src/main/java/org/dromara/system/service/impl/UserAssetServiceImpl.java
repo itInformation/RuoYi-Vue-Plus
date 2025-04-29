@@ -21,6 +21,7 @@ import org.dromara.system.service.IUserAssetService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -210,9 +211,9 @@ public class UserAssetServiceImpl implements IUserAssetService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void consumeAmount(Long userId, Long amount) {
+    public void consumeAmount(Long userId, BigDecimal amount) {
         // 参数校验
-        if (amount <= 0) {
+        if (amount.intValue() <= 0) {
             throw new ServiceException("消费余额数必须大于0");
         }
         // 获取当前版本号
@@ -223,7 +224,21 @@ public class UserAssetServiceImpl implements IUserAssetService {
             throw new ServiceException("操作冲突，请重试");
         }
     }
-
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void refundAmount(Long userId, BigDecimal amount) {
+        // 参数校验
+        if (amount.intValue() <= 0) {
+            throw new ServiceException("退款余额数必须大于0");
+        }
+        // 获取当前版本号
+        UserAsset asset = baseMapper.selectByUserId(userId);
+        // 使用CAS方式扣减余额
+        int updateRows = baseMapper.casUpdateRefundAmount(userId, amount, asset.getVersion());
+        if (updateRows == 0) {
+            throw new ServiceException("操作冲突，请重试");
+        }
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
