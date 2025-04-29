@@ -1,17 +1,10 @@
 package org.dromara.pay.service.impl;
 
-import com.alipay.api.AlipayApiException;
-import com.alipay.api.internal.util.AlipaySignature;
-import jakarta.servlet.http.HttpServletRequest;
 import org.dromara.pay.domain.bo.PayRefundBo;
-import org.dromara.pay.domain.vo.PayConfigVo;
 import org.dromara.pay.domain.vo.RefundResult;
 import org.dromara.pay.service.IPayRefundStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * description:
@@ -51,10 +44,6 @@ public class WxpayRefundServiceImpl implements IPayRefundStrategy {
         return null;
     }
 
-    @Override
-    public boolean verifyNotify(Map<String, String> params) {
-        return false;
-    }
 
 
 }

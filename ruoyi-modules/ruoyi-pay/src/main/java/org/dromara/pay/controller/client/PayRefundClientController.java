@@ -36,13 +36,5 @@ public class PayRefundClientController {
         String refund = refundService.refund(bo);
         return R.ok(refund);
     }
-    /**
-     * 退款回调
-     */
-    @PostMapping("/callback/")
-    @SaIgnore
-    public R<?> callbackHandler(HttpServletRequest request) {
-        refundService.processNotify(request);
-        return R.ok();
-    }
+
 }

@@ -189,4 +189,16 @@ public class PayOrderServiceImpl implements IPayOrderService {
         updateWrapper.eq("order_no", orderNo);
         baseMapper.update(updateWrapper);
     }
+
+    /**
+     * 更新订单状态和交易单号
+     */
+    public void updateOrderStatusAndTradeNo(String orderId, String status, String tradeNo) {
+        PayOrderBo bo = new PayOrderBo();
+        bo.setOrderId(orderId);
+        bo.setStatus(status);
+        bo.setTradeNo(tradeNo);
+        bo.setUpdateBy(100L);
+        updateByBo(bo);
+    }
 }

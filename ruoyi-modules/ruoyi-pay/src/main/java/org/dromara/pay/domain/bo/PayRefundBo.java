@@ -48,6 +48,15 @@ public class PayRefundBo extends BaseEntity {
      * 退款金额
      */
     private BigDecimal amount;
+    /**
+     * 订单总金额
+     */
+    private BigDecimal orderAmount;
+
+    /**
+     * 退款请求号
+     */
+    private String outRequestNo;
 
     /**
      * 退款原因

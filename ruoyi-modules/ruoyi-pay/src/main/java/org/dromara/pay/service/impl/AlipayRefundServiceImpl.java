@@ -1,32 +1,18 @@
 package org.dromara.pay.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
-import com.alipay.api.AlipayConfig;
-import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeRefundResponse;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.exception.ServiceException;
-import org.dromara.pay.domain.PayOrder;
+import org.dromara.common.json.utils.JsonUtils;
 import org.dromara.pay.domain.bo.PayRefundBo;
-import org.dromara.pay.domain.bo.RefundBo;
-import org.dromara.pay.domain.vo.PayConfigVo;
-import org.dromara.pay.domain.vo.RefundRequest;
-import org.dromara.pay.domain.vo.RefundResult;
 import org.dromara.pay.service.IPayRefundStrategy;
-import org.dromara.pay.service.IRefundService;
 import org.dromara.pay.utils.RefundRequestNoGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * description:
@@ -41,6 +27,7 @@ import java.util.Map;
 public class AlipayRefundServiceImpl implements IPayRefundStrategy {
     private final AlipayClient alipayClient;
     private final RefundRequestNoGenerator refundRequestNoGenerator;
+
     @Override
     public Object refund(PayRefundBo payRefundBo) {
         // 2. 构造退款请求
@@ -53,7 +40,7 @@ public class AlipayRefundServiceImpl implements IPayRefundStrategy {
         //根据支付宝开放平台的文档，退款请求号（out_request_no）用于标识一次退款请求，特别是在部分退款场景下必须传入。
         model.setOutRequestNo(refundRequestNoGenerator.generateRefundRequestNo());
         request.setBizModel(model);
-        request.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/refund/callback");
+        log.info("AlipayTradeRefundRequest request:{}",JsonUtils.toJsonString(request));
         // 3. 执行退款
         AlipayTradeRefundResponse response = null;
         try {
@@ -67,11 +54,4 @@ public class AlipayRefundServiceImpl implements IPayRefundStrategy {
         }
         return response;
     }
-
-    @Override
-    public boolean verifyNotify(Map<String, String> params) {
-        return false;
-    }
-
-    // 其他辅助方法...
 }

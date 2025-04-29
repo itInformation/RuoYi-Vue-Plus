@@ -77,8 +77,6 @@ public interface IPayRefundService {
      */
     String refund(RefundBo refundBo);
 
-    /**
-     * 处理支付平台回调
-     */
-    void processNotify(HttpServletRequest request);
+
+    void updateRefundStatus(Long refundId, String status);
 }

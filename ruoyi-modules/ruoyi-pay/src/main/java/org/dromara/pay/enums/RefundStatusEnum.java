@@ -11,6 +11,8 @@ public enum RefundStatusEnum {
     PROCESSING("PROCESSING", "处理中"),
     SUCCESS("SUCCESS", "支付成功"),
     FAILURE("FAILURE", "支付失败"),
+    PART_REFUND("PART_REFUND", "部分退款"),
+    ALL_REFUND("ALL_REFUND", "全部退款"),
 ;
     private final String code;
     private final String desc;

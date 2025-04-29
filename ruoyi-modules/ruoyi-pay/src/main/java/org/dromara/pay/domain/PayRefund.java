@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -73,7 +74,10 @@ public class PayRefund extends BaseEntity {
     @Version
     private Long version;
 
-
+    /**
+     * 订单总金额
+     */
+    private BigDecimal orderAmount;
 
 
 }

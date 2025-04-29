@@ -1,8 +1,6 @@
 package org.dromara.pay.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.dromara.pay.domain.bo.PayBo;
-import org.dromara.pay.domain.bo.PayOrderBo;
 
 import java.util.Map;
 
@@ -21,6 +19,7 @@ public interface IPayService {
     /**
      * 处理支付回调
      */
-    void processNotify(HttpServletRequest request);
+    void processAlipayNotify(Map<String, String> params);
+    void processWxpayNotify(Map<String, String> params);
 
 }

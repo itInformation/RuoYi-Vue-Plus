@@ -15,6 +15,4 @@ import java.util.Map;
 public interface IPayRefundStrategy {
 
     Object refund(PayRefundBo payRefundBo);
-    boolean verifyNotify(Map<String, String> params);
-
 }

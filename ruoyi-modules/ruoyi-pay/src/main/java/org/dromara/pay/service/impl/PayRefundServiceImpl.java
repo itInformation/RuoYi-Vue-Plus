@@ -1,15 +1,9 @@
 package org.dromara.pay.service.impl;
 
-import com.alipay.api.AlipayApiException;
-import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.response.AlipayTradeRefundResponse;
-import com.baomidou.lock.LockInfo;
-import com.baomidou.lock.LockTemplate;
-import com.baomidou.lock.executor.RedissonLockExecutor;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.exception.ServiceException;
@@ -21,14 +15,12 @@ import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.pay.domain.PayRefund;
 import org.dromara.pay.domain.bo.PayRefundBo;
 import org.dromara.pay.domain.bo.RefundBo;
-import org.dromara.pay.domain.vo.PayConfigVo;
 import org.dromara.pay.domain.vo.PayOrderVo;
 import org.dromara.pay.domain.vo.PayRefundVo;
 import org.dromara.pay.enums.PayChannelEnum;
 import org.dromara.pay.enums.RefundStatusEnum;
 import org.dromara.pay.factory.RefundStrategyFactory;
 import org.dromara.pay.mapper.PayRefundMapper;
-import org.dromara.pay.service.IPayConfigService;
 import org.dromara.pay.service.IPayOrderService;
 import org.dromara.pay.service.IPayRefundService;
 import org.dromara.pay.service.IPayRefundStrategy;
@@ -41,7 +33,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 退款记录Service业务层处理
@@ -57,9 +48,6 @@ public class PayRefundServiceImpl implements IPayRefundService {
     private final PayRefundMapper baseMapper;
     private final IPayOrderService payOrderService;
     private final RefundStrategyFactory refundStrategyFactory;
-    private final IPayConfigService payConfigService;
-
-    private final LockTemplate lockTemplate;
     private final OrderNoGenerator orderNoGenerator;
     /**
      * 查询退款记录
@@ -176,21 +164,31 @@ public class PayRefundServiceImpl implements IPayRefundService {
 
         PayRefundBo payRefundBo = buildRefundBo(refundBo, orderVo);
         insertByBo(payRefundBo);
-        // 2. 调用策略生成支付订单
+        // 2. 调用策略生成退款订单
         IPayRefundStrategy strategy = refundStrategyFactory.getStrategy(orderVo.getChannel());
 
-        Object refund = strategy.refund(payRefundBo);
+        Object refundResponse = strategy.refund(payRefundBo);
         if (PayChannelEnum.ALIPAY.getCode().equals(orderVo.getChannel())){
-            handleRefundResult(payRefundBo,(AlipayTradeRefundResponse)refund);
+            handleAlipayRefundResult(payRefundBo,(AlipayTradeRefundResponse)refundResponse);
         }
-
-
         return payRefundBo.getRefundNo();
     }
-    private void handleRefundResult(PayRefundBo refundBo, AlipayTradeRefundResponse response) {
+
+    /**
+     * 支付宝退款结果处理
+     */
+    private void handleAlipayRefundResult(PayRefundBo refundBo, AlipayTradeRefundResponse response) {
         log.info("支付宝退款结果：{}", JsonUtils.toJsonString(response));
         if ("Y".equals(response.getFundChange())) {
-            updateRefundStatus(refundBo.getRefundId(), RefundStatusEnum.SUCCESS.getCode());
+            //这里处理全部退款的情况
+            // 获取退款金额
+            BigDecimal refundAmount = new BigDecimal(response.getRefundFee());
+            if (refundBo.getOrderAmount().compareTo(refundAmount) == 0){
+                log.info("处理全部退款的后续逻辑");
+                updateRefundStatus(refundBo.getRefundId(), RefundStatusEnum.ALL_REFUND.getCode());
+            }else{
+                updateRefundStatus(refundBo.getRefundId(), RefundStatusEnum.PART_REFUND.getCode());
+            }
             // 更新原订单已退金额
             payOrderService.updateRefundAmount(
                 refundBo.getOrderNo(),
@@ -200,11 +198,10 @@ public class PayRefundServiceImpl implements IPayRefundService {
             updateRefundStatus(refundBo.getRefundId(), RefundStatusEnum.FAILURE.getCode());
         }
     }
-
     /**
      * 处理订单状态
      */
-    private void updateRefundStatus(Long refundId, String status) {
+    public void updateRefundStatus(Long refundId, String status) {
         PayRefundBo refundBo = new PayRefundBo();
         refundBo.setRefundId(refundId);
         refundBo.setStatus(status);
@@ -220,6 +217,7 @@ public class PayRefundServiceImpl implements IPayRefundService {
         refund.setRefundNo(orderNoGenerator.generate());
         refund.setOrderNo(orderVo.getOrderNo());
         refund.setTradeNo(orderVo.getTradeNo());
+        refund.setOrderAmount(orderVo.getAmount());
         refund.setAmount(refundBo.getRefundAmount());
         refund.setReason(refundBo.getReason());
         refund.setStatus(RefundStatusEnum.PROCESSING.getCode());
@@ -239,88 +237,6 @@ public class PayRefundServiceImpl implements IPayRefundService {
         return order;
     }
 
-    @Override
-    public void processNotify(HttpServletRequest request){
-        Map<String, String> params = convertRequestParams(request);
-        log.info("[支付宝退款回调] 收到通知参数：{}",  JsonUtils.toJsonString(params));
-        // 1. 基础验证
-        if (!verifyBasicParams(params)) {
-            throw new ServiceException("参数验证失败");
-        }
-        // 2. 验证签名
-        if (!verifySignature(params)) {
-            log.error("[支付宝回调] 签名验证失败");
-            throw new ServiceException("签名验证失败");
-        }
-        // 3. 获取订单号
-        String orderNo = params.get("out_trade_no");
-        String tradeNo = params.get("trade_no");
-        BigDecimal amount = new BigDecimal(params.get("total_amount"));
-        // 1.使用Redis分布式锁
-        String lockKey = "pay:notify:lock:" + orderNo;
-        final LockInfo lockInfo = lockTemplate.lock(lockKey, 30000L, 5000L, RedissonLockExecutor.class);
-        if (null == lockInfo) {
-            log.warn("[支付宝回调] 正在处理交易：{}", tradeNo);
-            throw new RuntimeException("业务处理中,请稍后再试");
-        }
-        // 获取锁成功，处理业务
-        try {
-            // 2.查询订单
-            PayOrderVo order = payOrderService.queryById(orderNo);
-
-            // 3.检查订单状态
-            if (!"WAITING".equals(order.getStatus())) {
-                log.info("订单已处理，直接返回成功");
-                return;
-            }
-            // 2. 校验金额
-            if (order.getAmount().compareTo(amount) != 0) {
-                log.error("[支付宝回调] 金额不一致，订单：{}，通知：{}",
-                    order.getAmount(), amount);
-                throw new ServiceException("金额不一致");
-            }
-            // 4.更新订单状态
-            //todo 退款逻辑待完善
-            updateRefundStatus(null, RefundStatusEnum.SUCCESS.getCode());
-
-            // 5.记录处理日志
-//            insertNotifyLog(params);
-
-        } finally {
-            //释放锁
-            lockTemplate.releaseLock(lockInfo);
-        }
-    }
 
 
-    private Map<String, String> convertRequestParams(HttpServletRequest request) {
-        return request.getParameterMap().entrySet().stream()
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> String.join(",", entry.getValue())
-            ));
-    }
-
-    // 基础参数校验
-    private boolean verifyBasicParams(Map<String, String> params) {
-        return params.containsKey("refund_amount")
-            && params.containsKey("out_trade_no")
-            && params.containsKey("trade_no");
-    }
-
-    // 签名验证
-    private boolean verifySignature(Map<String, String> params) {
-        try {
-            PayConfigVo config = payConfigService.queryByChannel("alipay");
-            return AlipaySignature.rsaCheckV1(
-                params,
-                config.getPublicKey(),
-                "UTF-8", "RSA2"
-
-            );
-        } catch (AlipayApiException e) {
-            log.error("[支付宝回调] 验签异常", e);
-            return false;
-        }
-    }
 }

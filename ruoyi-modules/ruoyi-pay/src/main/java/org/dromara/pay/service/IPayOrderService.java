@@ -83,4 +83,6 @@ public interface IPayOrderService {
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
 
     void updateRefundAmount(String orderNo, BigDecimal amount);
+
+    void updateOrderStatusAndTradeNo(String orderId, String status, String tradeNo);
 }
