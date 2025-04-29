@@ -188,6 +188,7 @@ public class PayRefundServiceImpl implements IPayRefundService {
         return payRefundBo.getRefundNo();
     }
     private void handleRefundResult(PayRefundBo refundBo, AlipayTradeRefundResponse response) {
+        log.info("支付宝退款结果：{}", JsonUtils.toJsonString(response));
         if ("Y".equals(response.getFundChange())) {
             updateRefundStatus(refundBo.getRefundId(), RefundStatusEnum.SUCCESS.getCode());
             // 更新原订单已退金额
