@@ -24,8 +24,14 @@ public interface IPayOrderService {
      * @param orderId 主键
      * @return 支付订单
      */
-    PayOrderVo queryById(Long orderId);
     PayOrderVo queryById(String orderId);
+    /**
+     * 根据订单号查询支付订单
+     *
+     * @param orderId 订单号
+     * @return 支付订单
+     */
+    PayOrderVo queryByOrderNo(String orderId);
 
     /**
      * 分页查询支付订单列表

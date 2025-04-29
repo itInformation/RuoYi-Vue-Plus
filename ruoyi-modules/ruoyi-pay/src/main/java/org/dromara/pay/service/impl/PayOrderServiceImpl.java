@@ -46,12 +46,12 @@ public class PayOrderServiceImpl implements IPayOrderService {
      * @return 支付订单
      */
     @Override
-    public PayOrderVo queryById(Long orderId){
+    public PayOrderVo queryById(String orderId){
         return baseMapper.selectVoById(orderId);
     }
     @Override
-    public PayOrderVo queryById(String orderId){
-        return baseMapper.selectVoById(orderId);
+    public PayOrderVo queryByOrderNo(String orderNo){
+        return baseMapper.selectVoOne(new LambdaQueryWrapper<PayOrder>().eq(PayOrder::getOrderNo, orderNo));
     }
 
     /**

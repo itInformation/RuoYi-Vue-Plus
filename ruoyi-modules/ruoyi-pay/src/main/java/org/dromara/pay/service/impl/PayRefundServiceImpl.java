@@ -217,7 +217,7 @@ public class PayRefundServiceImpl implements IPayRefundService {
     private PayRefundBo buildRefundBo(RefundBo refundBo, PayOrderVo orderVo) {
         PayRefundBo refund = new PayRefundBo();
         refund.setRefundNo(orderNoGenerator.generate());
-        refund.setOrderNo(orderVo.getOrderId());
+        refund.setOrderNo(orderVo.getOrderNo());
         refund.setTradeNo(orderVo.getTradeNo());
         refund.setAmount(refundBo.getRefundAmount());
         refund.setReason(refundBo.getReason());

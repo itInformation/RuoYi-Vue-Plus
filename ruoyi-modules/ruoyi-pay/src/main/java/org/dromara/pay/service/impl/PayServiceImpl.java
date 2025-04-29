@@ -78,7 +78,9 @@ public class PayServiceImpl implements IPayService {
     @Transactional
     @Override
     public void processNotify(HttpServletRequest request) {
-        Map<String, String> params = convertRequestParams(request);
+//        Map<String, String> params = convertRequestParams(request);
+        String str = "{\"gmt_create\":\"2025-04-29 11:17:51\",\"charset\":\"UTF-8\",\"gmt_payment\":\"2025-04-29 11:18:01\",\"notify_time\":\"2025-04-29 11:18:02\",\"subject\":\"bmw 1250 adv again 001\",\"sign\":\"fTNhPnAp4LvhAagqqU1Z+yBrhnIdg0AbcXNJ9J9nZnnmPhnNtdJv1IjuV6n9PrAKiLNlCa3ztztBn88YEb7uroKGZJEfAOGeMXeRkddbmlqg1F3ydbR4rqc+/5p2pE0sfAFUSITLSBJ8R3Q+ljP6B7oKr+dWL5jgm+uo7ty5eF85u9vzyMqXZASENmrNnxQkDqa9b2wEqX9ZwsoitSFditGf1BhDgAi30VWRN/o8gjNDhdo9n7X21ZwVuCHCNhmU057LNjFFpXCq7r2EEiKsxwpUomLyL9J+GQ5TtzQxdyr2P1ypZYIQPtKHNDKHUuPSVNj+P3122KG+iBJ/NAOQ9Q==\",\"buyer_id\":\"2088722036641399\",\"invoice_amount\":\"32.00\",\"version\":\"1.0\",\"notify_id\":\"2025042901222111801141390505832442\",\"fund_bill_list\":\"[{\\\"amount\\\":\\\"32.00\\\",\\\"fundChannel\\\":\\\"ALIPAYACCOUNT\\\"}]\",\"notify_type\":\"trade_status_sync\",\"out_trade_no\":\"25042911142601000001\",\"total_amount\":\"32.00\",\"trade_status\":\"TRADE_SUCCESS\",\"trade_no\":\"2025042922001441390505663213\",\"auth_app_id\":\"9021000137664576\",\"receipt_amount\":\"32.00\",\"point_amount\":\"0.00\",\"buyer_pay_amount\":\"32.00\",\"app_id\":\"9021000137664576\",\"sign_type\":\"RSA2\",\"seller_id\":\"2088721036641381\"}";
+        Map<String, String> params = JsonUtils.parseObject(str,Map.class);
         log.info("[支付宝支付回调] 收到通知参数：{}", JsonUtils.toJsonString(params));
         // 1. 基础验证
         if (!verifyBasicParams(params)) {
@@ -104,7 +106,7 @@ public class PayServiceImpl implements IPayService {
         // 获取锁成功，处理业务
         try {
             // 2.查询订单
-            PayOrderVo order = payOrderService.queryById(orderNo);
+            PayOrderVo order = payOrderService.queryByOrderNo(orderNo);
 
             // 3.检查订单状态
             if (!"WAITING".equals(order.getStatus())) {
@@ -121,7 +123,7 @@ public class PayServiceImpl implements IPayService {
                 throw new ServiceException("金额不一致");
             }
             // 4.更新订单状态
-            updateOrderStatusAndTradeNo(orderNo,tradeNo, PayStatusEnum.SUCCESS.getCode());
+            updateOrderStatusAndTradeNo(order.getOrderId(),PayStatusEnum.SUCCESS.getCode(),tradeNo);
             //todo 更新用户资产表  包括创作者和普通用户的资产表
 
             // 5.记录处理日志
@@ -168,9 +170,9 @@ public class PayServiceImpl implements IPayService {
     /**
      * 更新订单状态和交易单号
      */
-    private void updateOrderStatusAndTradeNo(String orderNo, String status, String tradeNo) {
+    private void updateOrderStatusAndTradeNo(String orderId, String status, String tradeNo) {
         PayOrderBo bo = new PayOrderBo();
-        bo.setOrderNo(orderNo);
+        bo.setOrderId(orderId);
         bo.setStatus(status);
         bo.setTradeNo(tradeNo);
         payOrderService.updateByBo(bo);

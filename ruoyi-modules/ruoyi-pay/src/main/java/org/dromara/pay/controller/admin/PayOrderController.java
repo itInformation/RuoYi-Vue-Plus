@@ -64,7 +64,7 @@ public class PayOrderController extends BaseController {
     @SaCheckPermission("system:order:query")
     @GetMapping("/{orderId}")
     public R<PayOrderVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long orderId) {
+                                     @PathVariable String orderId) {
         return R.ok(payOrderService.queryById(orderId));
     }
 

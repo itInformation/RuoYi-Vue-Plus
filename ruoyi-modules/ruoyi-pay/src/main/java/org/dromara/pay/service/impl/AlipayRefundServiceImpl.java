@@ -54,8 +54,6 @@ public class AlipayRefundServiceImpl implements IPayRefundStrategy {
         model.setOutRequestNo(refundRequestNoGenerator.generateRefundRequestNo());
         request.setBizModel(model);
 
-        request.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/refund/callback");
-
         // 3. 执行退款
         AlipayTradeRefundResponse response = null;
         try {
