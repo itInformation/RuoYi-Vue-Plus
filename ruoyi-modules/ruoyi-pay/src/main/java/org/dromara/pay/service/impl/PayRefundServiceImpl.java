@@ -303,9 +303,9 @@ public class PayRefundServiceImpl implements IPayRefundService {
 
     // 基础参数校验
     private boolean verifyBasicParams(Map<String, String> params) {
-        return params.containsKey("trade_status")
+        return params.containsKey("refund_amount")
             && params.containsKey("out_trade_no")
-            && params.containsKey("total_amount");
+            && params.containsKey("trade_no");
     }
 
     // 签名验证

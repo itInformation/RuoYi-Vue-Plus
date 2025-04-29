@@ -39,8 +39,8 @@ public class PayClientController extends BaseController {
     @SaCheckPermission("client:order:pay")
     @Log(title = "支付订单", businessType = BusinessType.INSERT)
     @RepeatSubmit()
-    @PostMapping("/pay")
-    public R<Map<String, String>> add(@Validated(AddGroup.class) @RequestBody PayBo bo) {
+    @PostMapping("/payOrder")
+    public R<Map<String, String>> payOrder(@Validated(AddGroup.class) @RequestBody PayBo bo) {
         Map<String, String> order = payService.payOrder(bo);
         return R.ok(order);
     }

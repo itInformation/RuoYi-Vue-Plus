@@ -53,7 +53,7 @@ public class AlipayRefundServiceImpl implements IPayRefundStrategy {
         //根据支付宝开放平台的文档，退款请求号（out_request_no）用于标识一次退款请求，特别是在部分退款场景下必须传入。
         model.setOutRequestNo(refundRequestNoGenerator.generateRefundRequestNo());
         request.setBizModel(model);
-
+        request.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/refund/callback");
         // 3. 执行退款
         AlipayTradeRefundResponse response = null;
         try {
