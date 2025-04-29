@@ -74,29 +74,7 @@ public class PayRefundVo implements Serializable {
     @ExcelProperty(value = "状态 PROCESSING  SUCCESS FAILURE")
     private String status;
 
-    /**
-     * 创建人
-     */
-    @ExcelProperty(value = "创建人")
-    private Long createdBy;
 
-    /**
-     * 创建时间
-     */
-    @ExcelProperty(value = "创建时间")
-    private Date createdTime;
-
-    /**
-     * 更新人
-     */
-    @ExcelProperty(value = "更新人")
-    private Long updatedBy;
-
-    /**
-     * 更新时间
-     */
-    @ExcelProperty(value = "更新时间")
-    private Date updatedTime;
 
 
 }

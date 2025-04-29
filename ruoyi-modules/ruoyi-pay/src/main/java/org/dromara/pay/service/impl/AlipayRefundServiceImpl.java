@@ -5,6 +5,7 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import jakarta.annotation.PostConstruct;
@@ -19,6 +20,7 @@ import org.dromara.pay.domain.vo.RefundRequest;
 import org.dromara.pay.domain.vo.RefundResult;
 import org.dromara.pay.service.IPayRefundStrategy;
 import org.dromara.pay.service.IRefundService;
+import org.dromara.pay.utils.RefundRequestNoGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,15 +40,20 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AlipayRefundServiceImpl implements IPayRefundStrategy {
     private final AlipayClient alipayClient;
+    private final RefundRequestNoGenerator refundRequestNoGenerator;
     @Override
     public Object refund(PayRefundBo payRefundBo) {
         // 2. 构造退款请求
         AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
-        request.setBizContent(JSON.toJSONString(new HashMap<String, Object>(){{
-            put("out_trade_no", payRefundBo.getOrderNo());
-            put("refund_amount", payRefundBo.getAmount());
-            put("out_request_no", payRefundBo.getRefundNo());
-        }}));
+        AlipayTradeRefundModel model = new AlipayTradeRefundModel();
+        model.setOutTradeNo(payRefundBo.getOrderNo());
+        model.setRefundAmount(payRefundBo.getAmount().toString());
+        model.setTradeNo(payRefundBo.getTradeNo());
+        model.setRefundReason(payRefundBo.getReason());
+        //根据支付宝开放平台的文档，退款请求号（out_request_no）用于标识一次退款请求，特别是在部分退款场景下必须传入。
+        model.setOutRequestNo(refundRequestNoGenerator.generateRefundRequestNo());
+        request.setBizModel(model);
+
         request.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/refund/callback");
 
         // 3. 执行退款

@@ -37,6 +37,7 @@ import java.util.Map;
 public class PayOrderServiceImpl implements IPayOrderService {
 
     private final PayOrderMapper baseMapper;
+    private final OrderNoGenerator orderNoGenerator;
 
     /**
      * 查询支付订单
@@ -114,7 +115,7 @@ public class PayOrderServiceImpl implements IPayOrderService {
     @Override
     public Boolean insertByBo(PayOrderBo orderBo) {
         orderBo.setOrderId(IdUtil.getSnowflakeNextIdStr());
-        orderBo.setOrderNo(OrderNoGenerator.generate());
+        orderBo.setOrderNo(orderNoGenerator.generate());
         orderBo.setStatus(PayStatusEnum.WAITING.getCode());
         orderBo.setExpireTime(LocalDateTime.now().plusMinutes(30));
         orderBo.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/order/alipay/callback");
@@ -130,7 +131,7 @@ public class PayOrderServiceImpl implements IPayOrderService {
     @Override
     public PayAddOrderVo createOrder(PayOrderBo orderBo) {
         orderBo.setOrderId(IdUtil.getSnowflakeNextIdStr());
-        orderBo.setOrderNo(OrderNoGenerator.generate());
+        orderBo.setOrderNo(orderNoGenerator.generate());
         orderBo.setStatus(PayStatusEnum.WAITING.getCode());
         orderBo.setExpireTime(LocalDateTime.now().plusMinutes(30));
         orderBo.setNotifyUrl("http://api.omuu.cn/prod-api/client/pay/alipay/callback");

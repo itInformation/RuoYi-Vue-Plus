@@ -64,25 +64,6 @@ public class PayRefundBo extends BaseEntity {
      */
     private String status;
 
-    /**
-     * 创建人
-     */
-    private Long createdBy;
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createdTime;
-
-    /**
-     * 更新人
-     */
-    private Long updatedBy;
-
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updatedTime;
 
 
 }

@@ -1,49 +1,46 @@
 package org.dromara.pay.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayApiException;
-import com.alipay.api.AlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
-import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.baomidou.lock.LockInfo;
 import com.baomidou.lock.LockTemplate;
 import com.baomidou.lock.executor.RedissonLockExecutor;
-import jakarta.annotation.Resource;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.json.utils.JsonUtils;
-import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import lombok.RequiredArgsConstructor;
+import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.pay.domain.PayRefund;
+import org.dromara.pay.domain.bo.PayRefundBo;
 import org.dromara.pay.domain.bo.RefundBo;
 import org.dromara.pay.domain.vo.PayConfigVo;
 import org.dromara.pay.domain.vo.PayOrderVo;
-import org.dromara.pay.domain.vo.RefundResult;
+import org.dromara.pay.domain.vo.PayRefundVo;
 import org.dromara.pay.enums.PayChannelEnum;
 import org.dromara.pay.enums.RefundStatusEnum;
 import org.dromara.pay.factory.RefundStrategyFactory;
-import org.dromara.pay.service.*;
+import org.dromara.pay.mapper.PayRefundMapper;
+import org.dromara.pay.service.IPayConfigService;
+import org.dromara.pay.service.IPayOrderService;
+import org.dromara.pay.service.IPayRefundService;
+import org.dromara.pay.service.IPayRefundStrategy;
 import org.dromara.pay.utils.OrderNoGenerator;
 import org.springframework.stereotype.Service;
-import org.dromara.pay.domain.bo.PayRefundBo;
-import org.dromara.pay.domain.vo.PayRefundVo;
-import org.dromara.pay.domain.PayRefund;
-import org.dromara.pay.mapper.PayRefundMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +60,7 @@ public class PayRefundServiceImpl implements IPayRefundService {
     private final IPayConfigService payConfigService;
 
     private final LockTemplate lockTemplate;
+    private final OrderNoGenerator orderNoGenerator;
     /**
      * 查询退款记录
      *
@@ -111,10 +109,10 @@ public class PayRefundServiceImpl implements IPayRefundService {
         lqw.eq(StringUtils.isNotBlank(bo.getReason()), PayRefund::getReason, bo.getReason());
         lqw.eq(bo.getFinishTime() != null, PayRefund::getFinishTime, bo.getFinishTime());
         lqw.eq(StringUtils.isNotBlank(bo.getStatus()), PayRefund::getStatus, bo.getStatus());
-        lqw.eq(bo.getCreatedBy() != null, PayRefund::getCreatedBy, bo.getCreatedBy());
-        lqw.eq(bo.getCreatedTime() != null, PayRefund::getCreatedTime, bo.getCreatedTime());
-        lqw.eq(bo.getUpdatedBy() != null, PayRefund::getUpdatedBy, bo.getUpdatedBy());
-        lqw.eq(bo.getUpdatedTime() != null, PayRefund::getUpdatedTime, bo.getUpdatedTime());
+        lqw.eq(bo.getCreateBy() != null, PayRefund::getCreateBy, bo.getCreateBy());
+        lqw.eq(bo.getCreateTime() != null, PayRefund::getCreateTime, bo.getCreateTime());
+        lqw.eq(bo.getUpdateBy() != null, PayRefund::getUpdateBy, bo.getUpdateBy());
+        lqw.eq(bo.getUpdateTime() != null, PayRefund::getUpdateTime, bo.getUpdateTime());
         return lqw;
     }
 
@@ -218,7 +216,7 @@ public class PayRefundServiceImpl implements IPayRefundService {
      */
     private PayRefundBo buildRefundBo(RefundBo refundBo, PayOrderVo orderVo) {
         PayRefundBo refund = new PayRefundBo();
-        refund.setRefundNo(OrderNoGenerator.generate());
+        refund.setRefundNo(orderNoGenerator.generate());
         refund.setOrderNo(orderVo.getOrderId());
         refund.setTradeNo(orderVo.getTradeNo());
         refund.setAmount(refundBo.getRefundAmount());
