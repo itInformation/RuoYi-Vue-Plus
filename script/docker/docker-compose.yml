@@ -154,3 +154,35 @@ services:
       - /docker/snailjob/logs/:/ruoyi/snailjob/logs
     privileged: true
     network_mode: "host"
+
+  elasticsearch:
+    image: elasticsearch:8.12.2  # 建议选择具体版本
+    container_name: ruoyi-elasticsearch
+    environment:
+      - "discovery.type=single-node"  # 单节点模式
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"  # 调整JVM内存
+      - "xpack.security.enabled=false"   # 关闭安全认证（开发环境）
+    volumes:
+      - /docker/elasticsearch/data:/usr/share/elasticsearch/data  # 数据持久化
+      - /docker/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - "9200:9200"  # REST API端口
+      - "9300:9300"  # 集群通信端口
+    network_mode: "host"
+    restart: unless-stopped
+  canal-server:
+    image: canal/canal-server:v1.1.7
+    container_name: canal-server
+    environment:
+      - canal.instance.mysql.slaveId=1234
+      - canal.instance.master.address=115.227.18.54:3306
+      - canal.instance.dbUsername=canal
+      - canal.instance.dbPassword=canal
+      - canal.instance.connectionCharset=UTF-8
+      - canal.instance.tsdb.enable=true
+    ports:
+      - "11111:11111"
+    networks:
+      - ruoyi-net
+    depends_on:
+      - mysql

@@ -1,13 +1,16 @@
 package org.dromara.circle.controller.client;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.core.convert.impl.MapConverter;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.dromara.circle.domain.bo.CircleGroupBo;
+import org.dromara.circle.domain.bo.CircleGroupClientPageBo;
 import org.dromara.circle.domain.vo.CircleGroupVo;
 import org.dromara.circle.service.ICircleGroupService;
 import org.dromara.common.core.domain.R;
+import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -39,9 +42,10 @@ public class CircleGroupClientController extends BaseController {
      */
     @SaCheckPermission("client:group:ownerList")
     @GetMapping("/list")
-    public TableDataInfo<CircleGroupVo> list(CircleGroupBo bo, PageQuery pageQuery) {
-        bo.setOwnerId(LoginHelper.getUserId());
-        return circleGroupService.queryOwnerPageListWithClient(bo, pageQuery);
+    public TableDataInfo<CircleGroupVo> list(CircleGroupClientPageBo bo, PageQuery pageQuery) {
+        CircleGroupBo circleGroupBo = MapstructUtils.convert(bo, CircleGroupBo.class);
+        circleGroupBo.setOwnerId(LoginHelper.getUserId());
+        return circleGroupService.queryOwnerPageListWithClient(circleGroupBo, pageQuery);
     }
 
     /**
@@ -50,7 +54,7 @@ public class CircleGroupClientController extends BaseController {
     @SaCheckPermission("client:group:userList")
     @GetMapping("/userList")
     public TableDataInfo<CircleGroupVo> userList(CircleGroupBo bo, PageQuery pageQuery) {
-        bo.setOwnerId(LoginHelper.getUserId());
+
         return circleGroupService.queryPageListWithClient(bo, pageQuery);
     }
 
