@@ -119,7 +119,7 @@ services:
     environment:
       # 时区上海
       TZ: Asia/Shanghai
-      SERVER_PORT: 8081
+      SERVER_PORT: 8082
       MACHINE_ID: "02"   # 新增环境变量，设置机器ID为01
     volumes:
       # 配置文件
@@ -180,9 +180,21 @@ services:
       - canal.instance.dbPassword=canal
       - canal.instance.connectionCharset=UTF-8
       - canal.instance.tsdb.enable=true
+      - canal.instance.filter.regex=lian_ai_mao.circle_group
     ports:
       - "11111:11111"
-    networks:
-      - ruoyi-net
+    network_mode: "host"
+  canal-adapter:
+    # 使用官方镜像（版本需与Canal Server匹配）
+    image: wanghongxing/canal-adapter:v1.1.7
+    container_name: canal-adapter
+    volumes:
+      - /docker/canal-adapter/conf/application.yml:/data/canal/canal-adapter/conf/application.yml
+      - /docker/canal-adapter/conf/es7:/data/canal/canal-adapter/conf/es7
+      - /docker/canal-adapter/logs:/data/canal/canal-adapter/logs
+    ports:
+      - "8081:8081"
+    network_mode: "host"
     depends_on:
-      - mysql
+      - elasticsearch
+      - canal-server

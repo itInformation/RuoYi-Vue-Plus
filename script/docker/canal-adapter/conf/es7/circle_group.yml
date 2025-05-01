@@ -1,0 +1,10 @@
+dataSourceKey: defaultDS
+destination: example
+groupId: g1
+esMapping:
+  _index: circle_group
+  _id: group_id
+  upsert: true
+  pk: group_id
+  sql: "SELECT group_id as group_id, group_name as group_name, description as description, owner_id as owner_id, cover_img as cover_img, join_mode as join_mode, status as status, tenant_id as tenant_id, create_time as create_time, update_time as update_time, create_dept as create_dept, create_by as create_by, update_by as update_by, deleted as deleted, recycle_bin as recycle_bin, review as review, group_count as group_count FROM circle_group"
+  commitBatch: 3000
