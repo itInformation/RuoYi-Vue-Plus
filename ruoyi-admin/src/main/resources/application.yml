@@ -49,6 +49,7 @@ logging:
     org.springframework: warn
     org.mybatis.spring.mapper: error
     org.apache.fury: warn
+    org.elasticsearch.client.RestClient: TRACE
   config: classpath:logback-plus.xml
 
 # 用户配置
@@ -96,7 +97,10 @@ spring:
     deserialization:
       # 允许对象忽略json中不存在的属性
       fail_on_unknown_properties: false
-
+  elasticsearch:
+    uris: http://115.227.18.54:9200/
+    connection-timeout: 30s
+    socket-timeout: 30s
 # Sa-Token配置
 sa-token:
   # token名称 (同时也是cookie名称)

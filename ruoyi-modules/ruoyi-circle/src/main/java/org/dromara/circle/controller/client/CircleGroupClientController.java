@@ -1,13 +1,14 @@
 package org.dromara.circle.controller.client;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.hutool.core.convert.impl.MapConverter;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.dromara.circle.domain.bo.CircleGroupBo;
 import org.dromara.circle.domain.bo.CircleGroupClientPageBo;
 import org.dromara.circle.domain.vo.CircleGroupVo;
+import org.dromara.circle.es.document.CircleDocument;
+import org.dromara.circle.service.ICircleGroupESService;
 import org.dromara.circle.service.ICircleGroupService;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.utils.MapstructUtils;
@@ -20,8 +21,11 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * app端 圈子主体
@@ -36,7 +40,7 @@ import org.springframework.web.bind.annotation.*;
 public class CircleGroupClientController extends BaseController {
 
     private final ICircleGroupService circleGroupService;
-
+    private final ICircleGroupESService circleGroupESService;
     /**
      * 查询圈子主体列表，达人用户只能查询自己新增的圈子
      */
@@ -116,5 +120,59 @@ public class CircleGroupClientController extends BaseController {
     public R<Void> deleteById(@NotEmpty(message = "主键不能为空")
                           @PathVariable String groupId) {
         return toAjax(circleGroupService.deleteWithValidById(groupId, true));
+    }
+
+    /**
+     * 关键字查询圈子
+     */
+    @SaCheckPermission("client:group:query")
+    @GetMapping("/queryByKeyword")
+    public R<Page<CircleDocument>> queryByKeyword(
+        @RequestParam String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return R.ok(circleGroupESService.searchByKeyword(keyword, page, size));
+    }
+
+    /**
+     * 查询所有圈子，自己创建的优先输出
+     */
+    @SaCheckPermission("client:group:query")
+    @GetMapping("/queryByKeywordOutCreate")
+    public R<Page<CircleDocument>> queryByKeywordOutCreate(
+        @RequestParam String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return R.ok(circleGroupESService.findAllWithCreatorPriority(keyword,LoginHelper.getUserId(), page, size));
+    }
+
+    /**
+     * 圈子名称查询圈子
+     */
+    @SaCheckPermission("client:group:query")
+    @GetMapping("/queryByName")
+    public R<List<CircleDocument>> queryByName(
+        @RequestParam String name,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size) {
+        return R.ok(circleGroupESService.findCirclesByName(name,page,size));
+    }
+    /**
+     * 查询所有圈子
+     */
+    @SaCheckPermission("client:group:query")
+    @GetMapping("/listAllCircles")
+    public R<Page<CircleDocument>> listAllCircles(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return R.ok(circleGroupESService.listAllCircles(page, size));
+    }
+    /**
+     * 圈子精确ID查询
+      */
+    @SaCheckPermission("client:group:query")
+    @GetMapping("/getById")
+    public R<CircleDocument> getById(@RequestParam Long id) {
+        return R.ok(circleGroupESService.getById(id));
     }
 }

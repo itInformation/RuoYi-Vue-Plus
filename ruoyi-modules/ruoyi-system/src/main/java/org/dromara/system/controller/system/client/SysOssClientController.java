@@ -95,6 +95,8 @@ public class SysOssClientController extends BaseController {
         vo.setToken(upToken);
         vo.setDomain(qiniuConfig.getDomain());
         vo.setRegion(qiniuConfig.getRegion());
+        vo.setBucket(qiniuConfig.getBucketName());
+        vo.setPrefix(qiniuConfig.getPrefix());
         return R.ok(vo);
     }
 

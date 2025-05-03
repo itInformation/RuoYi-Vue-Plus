@@ -19,4 +19,7 @@ public class QiniuUploadVO {
     private String domain;
 
     private String region;
+
+    private String bucket;
+    private String prefix;
 }
